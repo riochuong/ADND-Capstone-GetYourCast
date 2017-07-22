@@ -64,3 +64,6 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
     }
 
 }
+
+val Context.database: PodCastSqliteHelper
+    get() = PodCastSqliteHelper.getInstance(applicationContext)
