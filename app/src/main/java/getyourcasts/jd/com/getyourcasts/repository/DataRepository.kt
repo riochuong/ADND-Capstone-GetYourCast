@@ -1,7 +1,8 @@
 package getyourcasts.jd.com.getyourcasts.repository
 
 import android.content.ContentValues
-import android.database.Cursor
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 
 /**
  * Repository Interface to encapsulate functionalities of
@@ -12,11 +13,13 @@ import android.database.Cursor
 interface DataRepository {
 
     // query function
-    fun getPodcast(podcastId: String) : Cursor
+    fun searchPodcast(title: String): List<Podcast>
 
-    fun getAllEpisodesOfPodcast(podcastId: String) : Cursor
+    fun getPodcast(podcastId: String) : Podcast
 
-    fun getEpisode (episodeId: String, podcastId: String): Cursor
+    fun getAllEpisodesOfPodcast(podcastId: String) : List<Episode>
+
+    fun getEpisode (episodeId: String, podcastId: String): List<Episode>
 
     // updates function
     /**
