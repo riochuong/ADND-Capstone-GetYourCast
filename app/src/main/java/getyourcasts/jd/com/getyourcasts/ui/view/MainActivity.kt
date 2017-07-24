@@ -37,6 +37,21 @@ class MainActivity : AppCompatActivity() {
                               val name = it.collectionName
                               val data = it.toString()
                               Log.d(TAG,"$name \n $data")
+                              viewModel.fetchPodcastEpisode(it.feedUrl)
+                                      .observeOn(AndroidSchedulers.mainThread())
+                                      .subscribe(
+                                              {
+                                                  val title = it.title
+                                                  val url = it.mediaInfo!!.url
+                                                  Log.d(TAG, "$title :: $url" )
+                                              },
+
+                                              {
+                                                  Log.e(TAG,it.message)
+                                                  it.printStackTrace()
+                                              } // on error
+                                      )
+
                             }, // on next
                             {
                                it.printStackTrace()

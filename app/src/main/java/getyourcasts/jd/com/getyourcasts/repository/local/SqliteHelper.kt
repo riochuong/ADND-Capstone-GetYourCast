@@ -36,7 +36,7 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     PodcastsTable.PODCAST_NAME to TEXT,
                     PodcastsTable.LAST_UPDATE to TEXT,
                     PodcastsTable.IMG_PATH to TEXT,
-                    PodcastsTable.URL_FETCH to TEXT
+                    PodcastsTable.FEED_URL to TEXT
             )
 
             // create EPISODE TABLE

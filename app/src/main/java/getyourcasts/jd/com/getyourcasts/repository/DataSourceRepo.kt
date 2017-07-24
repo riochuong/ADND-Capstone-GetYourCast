@@ -6,6 +6,7 @@ import android.database.Cursor
 import getyourcasts.jd.com.getyourcasts.repository.local.LocalDataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.RemoteDataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 
 /**
@@ -27,8 +28,12 @@ class DataSourceRepo (ctx: Context): DataRepository
         return remoteRepo.searchPodcast(title)
     }
 
+    override fun downloadFeed(feedUrl: String): List<FeedItem>{
+        return remoteRepo.downloadFeed(feedUrl)
+    }
+
     override fun getPodcast(podcastId: String): Podcast {
-        return Podcast("","","","","",0)
+        return Podcast("","","","","","",0)
     }
 
     override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {

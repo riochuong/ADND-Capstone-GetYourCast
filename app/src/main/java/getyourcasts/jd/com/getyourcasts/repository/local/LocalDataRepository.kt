@@ -7,6 +7,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.DataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.RemoteDataRepository
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import org.jetbrains.anko.db.select
 
 
@@ -15,6 +16,11 @@ import org.jetbrains.anko.db.select
  */
 
 class LocalDataRepository(val ctx: Context): DataRepository {
+
+    override fun downloadFeed(feedUrl: String): List<FeedItem> {
+        // NOOP
+        return ArrayList<FeedItem>()
+    }
 
 
     override fun searchPodcast(title: String): List<Podcast> {
@@ -32,7 +38,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
             cursor.moveToFirst()
 
         }
-        return Podcast("","","","","",0)
+        return Podcast("","","","","","",0)
     }
 
     override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {

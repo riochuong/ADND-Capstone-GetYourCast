@@ -12,7 +12,7 @@ object PodcastsTable {
     val LAST_UPDATE = "last_update"
     val UNIQUE_ID = "unique_id" // use it to link with episode table
     val IMG_PATH = "img_path"
-    val URL_FETCH = "url_fetch" // url used for fetching update episodes
+    val FEED_URL = "feed_url" // url used for fetching update episodes
 }
 
 object EpisodeTable {
@@ -23,4 +23,8 @@ object EpisodeTable {
     val DATE_RELEASED = "date_released"
     val DATE_DOWNLOADED = "date_downloaded"
     val CONSUME_PERC = "consume_percentage"
+    val DESCRIPTION = "description"
+    val FETCH_URL = "fetch_url"
+    val FILE_SIZE = "file_size"
+    val MEDIA_TYPe = "media_type"
 }
