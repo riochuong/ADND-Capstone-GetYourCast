@@ -68,7 +68,7 @@ class NetworkHelper () {
         val rssRetrofit = Retrofit.Builder()
                 .baseUrl(getBaseUrl(feedUrl))
                 .client(okHttpClient)
-                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(Persister(AnnotationStrategy())))
                 .build()
 
         val rssAdapter = rssRetrofit.create(RssApi::class.java)

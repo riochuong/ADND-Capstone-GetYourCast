@@ -65,12 +65,12 @@ data class FeedItem  (
    val pubData:  String,
 
 
-   @field:Element(name="description")
-   @param:Element(name="description")
-   val description: String,
+//   @field:Element(name="description",required = false)
+//   @param:Element(name="description",required = false)
+//   val description: String,
 
-   @field:Element(name="enclosure",required = false)
-   @param:Element(name="enclosure", required = false)
+   @field:Element(name="enclosure")
+   @param:Element(name="enclosure")
    val mediaInfo : MediaInfo
 
 )
