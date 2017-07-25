@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
                               val name = it.collectionName
                               val data = it.toString()
                               Log.d(TAG,"$name \n $data")
-                              viewModel.fetchPodcastEpisode(it.feedUrl)
+                              viewModel.fetchPodcastEpisodeObservable(it.feedUrl)
                                       .observeOn(AndroidSchedulers.mainThread())
                                       .subscribe(
                                               {

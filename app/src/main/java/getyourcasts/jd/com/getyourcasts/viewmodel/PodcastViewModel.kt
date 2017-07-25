@@ -27,13 +27,15 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     }
 
-    fun fetchPodcastEpisode(feedUrl : String): Observable<FeedItem>{
+    fun fetchPodcastEpisodeObservable(feedUrl : String): Observable<FeedItem>{
         return Observable.defer(
                 fun(): Observable<List<FeedItem>> {
+
                     return Observable.just(dataRepo.downloadFeed(feedUrl))
                 }
         ).subscribeOn(Schedulers.computation())
                 .flatMap (
+                        // remap each list item so we will get individual tracks
                         fun (feedItems:List<FeedItem>): Observable<FeedItem>{
                             return Observable.fromIterable(feedItems)
                         }

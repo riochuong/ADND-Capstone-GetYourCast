@@ -61,14 +61,18 @@ class NetworkHelper () {
     }
 
 
-    fun downLoadFeed (feedUrl : String): Call<FeedResponse>{
+    fun fetchRss(feedUrl : String): Call<FeedResponse>?{
 
+        val baseUrl = getBaseUrl(feedUrl)
+
+        if (baseUrl == null) {
+            return null
+        }
 
         val rssRetrofit = Retrofit.Builder()
                 .baseUrl(getBaseUrl(feedUrl))
                 .client(okHttpClient)
                 .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(Persister(AnnotationStrategy())))
-                //.addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
                 .build()
 
 

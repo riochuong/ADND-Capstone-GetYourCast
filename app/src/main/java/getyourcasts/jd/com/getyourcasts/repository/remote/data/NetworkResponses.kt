@@ -1,5 +1,6 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote.data
 
+import org.jetbrains.anko.db.NOT_NULL
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -14,23 +15,14 @@ import org.simpleframework.xml.stream.OutputNode
  */
 
 /* =============== ITUNE RESPONSE ====================================== */
-data class EpisodeResponse(val podcastId: String,
-                           val name: String,
-                           val id: String)
 
-data class Podcast(val collectionId: String,
-                   val collectionName: String,
-                   val artistName: String,
-                   val artworkUrl100: String,
-                   val releaseDate: String,
-                   val feedUrl: String,
-                   val trackCount: Long)
+
 
 data class ItuneResponse(val results: List<Podcast>)
 
 
-///*======================= RSS FEED PARSER =======================================*/
-//
+/*======================= RSS FEED URL RESPONSE PARSER =======================================*/
+
 @Root(name = "rss", strict = false)
 data class FeedResponse(
         @field:Element(name = "channel", required = true)
@@ -42,50 +34,52 @@ data class FeedResponse(
 @Root(name = "channel", strict = false)
 @Convert(Channel.ChannelConverter::class)
 data class Channel(
-
-        @field: ElementList(inline = true, name = "item")
-        @param: ElementList(inline = true, name = "item")
-        var items: MutableList<FeedItem> = ArrayList<FeedItem>(),
-
-        @field:Element(name = "title")
-        @param:Element(name = "title")
-        var title: String? = null,
-
-        @field:Element(name = "description")
-        @param:Element(name = "description")
-        var channelDescription: String? = null
+        val items: List<FeedItem> = ArrayList<FeedItem>(),
+        val title: String,
+        val channelDescription: String
 
 ) {
     /**
      *
-     * custom converter for Channel
+     * custom converter for Channel and feed item
      */
     class ChannelConverter : Converter<Channel> {
+
+        companion object {
+            val NOR_AVAIL_STR = "N/A"
+            val TITLE_STR = "title"
+        }
+
         override fun write(node: OutputNode?, value: Channel?) {
-            throw UnsupportedOperationException("Not Implemented")
+            throw Throwable("Not Implemented")
         }
 
         override fun read(node: InputNode?): Channel {
-            var channel: Channel = Channel()
+            var title : String = NOR_AVAIL_STR
+            var desc : String = NOR_AVAIL_STR
+            val items : MutableList<FeedItem> = ArrayList<FeedItem>()
+
             try {
                 if (node != null) {
                     var nextNode = node.getNext()
                     while (nextNode != null) {
                         val prefix = nextNode.prefix
+                        val value = nextNode.value
                         when (nextNode.name) {
-                            "title" -> {
-                                if (prefix == null) {
-                                    channel.title = nextNode.value
+                            TITLE_STR -> {
+                                if (prefix == null && value != null) {
+                                    title = value
                                 }
                             }
                         // parse
                             "description" -> {
-                                if (prefix == null) {
-                                    channel.channelDescription = nextNode.value
+                                if ( (prefix == null) && (nextNode.value != null) )  {
+                                    desc = value
                                 }
                             }
                             "item" -> {
-                                channel.items.add(parseFeedItem(nextNode))
+                                items.add(parseFeedItem(nextNode))
+                                nextNode = null
                             }
                         }
                         if (nextNode != null){
@@ -99,48 +93,53 @@ data class Channel(
             } catch(e: Exception) {
                 e.printStackTrace()
             }
-            return channel
+            return Channel(items,title, desc)
 
         }
 
         // parse FeedItem
         fun parseFeedItem(itemNode: InputNode): FeedItem {
-            var feedItem = FeedItem()
             var nextNode = itemNode.getNext()
+            var title: String  = NOR_AVAIL_STR
+            var pubDate: String = NOR_AVAIL_STR
+            var desc: String = NOR_AVAIL_STR
+            var mediaInfo: MediaInfo? = null
             while (nextNode != null) {
                 val prefix = nextNode.prefix
+                val value = nextNode.value
                 if (prefix == null) {
                     when (nextNode.name) {
-                        "title" -> {
-                            feedItem.title = nextNode.value
+                        TITLE_STR -> {
+                            if (value != null) {title = value}
                         }
                         "pubDate" -> {
-                            feedItem.pubDate = nextNode.value
+                            if (value != null) {pubDate = value}
                         }
                         "description" -> {
-                            feedItem.description = nextNode.value
+                            if (value != null) {desc = value}
                         }
 
                         "enclosure" ->{
-                            if (feedItem.mediaInfo == null){
-                                val url = nextNode.getAttribute("url").value
-                                val size = nextNode.getAttribute("length").value
-                                val type = nextNode.getAttribute("type").value
-                                feedItem.mediaInfo = MediaInfo(url,size,type)
+                            if (mediaInfo == null && prefix == null){
+                                val url = nextNode.getAttribute("url")
+                                val size = nextNode.getAttribute("length")
+                                val type = nextNode.getAttribute("type")
+                                if (url != null && size != null && type != null){
+                                    mediaInfo = MediaInfo(url.value,size.value,type.value)
+                                }
                             }
                         }
 
                     }
                 }
-                if (nextNode != null ){
-                    nextNode = nextNode.getNext()
-                }
+                nextNode = nextNode.getNext()
+
                 if (nextNode == null){
                     nextNode = itemNode.getNext()
                 }
 
             }
-            return feedItem
+            return FeedItem(title, pubDate,desc, mediaInfo)
 
         }
 
@@ -150,39 +149,17 @@ data class Channel(
 }
 
 
-@Root(name = "item", strict = false)
+
 data class FeedItem(
-
-        @field:Element(name = "title")
-        @param:Element(name = "title")
-        var title: String? = null,
-
-        @field:Element(name = "pubDate")
-        @param:Element(name = "pubDate")
-        var pubDate: String? = null,
-
-
-        @field:Element(name = "description", required = false)
-        @param:Element(name = "description", required = false)
-        var description: String? = null,
-
-        @field:Element(name = "enclosure")
-        @param:Element(name = "enclosure")
-        var mediaInfo: MediaInfo? = null
+        val title: String,
+        val pubDate: String,
+        val description: String,
+        val mediaInfo: MediaInfo?
 
 )
 
-@Root(name = "enclosure", strict = false)
 data class MediaInfo(
-        @field:Attribute(name = "url")
-        @param:Attribute(name = "url")
-        var url: String? = null,
-
-        @field:Attribute(name = "length")
-        @param:Attribute(name = "length")
-        var size: String? = null,
-
-        @field:Attribute(name = "type")
-        @param:Attribute(name = "type")
-        val type: String? = null
+        val url: String,
+        var size: String,
+        val type: String
 )
