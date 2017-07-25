@@ -1,9 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.viewmodel
 
-import getyourcasts.jd.com.getyourcasts.repository.DataRepository
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedResponse
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -34,7 +32,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
                 fun(): Observable<List<FeedItem>> {
                     return Observable.just(dataRepo.downloadFeed(feedUrl))
                 }
-        ).subscribeOn(Schedulers.io())
+        ).subscribeOn(Schedulers.computation())
                 .flatMap (
                         fun (feedItems:List<FeedItem>): Observable<FeedItem>{
                             return Observable.fromIterable(feedItems)

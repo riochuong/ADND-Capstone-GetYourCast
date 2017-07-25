@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
 
-            viewModel.getPodcastSearchObservable("Billboard")
+            viewModel.getPodcastSearchObservable("Elvis")
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             {
@@ -42,8 +42,14 @@ class MainActivity : AppCompatActivity() {
                                       .subscribe(
                                               {
                                                   val title = it.title
-                                                  val url = it.mediaInfo!!.url
-                                                  Log.d(TAG, "$title :: $url" )
+                                                  val mediaInfo = it.mediaInfo
+                                                  if (mediaInfo != null){
+                                                      Log.d(TAG, "url : ${mediaInfo.url}")
+                                                  }
+                                                  else{
+                                                      Log.e(TAG, "${title} has no track ")
+                                                  }
+
                                               },
 
                                               {

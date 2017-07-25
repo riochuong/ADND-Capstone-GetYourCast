@@ -3,11 +3,10 @@ package getyourcasts.jd.com.getyourcasts.repository.local
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.DataRepository
-import getyourcasts.jd.com.getyourcasts.repository.remote.RemoteDataRepository
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import org.jetbrains.anko.db.select
 
 

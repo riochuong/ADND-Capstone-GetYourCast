@@ -1,16 +1,15 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote.network
 
+
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedResponse
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.ItuneResponse
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.simpleframework.xml.convert.AnnotationStrategy
 import org.simpleframework.xml.core.Persister
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
-import android.net.Proxy.getHost
 import java.net.URL
 
 
@@ -69,7 +68,9 @@ class NetworkHelper () {
                 .baseUrl(getBaseUrl(feedUrl))
                 .client(okHttpClient)
                 .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(Persister(AnnotationStrategy())))
+                //.addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
                 .build()
+
 
         val rssAdapter = rssRetrofit.create(RssApi::class.java)
         val fetch_info = rssAdapter.fetchPodcastInfo(feedUrl)

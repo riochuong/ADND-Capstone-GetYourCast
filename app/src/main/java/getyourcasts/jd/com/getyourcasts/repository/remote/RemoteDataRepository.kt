@@ -1,10 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote
 
 import android.util.Log
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedResponse
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.MediaInfo
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.*
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper
 import retrofit2.http.Url
 import java.net.URL
@@ -69,7 +66,7 @@ class RemoteDataRepository {
             val feedResponse = NetworkHelper.getHelperInstance().downLoadFeed(feedUrl).execute()
             if (feedResponse.isSuccessful){
                 if (feedResponse.body() != null){
-                    return feedResponse.body()!!.channel!!.items
+                    return feedResponse.body()!!.channel.items
                 }
                 else{
                     Log.e(TAG,"Failed to fetch Media Item")

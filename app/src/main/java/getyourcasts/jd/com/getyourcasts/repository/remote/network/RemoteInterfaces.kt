@@ -1,11 +1,10 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote.network
 
+
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedResponse
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.ItuneResponse
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 

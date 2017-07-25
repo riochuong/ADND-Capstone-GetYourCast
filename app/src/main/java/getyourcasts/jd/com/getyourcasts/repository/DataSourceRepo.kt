@@ -2,7 +2,6 @@ package getyourcasts.jd.com.getyourcasts.repository
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import getyourcasts.jd.com.getyourcasts.repository.local.LocalDataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.RemoteDataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
