@@ -1,3 +1,8 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="podcast_item_corner_radius">10dp</dimen>
+    <dimen name="card_elevation">5dp</dimen>
+    <dimen name="podcast_search_title_font_size">15sp</dimen>
+    <dimen name="search_appbar_layout_size">70dp</dimen>
+    <dimen name="small_margin">10dp</dimen>
 </resources>

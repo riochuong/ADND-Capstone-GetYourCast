@@ -9,28 +9,27 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by chuondao on 7/22/17.
  */
-class PodcastViewModel(val dataRepo :DataSourceRepo ) {
+class SearchPodcastViewModel(val dataRepo :DataSourceRepo ) {
 
 
-    fun getPodcastSearchObservable (term : String): Observable<Podcast>{
+    fun getPodcastSearchObservable (term : String): Observable<List<Podcast>>{
 
         return Observable.defer(
                 fun(): Observable<List<Podcast>> {
                     return Observable.just(dataRepo.searchPodcast(term))
                 }
         ).subscribeOn(Schedulers.io())
-                .flatMap (
-                        fun (podcasts:List<Podcast>): Observable<Podcast>{
-                            return Observable.fromIterable(podcasts)
-                        }
-                )
+//                .flatMap (
+//                        fun (podcasts:List<Podcast>): Observable<Podcast>{
+//                            return Observable.fromIterable(podcasts)
+//                        }
+//                )
 
     }
 
-    fun fetchPodcastEpisodeObservable(feedUrl : String): Observable<FeedItem>{
+    fun fetchPodcastEpisodeObservable(feedUrl:String): Observable<FeedItem>{
         return Observable.defer(
                 fun(): Observable<List<FeedItem>> {
-
                     return Observable.just(dataRepo.downloadFeed(feedUrl))
                 }
         ).subscribeOn(Schedulers.computation())
@@ -42,4 +41,6 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
                 )
 
     }
+
+
 }

@@ -40,10 +40,6 @@ class RemoteDataRepository {
         if (response.isSuccessful) {
             // parse data here
             if (response.body() != null) {
-
-                /*QUICK TEST HERE */
-
-
                 return response.body()!!.results
             } else {
                 Log.e(TAG, "Failed tor retreive message body")
@@ -55,7 +51,7 @@ class RemoteDataRepository {
     /**
      * download feeds for podcast
      */
-    fun downloadFeed(feedUrl: String): List<FeedItem> {
+    fun fetchEpisodesFromFeedUrl(feedUrl: String): List<FeedItem> {
 
         // get fetch RSS opt
         val fetchRssOpt = NetworkHelper.getHelperInstance().fetchRss(feedUrl)

@@ -132,8 +132,10 @@ data class Channel(
 
                     }
                 }
+                // try to get next element
                 nextNode = nextNode.getNext()
 
+                // check for any other items to read
                 if (nextNode == null){
                     nextNode = itemNode.getNext()
                 }
@@ -147,8 +149,6 @@ data class Channel(
 
     }
 }
-
-
 
 data class FeedItem(
         val title: String,

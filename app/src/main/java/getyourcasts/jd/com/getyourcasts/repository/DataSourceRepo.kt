@@ -27,8 +27,8 @@ class DataSourceRepo (ctx: Context): DataRepository
         return remoteRepo.searchPodcast(title)
     }
 
-    override fun downloadFeed(feedUrl: String): List<FeedItem>{
-        return remoteRepo.downloadFeed(feedUrl)
+    override fun downloadFeed(feedUrl:String): List<FeedItem>{
+        return remoteRepo.fetchEpisodesFromFeedUrl(feedUrl)
     }
 
     override fun getPodcast(podcastId: String): Podcast {

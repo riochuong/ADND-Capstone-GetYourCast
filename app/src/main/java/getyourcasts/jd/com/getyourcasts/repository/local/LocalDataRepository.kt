@@ -42,14 +42,14 @@ class LocalDataRepository(val ctx: Context): DataRepository {
 
     override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {
         val cursor =  ctx.database.use {
-            select(EpisodeTable.NAME).whereArgs(EpisodeTable.POD_UNIQUE_ID+" = $podcastId").exec {this}
+            select(EpisodeTable.NAME).whereArgs(EpisodeTable.PODCAST_ID+" = $podcastId").exec {this}
         }
         return convertToEpisodeList(cursor)
     }
 
     override fun getEpisode(episodeName: String, podcastID: String): List<Episode> {
         val cursor = ctx.database.use {
-            select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.POD_UNIQUE_ID+" = $podcastID ) and ("
+            select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = $podcastID ) and ("
                 +EpisodeTable.EPISODE_NAME+" = $episodeName").exec {this}
         }
         return convertToEpisodeList(cursor)
