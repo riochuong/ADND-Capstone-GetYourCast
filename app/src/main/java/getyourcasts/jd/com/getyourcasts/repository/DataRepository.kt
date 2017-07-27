@@ -16,7 +16,7 @@ interface DataRepository {
     // query function
     fun searchPodcast(title: String): List<Podcast>
 
-    fun getPodcast(podcastId: String) : Podcast
+    fun getPodcast(podcastId: String) : Podcast?
 
     fun downloadFeed(feedUrl: String): List<FeedItem>
 

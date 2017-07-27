@@ -36,6 +36,7 @@
                 />
 
             <EditText
+                android:id="@+id/search_term_text"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:backgroundTint="@color/colorPrimary"

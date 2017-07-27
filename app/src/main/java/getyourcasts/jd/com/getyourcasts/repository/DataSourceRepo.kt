@@ -12,27 +12,41 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
  * Created by chuondao on 7/22/17.
  */
 
-class DataSourceRepo (ctx: Context): DataRepository
+class DataSourceRepo(ctx: Context) : DataRepository
 {
-    private val remoteRepo: RemoteDataRepository
-    private val localRepo: LocalDataRepository
+
+    private lateinit var localRepo: LocalDataRepository
+
+
 
     init {
-        remoteRepo = RemoteDataRepository.getDataInstance()
         localRepo = LocalDataRepository(ctx)
+
+    }
+
+    companion object {
+        var INST: DataSourceRepo? = null
+
+        fun getInstance(ctx: Context): DataSourceRepo {
+             if (INST == null){
+                 INST = DataSourceRepo(ctx)
+             }
+             return INST as DataSourceRepo
+        }
     }
 
 
     override fun searchPodcast(title: String): List<Podcast> {
-        return remoteRepo.searchPodcast(title)
+        return RemoteDataRepository.getDataInstance().searchPodcast(title)
     }
 
     override fun downloadFeed(feedUrl:String): List<FeedItem>{
-        return remoteRepo.fetchEpisodesFromFeedUrl(feedUrl)
+        return RemoteDataRepository.getDataInstance().fetchEpisodesFromFeedUrl(feedUrl)
     }
 
-    override fun getPodcast(podcastId: String): Podcast {
-        return Podcast("","","","","","",0)
+    override fun getPodcast(podcastId: String): Podcast? {
+        return localRepo.getPodcast(podcastId)
+
     }
 
     override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {

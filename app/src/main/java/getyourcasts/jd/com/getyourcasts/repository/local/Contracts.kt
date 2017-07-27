@@ -9,11 +9,14 @@ object PodcastsTable {
     val ID = "_id"
     val NAME = "PodcastTable"
     val PODCAST_NAME="pod_cast_name"
+    val ARTIST_NAME="artist_name"
     val LAST_UPDATE = "last_update"
     val UNIQUE_ID = "unique_id" // use it to link with episode table
-    val IMG_PATH = "img_path"
+    val IMG_ONLINE_PATH = "img_online_path"
+    val IMG_LOCAL_PATH = "img_local_path"
     val FEED_URL = "feed_url" // url used for fetching update episodes
     val TRACK_COUNT = "track_count"
+    val RELEASE_DATE = "release_date"
 }
 
 object EpisodeTable {

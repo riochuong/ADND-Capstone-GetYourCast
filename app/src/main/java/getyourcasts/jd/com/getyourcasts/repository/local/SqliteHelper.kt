@@ -35,9 +35,12 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     PodcastsTable.UNIQUE_ID to TEXT + UNIQUE,
                     PodcastsTable.PODCAST_NAME to TEXT,
                     PodcastsTable.LAST_UPDATE to TEXT,
-                    PodcastsTable.IMG_PATH to TEXT,
+                    PodcastsTable.IMG_ONLINE_PATH to TEXT,
                     PodcastsTable.FEED_URL to TEXT ,
-                    PodcastsTable.TRACK_COUNT to INTEGER
+                    PodcastsTable.TRACK_COUNT to INTEGER,
+                    PodcastsTable.ARTIST_NAME to TEXT,
+                    PodcastsTable.IMG_LOCAL_PATH to TEXT,
+                    PodcastsTable.RELEASE_DATE to TEXT
             )
 
             // create EPISODE TABLE

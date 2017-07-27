@@ -27,17 +27,19 @@ class LocalDataRepository(val ctx: Context): DataRepository {
         return ArrayList<Podcast>()
     }
 
-    override fun getPodcast(podcastId: String): Podcast {
-        var cursor :Cursor = ctx.database.use {
+    override fun getPodcast(podcastId: String): Podcast? {
+        var podcast :Podcast? = ctx.database.use {
             // this is a sqlite db instance
-            select(PodcastsTable.NAME).whereArgs(PodcastsTable.UNIQUE_ID+" = $podcastId").exec {this}
+            select(PodcastsTable.NAME).whereArgs(PodcastsTable.UNIQUE_ID+" = $podcastId").exec {
+                if (this.count > 0){
+                    this.moveToFirst()
+                    Podcast.fromCursor(this)
+                }
+                null
+            }
         }
 
-        if (cursor.count > 0){
-            cursor.moveToFirst()
-
-        }
-        return Podcast("","","","","","",0)
+        return podcast
     }
 
     override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {

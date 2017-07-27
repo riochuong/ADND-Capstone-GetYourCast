@@ -42,5 +42,17 @@ class SearchPodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     }
 
+    fun getIsPodcastInDbObservable(podcastId: String): Observable<Boolean> {
+        return Observable.defer(
+            fun(): Observable<Boolean> {
+                val podcast = dataRepo.getPodcast(podcastId)
+                if (podcast != null){
+                    return Observable.just(true)
+                }
+                return Observable.just(false)
+            }
+        ) .subscribeOn(Schedulers.computation())
+    }
+
 
 }
