@@ -14,6 +14,9 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 
 class DataSourceRepo(ctx: Context) : DataRepository
 {
+    override fun insertPodcastToDb(pod: Podcast): Boolean {
+        return localRepo.insertPodcastToDb(pod)
+    }
 
     private lateinit var localRepo: LocalDataRepository
 

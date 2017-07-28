@@ -26,6 +26,11 @@
             android:label="@string/title_activity_main_podcast"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+            android:name=".view.PodcastDetailLayoutActivity"
+            android:label="@string/title_activity_podcast_detail_layout"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>

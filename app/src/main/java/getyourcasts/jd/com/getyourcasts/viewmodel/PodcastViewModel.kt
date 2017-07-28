@@ -3,13 +3,14 @@ package getyourcasts.jd.com.getyourcasts.viewmodel
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by chuondao on 7/22/17.
  */
-class SearchPodcastViewModel(val dataRepo :DataSourceRepo ) {
+class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     companion object {
         val NUM_TOP_RESULTS : Long = 20
@@ -25,6 +26,17 @@ class SearchPodcastViewModel(val dataRepo :DataSourceRepo ) {
             it.trackCount > 0
         }.toList().toObservable().subscribeOn(Schedulers.io()).take(NUM_TOP_RESULTS)
     }
+
+    /**
+     * insert Podcast to DB
+     */
+    fun getInsertPodcastToDbObservable(pod: Podcast): Observable<Boolean>{
+
+        return Observable.defer {
+            Observable.just(dataRepo.insertPodcastToDb(pod))
+        }.subscribeOn(Schedulers.io())
+    }
+
 
     fun fetchPodcastEpisodeObservable(feedUrl:String): Observable<FeedItem>{
         return Observable.defer(

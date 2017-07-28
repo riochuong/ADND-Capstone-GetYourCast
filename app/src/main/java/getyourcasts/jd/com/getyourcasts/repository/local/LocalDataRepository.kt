@@ -1,13 +1,27 @@
 package getyourcasts.jd.com.getyourcasts.repository.local
 
+
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+
+import android.graphics.Bitmap
+import android.util.Log
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import getyourcasts.jd.com.getyourcasts.repository.DataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil
+import getyourcasts.jd.com.getyourcasts.util.TimeUtil
+import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
+import java.io.File
+import java.io.FileOutputStream
 
 
 /**
@@ -15,6 +29,62 @@ import org.jetbrains.anko.db.select
  */
 
 class LocalDataRepository(val ctx: Context): DataRepository {
+
+
+    companion object {
+        val TAG = "LocalDataRepo"
+    }
+
+    override fun insertPodcastToDb(pod: Podcast): Boolean {
+            // insert the db
+            val res = ctx.database.use {
+                insert(
+                        PodcastsTable.NAME,
+                        PodcastsTable.UNIQUE_ID to pod.collectionId,
+                        PodcastsTable.PODCAST_NAME to pod.collectionName,
+                        PodcastsTable.FEED_URL to pod.feedUrl,
+                        PodcastsTable.RELEASE_DATE to pod.releaseDate,
+                        PodcastsTable.IMG_ONLINE_PATH to pod.artworkUrl100,
+                        PodcastsTable.ARTIST_NAME to pod.artistName,
+                        PodcastsTable.TRACK_COUNT to pod.trackCount,
+                        PodcastsTable.LAST_UPDATE to TimeUtil.getCurrentTimeInMs(),
+                        PodcastsTable.IMG_LOCAL_PATH to pod.imgLocalPath
+                )
+            }
+
+            // create bitmap target will save image
+            val bitmapTarget = object: SimpleTarget<Bitmap>(){
+                override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
+                    val file = StorageUtil.getPathToStorePodImg(pod, ctx)
+                    if (file != null && resource != null){
+                        val os = FileOutputStream(file)
+                        resource.compress(Bitmap.CompressFormat.PNG, 100, os)
+                    }
+                }
+            }
+
+
+            // start image download also
+            Observable.just {
+                GlideApp.with(ctx)
+                        .asBitmap()
+                        .load(pod.artworkUrl100)
+                        .into(bitmapTarget)
+            }.subscribeOn(Schedulers.io())
+                    .subscribe(
+                            {
+                                Log.d(TAG, "Save image successfully: ${pod.artworkUrl100}")
+                            }, // on next
+                            {
+                                Log.e(TAG,"Failed to download image")
+                                it.printStackTrace()
+                            }
+            )
+
+        return (res > 0)
+    }
+
+
 
     override fun downloadFeed(feedUrl: String): List<FeedItem> {
         // NOOP

@@ -2,6 +2,7 @@ package getyourcasts.jd.com.getyourcasts.view.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,7 @@ import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
-import getyourcasts.jd.com.getyourcasts.viewmodel.SearchPodcastViewModel
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 
@@ -24,7 +25,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                                        val fragment: SearchPodcastFragment) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    private val viewModel : SearchPodcastViewModel
+    private val viewModel : PodcastViewModel
 
     private val ctx: Context
 
@@ -33,9 +34,14 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
         ctx = fragment.context
     }
 
+    companion object {
+        val TAG = "PocastAdapter"
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent!!.context).inflate(R.layout.podcast_item_layout, parent, false)
+        // set view onClickListener
         val vh = PodcastItemViewHolder(view)
         return vh
     }
@@ -56,12 +62,31 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                         GlideApp.with(fragment).load(podcast.imgLocalPath!!.trim()).into(podcastVh.imgView)
                     }
                     else{
-                        podcastVh.downloadedView.setImageResource(R.mipmap.ic_todownload)
+                        podcastVh.downloadedView.setImageResource(R.mipmap.ic_subscribe)
                         if (podcast.artworkUrl100 != null){
                             GlideApp.with(fragment).load(podcast.artworkUrl100.trim()).into(podcastVh.imgView)
                         }
 
                     }
+
+                    // now we set listener
+                    podcastVh.downloadedView.setOnClickListener {
+                        viewModel.getInsertPodcastToDbObservable(podcast)
+                                .subscribe(
+                                 { // On next
+                                    Log.d(SearchPodcastRecyclerViewAdapter.TAG,
+                                            "Insert Podcast To DB Complete ${podcast.collectionName}")
+
+                                    // change the icon
+                                    podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
+
+                                },
+                                { // ON ERROR
+                                            Log.e(SearchPodcastRecyclerViewAdapter.TAG, "Insert Podcast to DB " +
+                                                    "Failed  ")
+                                 })
+                    }
+
                 },
                 {
                     it.printStackTrace()

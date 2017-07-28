@@ -15,7 +15,7 @@ import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.adapter.SearchPodcastRecyclerViewAdapter
-import getyourcasts.jd.com.getyourcasts.viewmodel.SearchPodcastViewModel
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.search_podcast_fragment.*
 
@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.search_podcast_fragment.*
 class SearchPodcastFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    lateinit var searchViewModel: SearchPodcastViewModel
+    lateinit var searchViewModel: PodcastViewModel
     private lateinit var searchAdapter: SearchPodcastRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +45,7 @@ class SearchPodcastFragment : Fragment() {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        searchViewModel = SearchPodcastViewModel(DataSourceRepo.getInstance(this.context))
+        searchViewModel = PodcastViewModel(DataSourceRepo.getInstance(this.context))
         recyclerView = podcast_list_recycler_view
         setupRecyclerView(recyclerView)
         searchAdapter = SearchPodcastRecyclerViewAdapter(ArrayList<Podcast>(), this)

@@ -34,4 +34,6 @@ interface DataRepository {
      * return -1 if update is failed
      */
     fun updateEpisode(cv: ContentValues, episodeId: String) : Long
+
+    fun insertPodcastToDb(pod: Podcast): Boolean;
 }

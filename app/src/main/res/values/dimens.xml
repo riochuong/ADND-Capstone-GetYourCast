@@ -9,6 +9,8 @@
     <dimen name="image_size">100dp</dimen>
     <dimen name="podcast_artist_font_size">15sp</dimen>
     <dimen name="title_artist_margin">5dp</dimen>
-    <dimen name="download_ic_size">40dp</dimen>
+    <dimen name="download_ic_size">60dp</dimen>
     <dimen name="card_view_bottom_margin">2dp</dimen>
+    <dimen name="podcast_detail_appbar_size">100dp</dimen>
+    <dimen name="podcast_detail_img_size">60dp</dimen>
 </resources>

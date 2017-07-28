@@ -7,4 +7,6 @@
     <string name="title_activity_main_podcast">MainPodcastActivity</string>
     <string name="action_settings">Settings</string>
     <string name="search_str">Search</string>
+    <string name="title_activity_podcast_detail_layout">PodcastDetailActivity</string>
+    <string name="descriotion_title_str">Description</string>
 </resources>
