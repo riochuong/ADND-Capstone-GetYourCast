@@ -51,11 +51,11 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                 {
                     // this true mean podcast is already subscribed
                     if (it){
-                        podcastVh.imgView.setImageResource(R.mipmap.ic_downloaded)
+                        podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
                         GlideApp.with(fragment).load(podcast.imgLocalPath!!.trim()).into(podcastVh.imgView)
                     }
                     else{
-                        podcastVh.imgView.setImageResource(R.mipmap.ic_todownload)
+                        podcastVh.downloadedView.setImageResource(R.mipmap.ic_todownload)
                         if (podcast.artworkUrl100 != null){
                             GlideApp.with(fragment).load(podcast.artworkUrl100!!.trim()).into(podcastVh.imgView)
                         }

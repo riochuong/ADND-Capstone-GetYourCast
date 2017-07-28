@@ -12,6 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/podcast_item_size"
         android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_marginTop="@dimen/card_view_bottom_margin"
+        android:layout_marginBottom="@dimen/card_view_bottom_margin"
+        android:layout_marginLeft="@dimen/card_view_bottom_margin"
+        android:layout_marginRight="@dimen/card_view_bottom_margin"
         android:foreground="?android:attr/selectableItemBackground"
         card_view:cardCornerRadius="@dimen/podcast_item_corner_radius"
         card_view:cardElevation="@dimen/card_elevation">
@@ -24,34 +28,57 @@
 
             <ImageView
                 android:id="@+id/podcast_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_width="@dimen/image_size"
+                android:layout_height="@dimen/image_size"/>
 
-            <!--Title and author-->
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/podcast_title"
-                    android:textSize="@dimen/podcast_search_title_font_size"
+                <!--Title and author-->
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/podcast_author"
-                    android:textSize="@dimen/podcast_search_title_font_size"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_margin="@dimen/small_margin"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:id="@+id/podcast_title"
+                            android:textSize="@dimen/podcast_search_title_font_size"
+                            android:layout_width="wrap_content"
+                            android:layout_marginBottom="@dimen/title_artist_margin"
+                            android:layout_marginTop="@dimen/small_margin"
+                            android:layout_marginStart="@dimen/small_margin"
+                            android:layout_marginEnd="@dimen/small_margin"
+                            android:textStyle="bold|italic"
+                            android:maxLines="1"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/podcast_author"
+                            android:textSize="@dimen/podcast_artist_font_size"
+                            android:layout_width="wrap_content"
+                            android:maxLines="1"
+                            android:layout_marginStart="@dimen/small_margin"
+                            android:layout_marginEnd="@dimen/small_margin"
+                            android:layout_height="wrap_content"/>
+
+
+
+                    </LinearLayout>
 
                 <ImageView
                     android:id="@+id/podcast_downloaded_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
-
+                    android:layout_margin="@dimen/small_margin"
+                    android:layout_gravity="center_vertical|right"
+                    android:layout_weight="1"
+                    android:layout_width="@dimen/download_ic_size"
+                    android:layout_height="@dimen/download_ic_size"/>
             </LinearLayout>
-
 
         </LinearLayout>
 
