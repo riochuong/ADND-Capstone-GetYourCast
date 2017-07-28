@@ -17,7 +17,9 @@ import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.Android
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
 import java.io.File
@@ -52,34 +54,10 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                 )
             }
 
-            // create bitmap target will save image
-            val bitmapTarget = object: SimpleTarget<Bitmap>(){
-                override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
-                    val file = StorageUtil.getPathToStorePodImg(pod, ctx)
-                    if (file != null && resource != null){
-                        val os = FileOutputStream(file)
-                        resource.compress(Bitmap.CompressFormat.PNG, 100, os)
-                    }
-                }
-            }
 
 
-            // start image download also
-            Observable.just {
-                GlideApp.with(ctx)
-                        .asBitmap()
-                        .load(pod.artworkUrl100)
-                        .into(bitmapTarget)
-            }.subscribeOn(Schedulers.io())
-                    .subscribe(
-                            {
-                                Log.d(TAG, "Save image successfully: ${pod.artworkUrl100}")
-                            }, // on next
-                            {
-                                Log.e(TAG,"Failed to download image")
-                                it.printStackTrace()
-                            }
-            )
+
+
 
         return (res > 0)
     }

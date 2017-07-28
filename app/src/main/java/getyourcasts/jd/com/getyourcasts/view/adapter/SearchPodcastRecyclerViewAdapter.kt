@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
@@ -71,7 +72,11 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
                     // now we set listener
                     podcastVh.downloadedView.setOnClickListener {
+                        // download image
+                        StorageUtil.startGlideImageDownload(podcast,ctx)
+                        // insert into db
                         viewModel.getInsertPodcastToDbObservable(podcast)
+                                .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                  { // On next
                                     Log.d(SearchPodcastRecyclerViewAdapter.TAG,
