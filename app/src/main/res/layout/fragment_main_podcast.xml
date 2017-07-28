@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="getyourcasts.jd.com.getyourcasts.ui.view.search_podcast.MainPodcastActivityFragment"
+    tools:context="getyourcasts.jd.com.getyourcasts.view.MainPodcastActivityFragment"
     tools:showIn="@layout/activity_main_podcast">
 
 </android.support.constraint.ConstraintLayout>

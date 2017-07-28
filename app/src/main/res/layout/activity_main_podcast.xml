@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="getyourcasts.jd.com.getyourcasts.ui.view.search_podcast.MainPodcastActivity">
+    tools:context="getyourcasts.jd.com.getyourcasts.view.MainPodcastActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

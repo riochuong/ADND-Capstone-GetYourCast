@@ -1,4 +1,4 @@
-package getyourcasts.jd.com.getyourcasts.ui.view.search_podcast
+package getyourcasts.jd.com.getyourcasts.view.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
@@ -7,9 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
+import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.SearchPodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 

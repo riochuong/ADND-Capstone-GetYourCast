@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.view.search_podcast.SearchNewPodcastActivity"
+            android:name=".view.SearchNewPodcastActivity"
             android:label="@string/app_name"
             android:theme="@style/TransluentNoActionbar">
             <intent-filter>
@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.view.search_podcast.MainPodcastActivity"
+            android:name=".view.MainPodcastActivity"
             android:label="@string/title_activity_main_podcast"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

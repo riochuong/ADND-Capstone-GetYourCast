@@ -1,4 +1,4 @@
-package getyourcasts.jd.com.getyourcasts.ui.view.search_podcast
+package getyourcasts.jd.com.getyourcasts.view
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,6 +14,7 @@ import android.widget.TextView
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.view.adapter.SearchPodcastRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.viewmodel.SearchPodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.search_podcast_fragment.*
@@ -47,7 +48,7 @@ class SearchPodcastFragment : Fragment() {
         searchViewModel = SearchPodcastViewModel(DataSourceRepo.getInstance(this.context))
         recyclerView = podcast_list_recycler_view
         setupRecyclerView(recyclerView)
-        searchAdapter = SearchPodcastRecyclerViewAdapter(ArrayList<Podcast>(),this)
+        searchAdapter = SearchPodcastRecyclerViewAdapter(ArrayList<Podcast>(), this)
         recyclerView.adapter = searchAdapter
         // EDIT_TEXT LISTENER
         search_term_text.setOnEditorActionListener(

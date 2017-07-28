@@ -1,4 +1,4 @@
-package getyourcasts.jd.com.getyourcasts.ui.view.search_podcast
+package getyourcasts.jd.com.getyourcasts.view.glide
 
 /**
  * Created by chuondao on 7/27/17.

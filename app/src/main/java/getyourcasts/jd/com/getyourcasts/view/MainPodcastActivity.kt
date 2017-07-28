@@ -1,4 +1,4 @@
-package getyourcasts.jd.com.getyourcasts.ui.view.search_podcast
+package getyourcasts.jd.com.getyourcasts.view
 
 import android.os.Bundle
 import android.support.design.widget.Snackbar
