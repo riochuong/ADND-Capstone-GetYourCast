@@ -30,7 +30,7 @@ class SearchPodcastFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     lateinit var searchViewModel: SearchPodcastViewModel
-    private lateinit var  searchAdapter : SearchPodcastRecyclerViewAdapter
+    private lateinit var searchAdapter: SearchPodcastRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,29 +78,26 @@ class SearchPodcastFragment : Fragment() {
                 })
 
 
-
-
     }
 
     /**
      * update adapter with newdata from search
      * @newData : newData passed from the results of network fetching
      */
-    fun updatePodcastList (newData: List<Podcast>){
-        if (searchAdapter != null){
-            searchAdapter.podcastList = newData
-            searchAdapter.notifyDataSetChanged()
-            // make recyclerview visible
-            if (newData.size > 0){
-                recyclerView.visibility = View.VISIBLE
-            }
-            else{
-                recyclerView.visibility = View.GONE
-            }
+    fun updatePodcastList(newData: List<Podcast>) {
+
+        searchAdapter.podcastList = newData
+        searchAdapter.notifyDataSetChanged()
+        // make recyclerview visible
+        if (newData.isNotEmpty()) {
+            recyclerView.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = View.GONE
         }
+
     }
 
-    fun setupRecyclerView(recyclerView: RecyclerView){
+    fun setupRecyclerView(recyclerView: RecyclerView) {
         val layoutManager = LinearLayoutManager(this.context)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
         recyclerView.layoutManager = layoutManager
@@ -120,7 +117,7 @@ class SearchPodcastFragment : Fragment() {
             return fragment
         }
 
-        val TAG ="SEARCH_PODCAST"
+        val TAG = "SEARCH_PODCAST"
     }
 
 }// Required empty public constructor

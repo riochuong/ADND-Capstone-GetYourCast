@@ -58,7 +58,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                     else{
                         podcastVh.downloadedView.setImageResource(R.mipmap.ic_todownload)
                         if (podcast.artworkUrl100 != null){
-                            GlideApp.with(fragment).load(podcast.artworkUrl100!!.trim()).into(podcastVh.imgView)
+                            GlideApp.with(fragment).load(podcast.artworkUrl100.trim()).into(podcastVh.imgView)
                         }
 
                     }
@@ -70,10 +70,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
     }
 
     override fun getItemCount(): Int {
-        if (podcastList != null){
             return podcastList.size
-        }
-        return 0
     }
 
 }
