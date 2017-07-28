@@ -54,7 +54,7 @@
    <android.support.v7.widget.RecyclerView
        android:id="@+id/podcast_list_recycler_view"
        android:layout_width="match_parent"
-       android:visibility="gone"
+       android:visibility="visible"
        android:layout_height="match_parent">
 
    </android.support.v7.widget.RecyclerView>

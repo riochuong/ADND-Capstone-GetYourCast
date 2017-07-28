@@ -8,11 +8,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.annotation.GlideModule
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.viewmodel.SearchPodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
+
+
 
 
 /**
@@ -51,11 +52,14 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                     // this true mean podcast is already subscribed
                     if (it){
                         podcastVh.imgView.setImageResource(R.mipmap.ic_downloaded)
-                        Glide.with(fragment).load(podcast.imgLocalPath!!.trim()).into(podcastVh.imgView)
+                        GlideApp.with(fragment).load(podcast.imgLocalPath!!.trim()).into(podcastVh.imgView)
                     }
                     else{
                         podcastVh.imgView.setImageResource(R.mipmap.ic_todownload)
-                        Glide.with(fragment).load(podcast.imgUrl!!.trim()).into(podcastVh.imgView)
+                        if (podcast.artworkUrl100 != null){
+                            GlideApp.with(fragment).load(podcast.artworkUrl100!!.trim()).into(podcastVh.imgView)
+                        }
+
                     }
                 },
                 {

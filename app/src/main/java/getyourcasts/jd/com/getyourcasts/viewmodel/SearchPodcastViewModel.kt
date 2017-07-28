@@ -11,20 +11,19 @@ import io.reactivex.schedulers.Schedulers
  */
 class SearchPodcastViewModel(val dataRepo :DataSourceRepo ) {
 
+    companion object {
+        val NUM_TOP_RESULTS : Long = 20
+    }
 
     fun getPodcastSearchObservable (term : String): Observable<List<Podcast>>{
-
-        return Observable.defer(
-                fun(): Observable<List<Podcast>> {
-                    return Observable.just(dataRepo.searchPodcast(term))
-                }
-        ).subscribeOn(Schedulers.io())
-//                .flatMap (
-//                        fun (podcasts:List<Podcast>): Observable<Podcast>{
-//                            return Observable.fromIterable(podcasts)
-//                        }
-//                )
-
+        return Observable.defer {
+            Observable.just(dataRepo.searchPodcast(term))
+        }.flatMapIterable {
+            it
+        }.filter {
+            // filter only podcast with trackcount > 0
+            it.trackCount > 0
+        }.toList().toObservable().subscribeOn(Schedulers.io()).take(NUM_TOP_RESULTS)
     }
 
     fun fetchPodcastEpisodeObservable(feedUrl:String): Observable<FeedItem>{
