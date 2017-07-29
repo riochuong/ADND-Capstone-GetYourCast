@@ -81,25 +81,5 @@ class RemoteDataRepository {
         return null
 
     }
-//
-//    override fun getPodcast(podcastId: String): List<Podcast> {
-//
-//    }
-//
-//    override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//
-//    override fun getEpisode(episodeId: String, podcastId: String): List<Episode> {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//
-//    override fun updatePodcast(cv: ContentValues, podcastID: String): Long {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//
-//    override fun updateEpisode(cv: ContentValues, episodeId: String): Long {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
 
 }

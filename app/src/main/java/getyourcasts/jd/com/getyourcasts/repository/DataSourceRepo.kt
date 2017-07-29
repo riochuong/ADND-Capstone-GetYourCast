@@ -15,6 +15,14 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 
 class DataSourceRepo(ctx: Context) : DataRepository
 {
+    override fun insertEpisodes(episodes: List<Episode>): Boolean {
+        return localRepo.insertEpisodes(episodes)
+    }
+
+    override fun updateEpisode(cv: ContentValues, episode: Episode): Boolean {
+        return localRepo.updateEpisode(cv,episode)
+    }
+
     override fun insertEpisode(episode: Episode): Boolean {
         return localRepo.insertEpisode(episode)
     }
@@ -66,34 +74,10 @@ class DataSourceRepo(ctx: Context) : DataRepository
         return ArrayList<Episode>();
     }
 
-    override fun updatePodcast(cv: ContentValues, podcastID: String): Long {
-        return 0
+    override fun updatePodcast(cv: ContentValues, podcastID: String): Boolean {
+        return localRepo.updatePodcast(cv,podcastID)
     }
 
-    override fun updateEpisode(cv: ContentValues, episodeId: String): Long {
-        return 0
-    }
 
 
 }
-//    override fun getPodcast(podcastId: String): Cursor {
-//
-//    }
-//
-//    override fun getAllEpisodesOfPodcast(podcastId: String): Cursor {
-//
-//    }
-//
-//    override fun getEpisode(episodeId: String, podcastId: String): Cursor {
-//
-//    }
-//
-//    override fun updatePodcast(cv: ContentValues, podcastID: String): Long {
-//
-//    }
-//
-//    override fun updateEpisode(cv: ContentValues, episodeId: String): Long {
-//
-//    }
-//
-//}

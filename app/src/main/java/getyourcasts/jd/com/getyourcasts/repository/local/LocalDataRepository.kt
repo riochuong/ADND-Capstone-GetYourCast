@@ -4,6 +4,7 @@ package getyourcasts.jd.com.getyourcasts.repository.local
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+import android.util.Log
 import getyourcasts.jd.com.getyourcasts.repository.DataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
@@ -12,6 +13,7 @@ import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import org.jetbrains.anko.db.insertOrThrow
 import org.jetbrains.anko.db.select
+import org.jetbrains.anko.db.transaction
 
 
 /**
@@ -19,6 +21,34 @@ import org.jetbrains.anko.db.select
  */
 
 class LocalDataRepository(val ctx: Context): DataRepository {
+
+    /**
+     * insert episodes in bulk
+     */
+    override fun insertEpisodes(episodes: List<Episode>): Boolean{
+        try {
+            var res = true
+            ctx.database.use {
+               episodes.forEach {
+                  res = res && insertOrThrow(
+                           EpisodeTable.NAME,
+                           EpisodeTable.EPISODE_NAME to it.title,
+                           EpisodeTable.PODCAST_ID to it.podcastId,
+                           EpisodeTable.DOWNLOADED to 0,
+                           EpisodeTable.FILE_SIZE to it.fileSize,
+                           EpisodeTable.DATE_RELEASED to it.pubDate,
+                           EpisodeTable.MEDIA_TYPE to it.type,
+                           EpisodeTable.DESCRIPTION to it.description,
+                           EpisodeTable.FETCH_URL to it.downloadUrl
+                   ) > 0
+               }
+           }
+            return res
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
 
     companion object {
         val TAG = "LocalDataRepo"

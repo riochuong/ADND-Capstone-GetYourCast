@@ -39,4 +39,6 @@ interface DataRepository {
     fun insertPodcastToDb(pod: Podcast): Boolean
 
     fun insertEpisode(episode: Episode): Boolean
+
+    fun insertEpisodes(episodes: List<Episode>) : Boolean
 }

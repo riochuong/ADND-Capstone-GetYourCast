@@ -4,6 +4,7 @@ import android.content.ContentValues
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.local.PodcastsTable
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import io.reactivex.Observable
@@ -38,26 +39,32 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         }.toList().toObservable().subscribeOn(Schedulers.io())
     }
 
-    fun getSubscribeObservable(pod: Podcast)  {
-        //Observable.defer {
-            // fetch rss feed
-            val channelInfo = dataRepo.downloadFeed(pod.feedUrl)
-            if (dataRepo.insertPodcastToDb(pod) && channelInfo != null){
-                // now update with field that not available from itune
-                val cv = ContentValues()
-                cv.put(PodcastsTable.DESCRIPTION, channelInfo.channelDescription)
-                // update data description
-                dataRepo.updatePodcast(cv,pod.collectionId)
-                // now insert episode into db
-
-            }
-        //}
+    fun getSubscribeObservable(pod: Podcast) : Observable<Boolean>  {
+       return Observable.defer {
+            Observable.just(subscribePodcast(pod))
+        }.subscribeOn(Schedulers.io())
     }
 
 
+    fun subscribePodcast(pod: Podcast): Boolean {
+        // fetch rss feed
+        val channelInfo = dataRepo.downloadFeed(pod.feedUrl)
+        if (dataRepo.insertPodcastToDb(pod) && channelInfo != null) {
+            // now update with field that not available from itune
+            val cv = ContentValues()
+            cv.put(PodcastsTable.DESCRIPTION, channelInfo.channelDescription)
+            // update data description
+            dataRepo.updatePodcast(cv, pod.collectionId)
+            // now insert episode into db
+            return dataRepo.insertEpisodes(channelInfo.toListEpisodes(pod.collectionId))
+        }
+        return false
+    }
 
-    fun insertEpisodes (items : List<FeedItem>){
-
+    fun insertEpisodes (items : List<FeedItem>, podCastId : String){
+        items.forEach {
+            dataRepo.insertEpisode(Episode.fromFeedItem(it,podCastId ))
+        }
     }
 
     /**

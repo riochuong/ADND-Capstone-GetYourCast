@@ -39,6 +39,17 @@ data class Channel(
         val channelDescription: String
 
 ) {
+
+
+    fun toListEpisodes(podcastId: String) :List<Episode> {
+        val list = ArrayList<Episode>()
+        items.forEach {
+            list.add(Episode.fromFeedItem(it, podcastId))
+        }
+        return list
+    }
+
+
     /**
      *
      * custom converter for Channel and feed item
@@ -48,11 +59,14 @@ data class Channel(
         companion object {
             val NOR_AVAIL_STR = "N/A"
             val TITLE_STR = "title"
+            val DESCRIPTION_STR = "description"
         }
 
         override fun write(node: OutputNode?, value: Channel?) {
             throw Throwable("Not Implemented")
         }
+
+
 
         override fun read(node: InputNode?): Channel {
             var title : String = NOR_AVAIL_STR
@@ -73,7 +87,7 @@ data class Channel(
                             }
                         // parse
                             "description" -> {
-                                if ( (prefix == null) && (nextNode.value != null) )  {
+                                if ( (prefix == null) && (value != null) )  {
                                     desc = value
                                 }
                             }

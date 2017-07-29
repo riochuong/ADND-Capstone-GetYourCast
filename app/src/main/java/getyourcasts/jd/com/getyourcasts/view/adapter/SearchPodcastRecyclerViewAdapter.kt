@@ -91,7 +91,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
         podcastVh.downloadedView.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 // insert into db
-                viewModel.getInsertPodcastToDbObservable(podcast)
+                viewModel.getSubscribeObservable(podcast)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 {
@@ -102,7 +102,10 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
                                         // change the icon
                                         podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
+
+                                        // start glide to download image to local storage also
                                         StorageUtil.startGlideImageDownload(podcast, ctx)
+
                                     } else{
                                         Log.e(SearchPodcastRecyclerViewAdapter.TAG, "Insert Podcast to DB " +
                                                 "Failed. Maybe a duplicate  ")
