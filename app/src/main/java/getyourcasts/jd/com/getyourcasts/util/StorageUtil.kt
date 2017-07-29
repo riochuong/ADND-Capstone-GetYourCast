@@ -68,11 +68,15 @@ class StorageUtil {
                                             {
                                                 if (it) {Log.d(TAG,"Successfully download limage ${pod
                                                         .artworkUrl100}")}
+                                                // clean up
+                                                os.close()
                                             },
                                             {
                                                 it.printStackTrace()
                                                 Log.e(TAG,"Failed to download Image ${pod
                                                         .artworkUrl100}")
+                                                //clean up
+                                                os.close()
                                             }
                                     )
                         }

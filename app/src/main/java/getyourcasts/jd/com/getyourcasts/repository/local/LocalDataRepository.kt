@@ -21,6 +21,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.Android
 import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.db.insertOrThrow
 import org.jetbrains.anko.db.select
 import java.io.File
 import java.io.FileOutputStream
@@ -38,28 +39,34 @@ class LocalDataRepository(val ctx: Context): DataRepository {
     }
 
     override fun insertPodcastToDb(pod: Podcast): Boolean {
-            // insert the db
-            val res = ctx.database.use {
-                insert(
-                        PodcastsTable.NAME,
-                        PodcastsTable.UNIQUE_ID to pod.collectionId,
-                        PodcastsTable.PODCAST_NAME to pod.collectionName,
-                        PodcastsTable.FEED_URL to pod.feedUrl,
-                        PodcastsTable.RELEASE_DATE to pod.releaseDate,
-                        PodcastsTable.IMG_ONLINE_PATH to pod.artworkUrl100,
-                        PodcastsTable.ARTIST_NAME to pod.artistName,
-                        PodcastsTable.TRACK_COUNT to pod.trackCount,
-                        PodcastsTable.LAST_UPDATE to TimeUtil.getCurrentTimeInMs(),
-                        PodcastsTable.IMG_LOCAL_PATH to pod.imgLocalPath
-                )
+            // check if Podcast is already inserted before
+            val isInDb = ctx.database.use{
+                select(PodcastsTable.NAME).whereArgs(PodcastsTable.UNIQUE_ID+" = ${pod.collectionId}").exec {
+                    this.count > 0
+                }
             }
 
+                // Only insert if not part of DB yet
+            if (! isInDb){
+                val res = ctx.database.use {
+                    val img_local_path = StorageUtil.getPathToStorePodImg(pod, ctx)
+                    insertOrThrow(
+                            PodcastsTable.NAME,
+                            PodcastsTable.UNIQUE_ID to pod.collectionId,
+                            PodcastsTable.PODCAST_NAME to pod.collectionName,
+                            PodcastsTable.FEED_URL to pod.feedUrl,
+                            PodcastsTable.RELEASE_DATE to pod.releaseDate,
+                            PodcastsTable.IMG_LOCAL_PATH to img_local_path,
+                            PodcastsTable.IMG_ONLINE_PATH to pod.artworkUrl100,
+                            PodcastsTable.ARTIST_NAME to pod.artistName,
+                            PodcastsTable.TRACK_COUNT to pod.trackCount,
+                            PodcastsTable.LAST_UPDATE to TimeUtil.getCurrentTimeInMs()
+                    )
+                }
+                return res > 0
+            }
 
-
-
-
-
-        return (res > 0)
+        return false
     }
 
 
@@ -78,12 +85,15 @@ class LocalDataRepository(val ctx: Context): DataRepository {
     override fun getPodcast(podcastId: String): Podcast? {
         var podcast :Podcast? = ctx.database.use {
             // this is a sqlite db instance
-            select(PodcastsTable.NAME).whereArgs(PodcastsTable.UNIQUE_ID+" = $podcastId").exec {
+            val query = PodcastsTable.UNIQUE_ID+" = $podcastId"
+            select(PodcastsTable.NAME).whereArgs(query).exec {
                 if (this.count > 0){
                     this.moveToFirst()
                     Podcast.fromCursor(this)
                 }
-                null
+                else {
+                    null
+                }
             }
         }
 

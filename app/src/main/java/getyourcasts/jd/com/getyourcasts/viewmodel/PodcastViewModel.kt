@@ -24,7 +24,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         }.filter {
             // filter only podcast with trackcount > 0
             it.trackCount > 0
-        }.toList().toObservable().subscribeOn(Schedulers.io()).take(NUM_TOP_RESULTS)
+        }.toList().toObservable().subscribeOn(Schedulers.io())
     }
 
     /**
@@ -53,16 +53,20 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     }
 
-    fun getIsPodcastInDbObservable(podcastId: String): Observable<Boolean> {
+    fun getIsPodcastInDbObservable(podcastId: String): Observable<Podcast> {
         return Observable.defer(
-            fun(): Observable<Boolean> {
-                val podcast = dataRepo.getPodcast(podcastId)
-                if (podcast != null){
-                    return Observable.just(true)
+            fun(): Observable<Podcast> {
+                try {
+                    val podcast = dataRepo.getPodcast(podcastId)
+                    if (podcast != null){
+                        return Observable.just(podcast)
+                    }
+                } catch(e: Exception) {
+                    e.printStackTrace()
                 }
-                return Observable.just(false)
+                return Observable.just(Podcast.getEmptyPodcast())
             }
-        ) .subscribeOn(Schedulers.computation())
+        ) .subscribeOn(Schedulers.io())
     }
 
 

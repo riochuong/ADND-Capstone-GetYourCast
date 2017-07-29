@@ -6,18 +6,18 @@ import android.database.Cursor
  * Created by chuondao on 7/27/17.
  */
 
-fun Cursor.getString(colName: String): String? {
+fun Cursor.getStringValue(colName: String): String? {
         val colIdx = this.getColumnIndex(colName)
         if (colIdx >= 0){
-            return this.getString(colName)
+            return this.getString(colIdx)
         }
         return null
 }
 
-fun Cursor.getInt(colName: String): Int? {
+fun Cursor.getIntValue(colName: String): Int? {
     val colIdx = this.getColumnIndex(colName)
     if (colIdx >= 0){
-        return this.getInt(colName)
+        return this.getInt(colIdx)
     }
     return null
 }
