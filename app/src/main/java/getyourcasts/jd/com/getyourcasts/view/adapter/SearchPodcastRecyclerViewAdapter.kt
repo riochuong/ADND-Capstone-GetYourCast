@@ -37,7 +37,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
     companion object {
         val TAG = "PocastAdapter"
-        val PODCAST_KEY = "pocast_key"
+        val PODCAST_KEY = "podcast_key"
     }
 
 

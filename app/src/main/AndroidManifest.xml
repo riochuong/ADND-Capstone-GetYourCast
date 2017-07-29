@@ -29,7 +29,7 @@
         <activity
             android:name=".view.PodcastDetailLayoutActivity"
             android:label="@string/title_activity_podcast_detail_layout"
-            android:theme="@style/AppTheme">
+            android:theme="@style/TransluentNoActionbar">
         </activity>
     </application>
 

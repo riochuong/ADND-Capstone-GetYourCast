@@ -9,6 +9,7 @@ import android.view.ViewGroup
 
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
@@ -25,6 +26,7 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
     }
 
     private lateinit var modelView: PodcastViewModel
+    private lateinit var channelInfo: Channel
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -37,13 +39,16 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
         if (podcast != null){
             // load details info
             loadPodcastImage(podcast)
-
+            loadRssDescription(podcast)
+            podcast_detail_title.text = podcast.collectionName
+            podcast_detail_artist.text = podcast.artistName
         }
+
     }
 
     fun loadRssDescription (pod: Podcast){
-        if (pod.description == null){
-            podcast_detail_desc.text = pod.description
+        if (pod.description != null){
+            podcast_detail_desc.text = pod.description.trim()
         }
         else{
             modelView.getChannelFeedObservable(pod.feedUrl)
@@ -51,8 +56,10 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
                     .subscribe(
                             {
                                 if ((it != null) && (it.channelDescription != null)) {
-                                    podast_detail_desc.text = it.channelDescription
-
+                                    // set description
+                                    podcast_detail_desc.text = it.channelDescription.trim()
+                                    // save channelInfo for later use
+                                    channelInfo = it
                                 }
                             },
                             {
@@ -86,4 +93,6 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
         Log.e(TAG, "No Podcast pass to fragment! Something is really wrong here ")
         return null
     }
+
+
 }

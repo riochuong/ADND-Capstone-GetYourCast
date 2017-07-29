@@ -17,13 +17,13 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     companion object {
         val NUM_TOP_RESULTS : Long = 20
-        private lateinit var INSTANCE : PodcastViewModel
+        private var INSTANCE : PodcastViewModel? = null
 
-        fun getInstance(dataRepo: DataSourceRepo): PodcastViewModel {
+        fun getInstance(repo: DataSourceRepo): PodcastViewModel {
             if (INSTANCE == null){
-                INSTANCE = PodcastViewModel(dataRepo)
+                INSTANCE = PodcastViewModel(repo)
             }
-            return INSTANCE
+            return INSTANCE as PodcastViewModel
         }
 
     }
@@ -45,10 +45,13 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         }.subscribeOn(Schedulers.io())
     }
 
+    fun getSubscribeObservable(pod: Podcast, channel: Channel) : Observable<Boolean>  {
+        return Observable.defer {
+            Observable.just(subscribePodcast(pod,channel))
+        }.subscribeOn(Schedulers.io())
+    }
 
-    fun subscribePodcast(pod: Podcast): Boolean {
-        // fetch rss feed
-        val channelInfo = dataRepo.downloadFeed(pod.feedUrl)
+    fun subscribePodcast(pod: Podcast, channelInfo: Channel): Boolean{
         if (dataRepo.insertPodcastToDb(pod) && channelInfo != null) {
             // now update with field that not available from itune
             val cv = ContentValues()
@@ -61,11 +64,16 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         return false
     }
 
-    fun insertEpisodes (items : List<FeedItem>, podCastId : String){
-        items.forEach {
-            dataRepo.insertEpisode(Episode.fromFeedItem(it,podCastId ))
+    fun subscribePodcast(pod: Podcast): Boolean {
+        // fetch rss feed
+        val channelInfo = dataRepo.downloadFeed(pod.feedUrl)
+        if (channelInfo != null){
+            return subscribePodcast(pod, channelInfo)
         }
+        return false
     }
+
+
 
     /**
      * insert Podcast to DB
