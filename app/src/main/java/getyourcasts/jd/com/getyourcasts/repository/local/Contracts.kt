@@ -17,6 +17,7 @@ object PodcastsTable {
     val FEED_URL = "feed_url" // url used for fetching update episodes
     val TRACK_COUNT = "track_count"
     val RELEASE_DATE = "release_date"
+    val DESCRIPTION = "desc"
 }
 
 object EpisodeTable {

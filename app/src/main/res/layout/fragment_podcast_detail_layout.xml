@@ -20,7 +20,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/podcast_detail_img_size"
+                android:id="@+id/podcast_detail_img"
                 android:layout_width="@dimen/podcast_detail_img_size"
                 android:layout_height="@dimen/podcast_detail_img_size"/>
 
@@ -60,6 +60,7 @@
 
 
         <TextView
+            android:id="@+id/podcast_detail_desc"
             android:text="@string/descriotion_title_str"
             android:textColor="@color/colorAccent"
             android:textAppearance="?android:textAppearanceMedium"

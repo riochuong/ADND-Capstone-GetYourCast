@@ -4,27 +4,14 @@ package getyourcasts.jd.com.getyourcasts.repository.local
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-
-import android.graphics.Bitmap
-import android.util.Log
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import getyourcasts.jd.com.getyourcasts.repository.DataRepository
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
-import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import org.jetbrains.anko.Android
-import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.insertOrThrow
 import org.jetbrains.anko.db.select
-import java.io.File
-import java.io.FileOutputStream
 
 
 /**
@@ -33,9 +20,11 @@ import java.io.FileOutputStream
 
 class LocalDataRepository(val ctx: Context): DataRepository {
 
-
     companion object {
         val TAG = "LocalDataRepo"
+        val EPISODE_UPDATE_SELECT = "(${EpisodeTable.EPISODE_NAME}=?) and (${EpisodeTable.PODCAST_ID}=?)"
+        val PODCAST_UPDATE_SELECT = "${PodcastsTable.UNIQUE_ID}=?"
+
     }
 
     override fun insertPodcastToDb(pod: Podcast): Boolean {
@@ -49,14 +38,15 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                 // Only insert if not part of DB yet
             if (! isInDb){
                 val res = ctx.database.use {
-                    val img_local_path = StorageUtil.getPathToStorePodImg(pod, ctx)
+
                     insertOrThrow(
                             PodcastsTable.NAME,
                             PodcastsTable.UNIQUE_ID to pod.collectionId,
                             PodcastsTable.PODCAST_NAME to pod.collectionName,
                             PodcastsTable.FEED_URL to pod.feedUrl,
                             PodcastsTable.RELEASE_DATE to pod.releaseDate,
-                            PodcastsTable.IMG_LOCAL_PATH to img_local_path,
+                            // only inject this for episode that get inserted to db
+                            PodcastsTable.IMG_LOCAL_PATH to StorageUtil.getPathToStorePodImg(pod, ctx),
                             PodcastsTable.IMG_ONLINE_PATH to pod.artworkUrl100,
                             PodcastsTable.ARTIST_NAME to pod.artistName,
                             PodcastsTable.TRACK_COUNT to pod.trackCount,
@@ -65,15 +55,46 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                 }
                 return res > 0
             }
+        return false
+    }
 
+    override fun insertEpisode(episode: Episode): Boolean {
+        // check if Podcast is already inserted before
+        val isInDb = ctx.database.use{
+            select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = ${episode
+                    .podcastId} ) " +
+                    "and ("
+                    +EpisodeTable.EPISODE_NAME+" = ${episode.title}").exec {
+                this.count > 0
+            }
+        }
+
+        // Only insert if not part of DB yet
+        if (! isInDb){
+            val res = ctx.database.use {
+
+                insertOrThrow(
+                        EpisodeTable.NAME,
+                        EpisodeTable.EPISODE_NAME to episode.title,
+                        EpisodeTable.PODCAST_ID to episode.podcastId,
+                        EpisodeTable.DOWNLOADED to 0,
+                        EpisodeTable.FILE_SIZE to episode.fileSize,
+                        EpisodeTable.DATE_RELEASED to episode.pubDate,
+                        EpisodeTable.MEDIA_TYPE to episode.type,
+                        EpisodeTable.DESCRIPTION to episode.description,
+                        EpisodeTable.FETCH_URL to episode.downloadUrl
+                )
+            }
+            return res > 0
+        }
         return false
     }
 
 
 
-    override fun downloadFeed(feedUrl: String): List<FeedItem> {
+    override fun downloadFeed(feedUrl: String): Channel?{
         // NOOP
-        return ArrayList<FeedItem>()
+        return null
     }
 
 
@@ -115,16 +136,22 @@ class LocalDataRepository(val ctx: Context): DataRepository {
         return convertToEpisodeList(cursor)
     }
 
-    override fun updatePodcast(cv: ContentValues, podcastId: String): Long {
-        return ctx.database.use {
-            insert(PodcastsTable.NAME, null, cv)
+    override fun updatePodcast(cv: ContentValues, podcastId: String): Boolean {
+
+        val res = ctx.database.use {
+            val arrArgs = arrayOf(podcastId)
+            this.update(PodcastsTable.NAME, cv, PODCAST_UPDATE_SELECT,arrArgs)
         }
+
+        return res == 1
     }
 
-    override fun updateEpisode(cv: ContentValues, episodeId: String): Long {
-       return ctx.database.use {
-           insert(EpisodeTable.NAME,null,cv)
+    override fun updateEpisode(cv: ContentValues, episode: Episode): Boolean {
+       val res = ctx.database.use {
+           val arrArgs = arrayOf(episode.title, episode.podcastId)
+           this.update(EpisodeTable.NAME,cv, EPISODE_UPDATE_SELECT, arrArgs)
        }
+       return res == 1
     }
 
 

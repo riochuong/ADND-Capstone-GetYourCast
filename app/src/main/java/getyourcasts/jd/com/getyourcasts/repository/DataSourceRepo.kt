@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import getyourcasts.jd.com.getyourcasts.repository.local.LocalDataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.RemoteDataRepository
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
@@ -14,6 +15,10 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 
 class DataSourceRepo(ctx: Context) : DataRepository
 {
+    override fun insertEpisode(episode: Episode): Boolean {
+        return localRepo.insertEpisode(episode)
+    }
+
     override fun insertPodcastToDb(pod: Podcast): Boolean {
         return localRepo.insertPodcastToDb(pod)
     }
@@ -43,7 +48,8 @@ class DataSourceRepo(ctx: Context) : DataRepository
         return RemoteDataRepository.getDataInstance().searchPodcast(title)
     }
 
-    override fun downloadFeed(feedUrl:String): List<FeedItem>{
+
+    override fun downloadFeed(feedUrl:String): Channel? {
         return RemoteDataRepository.getDataInstance().fetchEpisodesFromFeedUrl(feedUrl)
     }
 

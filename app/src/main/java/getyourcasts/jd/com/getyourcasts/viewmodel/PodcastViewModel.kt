@@ -1,9 +1,11 @@
 package getyourcasts.jd.com.getyourcasts.viewmodel
 
+import android.content.ContentValues
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.local.PodcastsTable
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
-import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
@@ -14,6 +16,15 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     companion object {
         val NUM_TOP_RESULTS : Long = 20
+        private lateinit var INSTANCE : PodcastViewModel
+
+        fun getInstance(dataRepo: DataSourceRepo): PodcastViewModel {
+            if (INSTANCE == null){
+                INSTANCE = PodcastViewModel(dataRepo)
+            }
+            return INSTANCE
+        }
+
     }
 
     fun getPodcastSearchObservable (term : String): Observable<List<Podcast>>{
@@ -27,6 +38,28 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         }.toList().toObservable().subscribeOn(Schedulers.io())
     }
 
+    fun getSubscribeObservable(pod: Podcast)  {
+        //Observable.defer {
+            // fetch rss feed
+            val channelInfo = dataRepo.downloadFeed(pod.feedUrl)
+            if (dataRepo.insertPodcastToDb(pod) && channelInfo != null){
+                // now update with field that not available from itune
+                val cv = ContentValues()
+                cv.put(PodcastsTable.DESCRIPTION, channelInfo.channelDescription)
+                // update data description
+                dataRepo.updatePodcast(cv,pod.collectionId)
+                // now insert episode into db
+
+            }
+        //}
+    }
+
+
+
+    fun insertEpisodes (items : List<FeedItem>){
+
+    }
+
     /**
      * insert Podcast to DB
      */
@@ -38,19 +71,10 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
     }
 
 
-    fun fetchPodcastEpisodeObservable(feedUrl:String): Observable<FeedItem>{
-        return Observable.defer(
-                fun(): Observable<List<FeedItem>> {
-                    return Observable.just(dataRepo.downloadFeed(feedUrl))
-                }
-        ).subscribeOn(Schedulers.computation())
-                .flatMap (
-                        // remap each list item so we will get individual tracks
-                        fun (feedItems:List<FeedItem>): Observable<FeedItem>{
-                            return Observable.fromIterable(feedItems)
-                        }
-                )
-
+    fun getChannelFeedObservable(feedUrl:String): Observable<Channel?>{
+        return Observable.defer{
+            Observable.just(dataRepo.downloadFeed(feedUrl))
+        }.subscribeOn(Schedulers.computation())
     }
 
     fun getIsPodcastInDbObservable(podcastId: String): Observable<Podcast> {

@@ -1,6 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.view.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.widget.TextView
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
+import getyourcasts.jd.com.getyourcasts.view.PodcastDetailLayoutActivity
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
@@ -35,6 +37,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
     companion object {
         val TAG = "PocastAdapter"
+        val PODCAST_KEY = "pocast_key"
     }
 
 
@@ -57,16 +60,26 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
         checkPodcastDbObs.observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
                     // this true mean podcast is already subscribed
+                    var podcastToPass : Podcast? = null
                     if (! it.collectionId.trim().equals("")) {
                         podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
                         // disable on click listener
                         Log.d(TAG,"Load image from local path ${it.imgLocalPath}")
                         GlideApp.with(fragment).load(it.imgLocalPath!!.trim()).into(podcastVh.imgView)
+                        podcastToPass = it
                     } else {
                         podcastVh.downloadedView.setImageResource(R.mipmap.ic_subscribe)
                         if (podcast.artworkUrl100 != null) {
                             GlideApp.with(fragment).load(podcast.artworkUrl100.trim()).into(podcastVh.imgView)
                         }
+                        podcastToPass = podcast
+                    }
+
+                    // set onclickListenter to launch details podcast
+                    podcastVh.itemView.setOnClickListener {
+                        val intent = Intent(ctx, PodcastDetailLayoutActivity::class.java)
+                        intent.putExtra(PODCAST_KEY, podcastToPass)
+                        ctx.startActivity(intent)
                     }
                 },
                 {
@@ -104,6 +117,8 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
 
         })
+
+
     }
 
     override fun getItemCount(): Int {

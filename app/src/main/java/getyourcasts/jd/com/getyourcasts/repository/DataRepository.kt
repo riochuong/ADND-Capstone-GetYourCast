@@ -1,6 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.repository
 
 import android.content.ContentValues
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
@@ -18,7 +19,7 @@ interface DataRepository {
 
     fun getPodcast(podcastId: String) : Podcast?
 
-    fun downloadFeed(feedUrl: String): List<FeedItem>
+    fun downloadFeed(feedUrl: String): Channel?
 
     fun getAllEpisodesOfPodcast(podcastId: String) : List<Episode>
 
@@ -28,12 +29,14 @@ interface DataRepository {
     /**
      * return -1 if update is failed
      */
-    fun updatePodcast(cv: ContentValues, podcastID: String) : Long
+    fun updatePodcast(cv: ContentValues, podcastID: String) : Boolean
 
     /**
      * return -1 if update is failed
      */
-    fun updateEpisode(cv: ContentValues, episodeId: String) : Long
+    fun updateEpisode(cv: ContentValues, episode: Episode) : Boolean
 
-    fun insertPodcastToDb(pod: Podcast): Boolean;
+    fun insertPodcastToDb(pod: Podcast): Boolean
+
+    fun insertEpisode(episode: Episode): Boolean
 }

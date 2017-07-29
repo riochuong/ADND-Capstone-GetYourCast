@@ -1,6 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote
 
 import android.util.Log
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper
@@ -48,10 +49,11 @@ class RemoteDataRepository {
         return results
     }
 
+
     /**
      * download feeds for podcast
      */
-    fun fetchEpisodesFromFeedUrl(feedUrl: String): List<FeedItem> {
+    fun fetchEpisodesFromFeedUrl(feedUrl: String): Channel? {
 
         // get fetch RSS opt
         val fetchRssOpt = NetworkHelper.getHelperInstance().fetchRss(feedUrl)
@@ -63,7 +65,7 @@ class RemoteDataRepository {
                 val feedResponse = fetchRssOpt.execute()
                 if (feedResponse.isSuccessful) {
                     if (feedResponse.body() != null) {
-                        return feedResponse.body()!!.channel.items
+                        return feedResponse.body()!!.channel
                     } else {
                         Log.e(TAG, "Failed to fetch Media Item")
                     }
@@ -76,7 +78,7 @@ class RemoteDataRepository {
         }
 
         // return empty list
-        return ArrayList<FeedItem>()
+        return null
 
     }
 //

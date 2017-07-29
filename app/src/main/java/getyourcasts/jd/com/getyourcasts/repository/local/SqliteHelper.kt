@@ -40,7 +40,8 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     PodcastsTable.TRACK_COUNT to INTEGER,
                     PodcastsTable.ARTIST_NAME to TEXT,
                     PodcastsTable.IMG_LOCAL_PATH to TEXT,
-                    PodcastsTable.RELEASE_DATE to TEXT
+                    PodcastsTable.RELEASE_DATE to TEXT,
+                    PodcastsTable.DESCRIPTION to TEXT
             )
 
             // create EPISODE TABLE
@@ -52,7 +53,12 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     EpisodeTable.DOWNLOADED to INTEGER,
                     EpisodeTable.DATE_DOWNLOADED  to TEXT,
                     EpisodeTable.DATE_RELEASED to TEXT,
-                    EpisodeTable.PROGRESS to INTEGER
+                    EpisodeTable.PROGRESS to INTEGER,
+                    EpisodeTable.FILE_SIZE to TEXT,
+                    EpisodeTable.FETCH_URL to TEXT,
+                    EpisodeTable.LOCAL_URL to TEXT,
+                    EpisodeTable.MEDIA_TYPE to TEXT,
+                    EpisodeTable.DESCRIPTION to TEXT
             )
 
         }
