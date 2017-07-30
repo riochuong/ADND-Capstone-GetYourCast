@@ -67,7 +67,7 @@ class DataSourceRepo(ctx: Context) : DataRepository
     }
 
     override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {
-        return ArrayList<Episode>();
+        return localRepo.getAllEpisodesOfPodcast(podcastId);
     }
 
     override fun getEpisode(episodeId: String, podcastId: String): List<Episode> {

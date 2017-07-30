@@ -27,14 +27,14 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".view.PodcastDetailLayoutActivity"
+            android:name=".view.PodcastDetailsActivity"
             android:label="@string/title_activity_podcast_detail_layout"
             android:theme="@style/TransluentNoActionbar">
         </activity>
         <activity
-            android:name=".view.EpisodeListDetailsActivity"
+            android:name=".view.EpisodeListActivity"
             android:label="@string/title_activity_episode_list_details"
-            android:theme="@style/AppTheme">
+            android:theme="@style/TransluentNoActionbar">
         </activity>
     </application>
 

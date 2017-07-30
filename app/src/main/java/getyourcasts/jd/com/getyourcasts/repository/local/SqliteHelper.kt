@@ -58,7 +58,8 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     EpisodeTable.FETCH_URL to TEXT,
                     EpisodeTable.LOCAL_URL to TEXT,
                     EpisodeTable.MEDIA_TYPE to TEXT,
-                    EpisodeTable.DESCRIPTION to TEXT
+                    EpisodeTable.DESCRIPTION to TEXT,
+                    EpisodeTable.FAVORITE to INTEGER // either 0 or 1
             )
 
         }

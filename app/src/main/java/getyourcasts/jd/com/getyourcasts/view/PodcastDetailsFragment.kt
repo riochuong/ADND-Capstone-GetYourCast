@@ -17,19 +17,19 @@ import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
-import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
+import kotlinx.android.synthetic.main.content_main_podcast.*
 import kotlinx.android.synthetic.main.fragment_podcast_detail_layout.*
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
-class PodcastDetailLayoutActivityFragment : Fragment() {
+class PodcastDetailsFragment : Fragment() {
 
     companion object {
         val PODCAST_KEY = "podcast_key"
@@ -66,7 +66,7 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
             loadRssDescription(podcast)
             podcast_detail_title.text = podcast.collectionName
             podcast_detail_artist.text = podcast.artistName
-            podcast_detail_total_episodes.text = podcast.trackCount.toString()
+            podcast_total_episodes.text = "${podcast.trackCount.toString()} Episodes"
         }
         // enable swipe detector
         podcast_detail_main_fragment.setOnTouchListener(DetailSwipeDetector())
@@ -80,16 +80,38 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
                              .observeOn(AndroidSchedulers.mainThread())
                              .subscribe(
                                      {
-                                         // TODO: Change fab logo here
-                                         subscribed = true
-                                         setSubscribeButtonImg()
                                          itemSyncSubject.onNext(Pair(getItemPosFromIntent(),podcast.collectionId))
+
+                                         // update podcast field of this device global val with the updated value
+                                         // from db
+                                         viewModel.getIsPodcastInDbObservable(podcast.collectionId)
+                                                 .observeOn(AndroidSchedulers.mainThread())
+                                                 .subscribe(
+                                                         {
+                                                             podcast = it
+                                                             subscribed = true
+                                                             // change fab logo
+                                                             setSubscribeButtonImg()
+                                                             Log.d(TAG, "Successfully update podcast global var")
+                                                         },
+                                                         {
+                                                            Log.e(TAG,"Failed to podcast global var")
+                                                         }
+                                                 )
+
                                      },
                                      {
                                          it.printStackTrace()
                                          Log.e(TAG,"Failed to subscribe podcast")
                                      }
                              )
+                }
+                else{
+                    // now we need to start details list of all episodes
+                    val intent = Intent(fragment.activity, EpisodeListActivity::class.java)
+                    intent.putExtra(PODCAST_KEY,podcast)
+                    fragment.context.startActivity(intent)
+                    Log.d(TAG, "Start Episode List Activity")
                 }
             }
 
@@ -114,7 +136,7 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
     private fun setSubscribeButtonImg(){
         if (subscribed){
             changeFabColor(ContextCompat.getColor(this.context,R.color.fab_subscribed_color))
-            subscribe_button.setImageResource(R.mipmap.ic_fab_done_white)
+            subscribe_button.setImageResource(R.mipmap.ic_show_episodes)
         }
         else{
            changeFabColor(ContextCompat.getColor(this.context,R.color.fab_tosubscribe_color))
@@ -194,7 +216,7 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
 
     inner class DetailSwipeDetector : SwipeDetector() {
         val expand: Animation
-        val MINIMIZE_SIZE = this@PodcastDetailLayoutActivityFragment.resources
+        val MINIMIZE_SIZE = this@PodcastDetailsFragment.resources
                 .getDimension(R.dimen.podcast_detail_minimize_size).toInt()
         val ANIM_DURATION : Long = 300
 
@@ -225,7 +247,7 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
         }
 
         override fun onSwipeLeftToRight(): Boolean {
-            this@PodcastDetailLayoutActivityFragment.activity.onBackPressed()
+            this@PodcastDetailsFragment.activity.onBackPressed()
             return true
         }
 
@@ -236,12 +258,12 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
         }
 
         override fun onSwipeDownward(): Boolean {
-            if (!this@PodcastDetailLayoutActivityFragment.isFullScreen){
+            if (!this@PodcastDetailsFragment.isFullScreen){
                 expand.duration = ANIM_DURATION
                 pocast_detail_scroll_view.startAnimation(expand)
-                this@PodcastDetailLayoutActivityFragment.isFullScreen = true
+                this@PodcastDetailsFragment.isFullScreen = true
                 // allow scrollview to interncept
-                pocast_detail_scroll_view.setOnTouchListener(null)
+                //pocast_detail_scroll_view.setOnTouchListener(null)
                 return true
             }
             return false

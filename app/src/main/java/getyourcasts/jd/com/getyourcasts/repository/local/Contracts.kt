@@ -33,5 +33,6 @@ object EpisodeTable {
     val FETCH_URL = "fetch_url"
     val FILE_SIZE = "file_size"
     val DOWNLOADED = "downloaded"
+    val FAVORITE = "favor"
     val MEDIA_TYPE = "media_type"
 }

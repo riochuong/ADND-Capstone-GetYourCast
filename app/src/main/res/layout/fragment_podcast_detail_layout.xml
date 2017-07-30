@@ -18,7 +18,7 @@
         <android.support.design.widget.AppBarLayout
             android:id="@+id/podcast_detail_appbar"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/podcast_detail_appbar_size"
+            android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.NoActionBar"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -34,12 +34,14 @@
                     android:id="@+id/podcast_detail_img"
                     android:layout_width="@dimen/podcast_detail_img_size"
                     android:layout_height="@dimen/podcast_detail_img_size"
+                    android:layout_gravity="center_vertical"
                     android:layout_margin="@dimen/small_margin"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/small_margin"
+                    android:layout_gravity="center_vertical"
                     android:orientation="vertical">
 
                     <TextView
@@ -61,6 +63,15 @@
                         android:textColor="@color/colorWhite"
                         />
 
+                    <TextView
+                        android:id="@+id/podcast_total_episodes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/tiny_margin"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="@color/colorWhite"
+                        />
+
 
                 </LinearLayout>
 
@@ -72,7 +83,7 @@
         <ScrollView
             android:id="@+id/pocast_detail_scroll_view"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/podcast_detail_minimize_size"
+            android:layout_height="wrap_content"
             android:fillViewport="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             >
@@ -121,30 +132,6 @@
                     android:layout_marginTop="@dimen/small_margin"
                     android:background="@color/gray"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/tiny_margin"
-                    android:layout_marginEnd="@dimen/small_margin"
-                    android:layout_marginStart="@dimen/small_margin"
-                    android:layout_marginTop="@dimen/tiny_margin"
-                    android:text="@string/total_episodes"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold"
-
-                    />
-
-                <TextView
-                    android:id="@+id/podcast_detail_total_episodes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/small_margin"
-                    android:layout_marginStart="@dimen/small_margin"
-                    android:layout_marginTop="@dimen/tiny_margin"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="@color/colorBlack"
-                    />
             </LinearLayout>
         </ScrollView>
 

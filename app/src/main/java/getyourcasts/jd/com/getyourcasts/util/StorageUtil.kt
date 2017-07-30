@@ -24,13 +24,25 @@ class StorageUtil {
         const val PODCAST_IMG_TYPE = 0
         const val EPISODE_IMG_TYPE = 1
         const val EPISODE_MEDIA_FILE_TYPE = 2
-
+        const val ONE_MB = 1024 * 1024
+        const val NOT_AVAIL_STR = "N/A"
 
         val MEDIA_ROOT = "media"
         val PODCAST_IMG_ROOT = "podcast_img"
         val EPISODE_MEDIA_FILE_ROOT = "episode_media"
         val PNG_FORMAT = ".png"
 
+
+        fun convertToMbRep (rawSize : String): String {
+            try {
+                var fileSize : Float = rawSize.toFloat()
+                fileSize = fileSize / ONE_MB
+                return "%.2f MB".format(fileSize)
+            } catch(e: Exception) {
+                e.printStackTrace()
+            }
+            return "NOT_AVAIL_STR"
+        }
 
 
         // METHODS

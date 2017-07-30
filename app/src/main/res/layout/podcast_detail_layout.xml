@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="getyourcasts.jd.com.getyourcasts.view.PodcastDetailLayoutActivity">
+    tools:context="getyourcasts.jd.com.getyourcasts.view.PodcastDetailsActivity">
 
     <include layout="@layout/content_podcast_detail_layout"/>
 

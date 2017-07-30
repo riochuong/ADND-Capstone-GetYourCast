@@ -32,6 +32,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
         /*subscribe to this subject to get
         * notice about change of the state of
+        * the podcast either subscribed or not
         * */
         fun subsribeItemSync(observer: Observer<Pair<Int,String>>){
             itemSync.subscribe(observer)
@@ -90,17 +91,12 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         return false
     }
 
-
-
-    /**
-     * insert Podcast to DB
-     */
-    fun getInsertPodcastToDbObservable(pod: Podcast): Observable<Boolean>{
-
+    fun getAllEpisodesOfPodcastObservable(podcastId: String): Observable<List<Episode>>{
         return Observable.defer {
-            Observable.just(dataRepo.insertPodcastToDb(pod))
+            Observable.just(dataRepo.getAllEpisodesOfPodcast(podcastId))
         }.subscribeOn(Schedulers.io())
     }
+
 
 
     fun getChannelFeedObservable(feedUrl:String): Observable<Channel?>{

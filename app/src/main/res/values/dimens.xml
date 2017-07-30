@@ -11,10 +11,11 @@
     <dimen name="title_artist_margin">5dp</dimen>
     <dimen name="download_ic_size">60dp</dimen>
     <dimen name="card_view_bottom_margin">2dp</dimen>
-    <dimen name="podcast_detail_appbar_size">120dp</dimen>
+    <dimen name="podcast_detail_appbar_size">130dp</dimen>
     <dimen name="podcast_detail_img_size">100dp</dimen>
     <dimen name="tiny_margin">5dp</dimen>
     <dimen name="podcast_detail_minimize_size">250dp</dimen>
     <dimen name="fab_elevate">5dp</dimen>
     <dimen name="line_thick">2dp</dimen>
+    <dimen name="episode_podcast_img_size">150dp</dimen>
 </resources>

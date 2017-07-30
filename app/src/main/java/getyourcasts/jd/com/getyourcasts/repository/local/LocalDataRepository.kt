@@ -40,7 +40,8 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                            EpisodeTable.DATE_RELEASED to it.pubDate,
                            EpisodeTable.MEDIA_TYPE to it.type,
                            EpisodeTable.DESCRIPTION to it.description,
-                           EpisodeTable.FETCH_URL to it.downloadUrl
+                           EpisodeTable.FETCH_URL to it.downloadUrl,
+                           EpisodeTable.FAVORITE to 0
                    ) > 0
                }
            }
@@ -163,18 +164,24 @@ class LocalDataRepository(val ctx: Context): DataRepository {
     }
 
     override fun getAllEpisodesOfPodcast(podcastId: String): List<Episode> {
-        val cursor =  ctx.database.use {
-            select(EpisodeTable.NAME).whereArgs(EpisodeTable.PODCAST_ID+" = $podcastId").exec {this}
+        var list : List<Episode> = ArrayList<Episode>()
+        ctx.database.use {
+            select(EpisodeTable.NAME).whereArgs(EpisodeTable.PODCAST_ID+" = $podcastId").exec {
+                list = convertToEpisodeList(this)
+            }
         }
-        return convertToEpisodeList(cursor)
+        return list
     }
 
     override fun getEpisode(episodeName: String, podcastID: String): List<Episode> {
-        val cursor = ctx.database.use {
-            select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = $podcastID ) and ("
-                +EpisodeTable.EPISODE_NAME+" = $episodeName").exec {this}
+        var list : List<Episode> = ArrayList<Episode>()
+        ctx.database.use {
+            val cursor = select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = $podcastID ) and ("
+                +EpisodeTable.EPISODE_NAME+" = $episodeName").exec {
+                list = convertToEpisodeList(this)
+            }
         }
-        return convertToEpisodeList(cursor)
+        return list
     }
 
     override fun updatePodcast(cv: ContentValues, podcastId: String): Boolean {
@@ -195,12 +202,20 @@ class LocalDataRepository(val ctx: Context): DataRepository {
        return res == 1
     }
 
-
-    fun convertToEpisodeList (cursor:Cursor): List<Episode>{
-        return ArrayList<Episode>()
+    /**
+     *  Convert to episode list from cursor
+     */
+    private fun convertToEpisodeList (cursor:Cursor): List<Episode>{
+        val list = ArrayList<Episode>()
+        cursor.moveToFirst()
+        for (i in 0..(cursor.count - 1)) {
+            cursor.moveToPosition(i)
+            list.add(Episode.fromCursor(cursor)!!)
+        }
+        return list
     }
 
-    fun convertToPodcastList (cursor:Cursor): List<Podcast>{
+    private fun convertToPodcastList (cursor:Cursor): List<Podcast>{
         return ArrayList<Podcast>()
     }
 

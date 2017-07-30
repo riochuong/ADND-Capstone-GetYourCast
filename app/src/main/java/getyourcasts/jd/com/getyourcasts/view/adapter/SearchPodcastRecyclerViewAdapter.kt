@@ -11,15 +11,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
-import getyourcasts.jd.com.getyourcasts.util.StorageUtil
-import getyourcasts.jd.com.getyourcasts.view.PodcastDetailLayoutActivity
+import getyourcasts.jd.com.getyourcasts.view.PodcastDetailsActivity
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import org.jetbrains.anko.startActivityForResult
 
 
 /**
@@ -82,7 +80,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
                     // set onclickListenter to launch details podcast
                     podcastVh.itemView.setOnClickListener {
-                        val intent = Intent(ctx, PodcastDetailLayoutActivity::class.java)
+                        val intent = Intent(ctx, PodcastDetailsActivity::class.java)
                         intent.putExtra(PODCAST_KEY, podcastToPass)
                         intent.putExtra(ITEM_POS_KEY,position)
                         fragment.activity.startActivityForResult(intent, REQUEST_CODE)
