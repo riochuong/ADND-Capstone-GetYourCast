@@ -29,6 +29,7 @@
             <ImageView
                 android:id="@+id/podcast_image"
                 android:layout_width="@dimen/image_size"
+                android:layout_margin="@dimen/small_margin"
                 android:layout_height="@dimen/image_size"/>
 
                 <!--Title and author-->

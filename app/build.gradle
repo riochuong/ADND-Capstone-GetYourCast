@@ -80,5 +80,8 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:4.0.0-RC1'
     kapt 'com.github.bumptech.glide:compiler:4.0.0-RC1'
 
+    // LOADING PROGRESS SPINNER
+    compile 'com.wang.avi:library:2.1.3'
+
 
 }

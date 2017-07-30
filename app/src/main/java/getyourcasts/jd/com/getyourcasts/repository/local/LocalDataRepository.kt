@@ -14,6 +14,7 @@ import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import org.jetbrains.anko.db.insertOrThrow
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.db.transaction
+import org.jetbrains.anko.runOnUiThread
 
 
 /**
@@ -67,6 +68,14 @@ class LocalDataRepository(val ctx: Context): DataRepository {
 
                 // Only insert if not part of DB yet
             if (! isInDb){
+                // start image download first
+                ctx.runOnUiThread {
+                    try {
+                        StorageUtil.startGlideImageDownload(pod, ctx)
+                    } catch(e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
                 val res = ctx.database.use {
 
                     insertOrThrow(
@@ -85,6 +94,8 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                 }
                 return res > 0
             }
+        // download image to local storage also
+
         return false
     }
 

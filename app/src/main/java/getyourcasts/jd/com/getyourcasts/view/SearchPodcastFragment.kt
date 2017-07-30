@@ -1,5 +1,6 @@
 package getyourcasts.jd.com.getyourcasts.view
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -17,6 +18,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.adapter.SearchPodcastRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.fragment_podcast_detail_layout.*
 import kotlinx.android.synthetic.main.search_podcast_fragment.*
 
 /**
@@ -50,19 +52,22 @@ class SearchPodcastFragment : Fragment() {
         setupRecyclerView(recyclerView)
         searchAdapter = SearchPodcastRecyclerViewAdapter(ArrayList<Podcast>(), this)
         recyclerView.adapter = searchAdapter
-        // EDIT_TEXT LISTENER
+
+        // SEARCH SUMISSION
         search_term_text.setOnEditorActionListener(
                 object : TextView.OnEditorActionListener {
                     override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
 
                         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                             // search for podcast here
+                            startLoadingAnim()
                             val searchTerm = search_term_text.text.toString()
                             val searchObsrv = searchViewModel.getPodcastSearchObservable(searchTerm)
                             searchObsrv.observeOn(AndroidSchedulers.mainThread()).subscribe(
                                     // OnNext
                                     {
                                         updatePodcastList(it)
+                                        stopLoadingAnim()
                                     },
                                     // OnError
                                     {
@@ -85,14 +90,14 @@ class SearchPodcastFragment : Fragment() {
      * @newData : newData passed from the results of network fetching
      */
     fun updatePodcastList(newData: List<Podcast>) {
-
-        searchAdapter.podcastList = newData
-        searchAdapter.notifyDataSetChanged()
-        // make recyclerview visible
-        if (newData.isNotEmpty()) {
-            recyclerView.visibility = View.VISIBLE
-        } else {
-            recyclerView.visibility = View.GONE
+        if (newData != null && newData.size > 0){
+            searchAdapter.podcastList = newData
+            searchAdapter.notifyDataSetChanged()
+            search_empty_view.visibility = View.GONE
+        }
+        else{
+            recyclerView.visibility = View.INVISIBLE
+            search_empty_view.visibility = View.VISIBLE
         }
 
     }
@@ -118,6 +123,18 @@ class SearchPodcastFragment : Fragment() {
         }
 
         val TAG = "SEARCH_PODCAST"
+    }
+
+    private fun startLoadingAnim() {
+        recyclerView.visibility = View.INVISIBLE
+        searching_prog_view.visibility = View.VISIBLE
+        searching_prog_view.show()
+    }
+
+    private fun stopLoadingAnim() {
+        searching_prog_view.hide()
+        searching_prog_view.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
     }
 
 }// Required empty public constructor

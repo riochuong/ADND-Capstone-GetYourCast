@@ -16,7 +16,10 @@ import getyourcasts.jd.com.getyourcasts.view.PodcastDetailLayoutActivity
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
+import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import org.jetbrains.anko.startActivityForResult
 
 
 /**
@@ -38,6 +41,8 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
     companion object {
         val TAG = "PocastAdapter"
         val PODCAST_KEY = "podcast_key"
+        val ITEM_POS_KEY = "item_pos_key"
+        val REQUEST_CODE = 1
     }
 
 
@@ -79,7 +84,28 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                     podcastVh.itemView.setOnClickListener {
                         val intent = Intent(ctx, PodcastDetailLayoutActivity::class.java)
                         intent.putExtra(PODCAST_KEY, podcastToPass)
-                        ctx.startActivity(intent)
+                        intent.putExtra(ITEM_POS_KEY,position)
+                        fragment.activity.startActivityForResult(intent, REQUEST_CODE)
+                        // sync with the detail object for working data
+                        PodcastViewModel.subsribeItemSync(object: Observer<Pair<Int, String>>{
+                            override fun onError(e: Throwable) {
+                                Log.e(TAG, "Failed to receive subject from Detail activity")
+                            }
+
+                            override fun onNext(t: Pair<Int, String>) {
+                                val pos = t.first
+                                this@SearchPodcastRecyclerViewAdapter.notifyItemChanged(pos)
+                            }
+
+                            override fun onComplete() {
+                                Log.e(TAG,"Subject Closed")
+                            }
+
+                            override fun onSubscribe(d: Disposable) {
+                               Log.d(TAG,"Successfully subscribed")
+                            }
+
+                        })
                     }
                 },
                 {
@@ -102,9 +128,6 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
                                         // change the icon
                                         podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
-
-                                        // start glide to download image to local storage also
-                                        StorageUtil.startGlideImageDownload(podcast, ctx)
 
                                     } else{
                                         Log.e(SearchPodcastRecyclerViewAdapter.TAG, "Insert Podcast to DB " +

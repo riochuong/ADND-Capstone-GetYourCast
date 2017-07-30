@@ -1,6 +1,11 @@
-<android.support.design.widget.CoordinatorLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<android.support.design.widget.CoordinatorLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -62,3 +67,24 @@
    </android.support.v7.widget.RecyclerView>
 
 </android.support.design.widget.CoordinatorLayout>
+
+   <com.wang.avi.AVLoadingIndicatorView
+       android:id="@+id/searching_prog_view"
+       style="@style/AVLoadingIndicatorView"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center_vertical|center_horizontal"
+       android:visibility="gone"
+       app:indicatorColor="@color/colorWhite"
+       app:indicatorName="BallPulseIndicator"
+       />
+
+   <TextView
+       android:id="@+id/search_empty_view"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:textAppearance="?android:textAppearanceMedium"
+       android:textStyle="bold"
+       android:text="@string/no_results_found"
+       android:layout_gravity="center_horizontal|center_vertical"/>
+</FrameLayout>

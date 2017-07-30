@@ -8,7 +8,9 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import io.reactivex.Observable
+import io.reactivex.Observer
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 
 /**
  * Created by chuondao on 7/22/17.
@@ -19,6 +21,8 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         val NUM_TOP_RESULTS : Long = 20
         private var INSTANCE : PodcastViewModel? = null
 
+        private val itemSync : PublishSubject<Pair<Int,String>> = PublishSubject.create()
+
         fun getInstance(repo: DataSourceRepo): PodcastViewModel {
             if (INSTANCE == null){
                 INSTANCE = PodcastViewModel(repo)
@@ -26,7 +30,20 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
             return INSTANCE as PodcastViewModel
         }
 
+        /*subscribe to this subject to get
+        * notice about change of the state of
+        * */
+        fun subsribeItemSync(observer: Observer<Pair<Int,String>>){
+            itemSync.subscribe(observer)
+        }
+
+        /*get the source for synchronize */
+        fun getItemSyncSubject(): PublishSubject<Pair<Int,String>> {
+            return itemSync
+        }
     }
+
+
 
     fun getPodcastSearchObservable (term : String): Observable<List<Podcast>>{
         return Observable.defer {
