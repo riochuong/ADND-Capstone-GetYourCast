@@ -6,4 +6,7 @@
     <color name="transparent">#33303F9F</color>
     <color name="colorBlack">#000</color>
     <color name="colorWhite">#FFF</color>
+    <color name="fab_subscribed_color">#00cc66</color>
+    <color name="fab_tosubscribe_color">#f44336</color>
+    <color name="gray">#CDCCCC</color>
 </resources>

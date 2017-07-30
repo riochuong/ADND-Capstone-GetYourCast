@@ -1,20 +1,27 @@
 package getyourcasts.jd.com.getyourcasts.view
 
-import android.support.v4.app.Fragment
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import android.view.animation.Animation
+import android.view.animation.Transformation
+import android.widget.LinearLayout
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
+import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_podcast_detail_layout.*
+
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -23,35 +30,83 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
     companion object {
         val PODCAST_STR = "podcast_key"
         val TAG = "PodcastDetail"
+
+
     }
 
-    private lateinit var modelView: PodcastViewModel
+    private lateinit var viewModel: PodcastViewModel
     private lateinit var channelInfo: Channel
+    private lateinit var podcast : Podcast
+    private var subscribed : Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        modelView = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this.context))
+        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this.context))
+        // disable subscribe button until all views are ready
         return inflater!!.inflate(R.layout.fragment_podcast_detail_layout, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        val podcast = getPodcastFromIntent()
-        if (podcast != null){
+        subscribe_button.isEnabled = false
+        podcast = getPodcastFromIntent()!!
+        subscribed = if (podcast.description != null) true else false
+        if (podcast != null) {
             // load details info
             loadPodcastImage(podcast)
             loadRssDescription(podcast)
             podcast_detail_title.text = podcast.collectionName
             podcast_detail_artist.text = podcast.artistName
+            podcast_detail_total_episodes.text = podcast.trackCount.toString()
         }
+        // enable swipe detector
+        podcast_detail_main_fragment.setOnTouchListener(DetailSwipeDetector())
 
+        // enable subscribe button
+        subscribe_button.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                if (!subscribed){
+                    // no suscription yet need to subscribed
+                    viewModel.getSubscribeObservable(podcast, channelInfo)
+                             .subscribe(
+                                     {
+                                         // TODO: Change fab logo here
+                                         subscribed = true
+                                         setSubscribeButtonImg()
+                                     },
+                                     {
+                                         it.printStackTrace()
+                                         Log.e(TAG,"Failed to subscribe podcast")
+                                     }
+                             )
+                }
+            }
+
+        })
     }
 
-    fun loadRssDescription (pod: Podcast){
-        if (pod.description != null){
-            podcast_detail_desc.text = pod.description.trim()
+    private fun changeFabColor (color :Int){
+        subscribe_button.backgroundTintList = (ColorStateList.valueOf(color))
+    }
+
+    private fun setSubscribeButtonImg(){
+        if (subscribed){
+            changeFabColor(ContextCompat.getColor(this.context,R.color.fab_subscribed_color))
+            subscribe_button.setImageResource(R.mipmap.ic_fab_done_white)
         }
         else{
-            modelView.getChannelFeedObservable(pod.feedUrl)
+           changeFabColor(ContextCompat.getColor(this.context,R.color.fab_tosubscribe_color))
+            subscribe_button.setImageResource(R.mipmap.ic_tosubscribe)
+        }
+    }
+
+    fun loadRssDescription(pod: Podcast) {
+        if (subscribed && pod != null) {
+            podcast_detail_desc.text = pod.description!!.trim()
+            subscribe_button.isEnabled = true
+            setSubscribeButtonImg()
+        } else {
+            subscribe_button.isEnabled = false
+            viewModel.getChannelFeedObservable(pod.feedUrl)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             {
@@ -61,10 +116,12 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
                                     // save channelInfo for later use
                                     channelInfo = it
                                 }
+                                subscribe_button.isEnabled = true
+                                setSubscribeButtonImg()
                             },
                             {
                                 it.printStackTrace()
-                                Log.e(TAG,"Failed to fetch channel info")
+                                Log.e(TAG, "Failed to fetch channel info")
                             }
                     )
 
@@ -74,10 +131,10 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
     /**
      * load podcast from either local path or from http url
      */
-    fun loadPodcastImage(pod: Podcast){
-        if (pod.imgLocalPath != null){
+    fun loadPodcastImage(pod: Podcast) {
+        if (pod.imgLocalPath != null) {
             GlideApp.with(this.context).load(pod.imgLocalPath).into(podcast_detail_img)
-        }else{
+        } else {
             GlideApp.with(this.context).load(pod.artworkUrl100).into(podcast_detail_img)
         }
     }
@@ -85,14 +142,67 @@ class PodcastDetailLayoutActivityFragment : Fragment() {
     /**
      * get podcast pass from intent
      */
-    fun getPodcastFromIntent():Podcast? {
+    fun getPodcastFromIntent(): Podcast? {
         val podcast = activity.intent.extras[PODCAST_STR]
-        if (podcast is Podcast){
+        if (podcast is Podcast) {
             return podcast
         }
         Log.e(TAG, "No Podcast pass to fragment! Something is really wrong here ")
         return null
     }
 
+    /**
+     * Swipe detector
+     */
+
+    inner class DetailSwipeDetector : SwipeDetector() {
+        val expand: Animation
+        val MINIMIZE_SIZE = this@PodcastDetailLayoutActivityFragment.resources
+                .getDimension(R.dimen.podcast_detail_minimize_size).toInt()
+        val ANIM_DURATION : Long = 300
+
+        init {
+            expand = object : Animation() {
+                override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
+                    if (interpolatedTime == 1f) {
+                        pocast_detail_description_layout.layoutParams.height =
+                                LinearLayout.LayoutParams.MATCH_PARENT
+                    } else {
+                        val trans: Int = interpolatedTime.toInt() * MINIMIZE_SIZE
+                        pocast_detail_description_layout.layoutParams.height = if (trans <= MINIMIZE_SIZE)
+                            MINIMIZE_SIZE else trans
+                    }
+                    pocast_detail_description_layout.requestLayout()
+                }
+
+                override fun willChangeBounds(): Boolean {
+                    return true
+                }
+            }
+
+
+        }
+
+        override fun onSwipeRightToLeft(): Boolean {
+            return false
+        }
+
+        override fun onSwipeLeftToRight(): Boolean {
+            this@PodcastDetailLayoutActivityFragment.activity.onBackPressed()
+            return true
+        }
+
+        override fun onSwipeUpward(): Boolean {
+            pocast_detail_description_layout.layoutParams.height = MINIMIZE_SIZE
+            pocast_detail_description_layout.requestLayout()
+            return true
+        }
+
+        override fun onSwipeDownward(): Boolean {
+            expand.duration = ANIM_DURATION
+            podcast_detail_main_fragment.startAnimation(expand)
+            return true
+        }
+    }
 
 }

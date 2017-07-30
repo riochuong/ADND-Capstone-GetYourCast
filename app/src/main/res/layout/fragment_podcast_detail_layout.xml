@@ -1,6 +1,7 @@
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/podcast_detail_main_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -12,10 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/podcast_detail_appbar_size"
         android:theme="@style/AppTheme.NoActionBar"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:fitsSystemWindows="true"
         >
         <LinearLayout
             android:orientation="horizontal"
+            app:layout_scrollFlags="exitUntilCollapsed"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -34,7 +37,8 @@
                 <TextView
                     android:id="@+id/podcast_detail_title"
                     android:textStyle="bold"
-                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textColor="@color/colorWhite"
                     android:layout_width="wrap_content"
                     android:layout_margin="@dimen/tiny_margin"
                     android:layout_height="wrap_content"/>
@@ -42,9 +46,10 @@
                 <TextView
                     android:id="@+id/podcast_detail_artist"
                     android:layout_width="wrap_content"
+                    android:textColor="@color/colorWhite"
                     android:layout_margin="@dimen/tiny_margin"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:textAppearanceSmall"
+                    android:textAppearance="?android:textAppearanceMedium"
                     />
 
 
@@ -56,19 +61,22 @@
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
+        android:id="@+id/pocast_detail_description_layout"
         android:orientation="vertical"
         android:background="@color/colorWhite"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/podcast_detail_card_size"
+        android:layout_height="@dimen/podcast_detail_minimize_size"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
 
         <TextView
             android:text="@string/descriotion_title_str"
             android:textColor="@color/colorAccent"
             android:textAppearance="?android:textAppearanceMedium"
-            android:layout_margin="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginBottom="@dimen/tiny_margin"
             android:textStyle="bold"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/small_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
@@ -81,16 +89,60 @@
             android:layout_marginTop="@dimen/tiny_margin"
             android:layout_marginStart="@dimen/small_margin"
             android:layout_marginEnd="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/tiny_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:background="@color/gray"
+            android:layout_marginEnd="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/small_margin"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_height="@dimen/line_thick"/>
+
+        <TextView
+            android:text="@string/total_episodes"
+            android:textColor="@color/colorAccent"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginBottom="@dimen/tiny_margin"
+            android:layout_marginEnd="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            />
+
+        <TextView
+            android:id="@+id/podcast_detail_total_episodes"
+            android:textColor="@color/colorBlack"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginEnd="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+
+
     </LinearLayout>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/subscribe_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        app:elevation="@dimen/fab_elevate"
+        app:backgroundTint="@color/fab_subscribed_color"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:layout_marginStart="@dimen/small_margin"
+        app:borderWidth="0dp"
         app:layout_anchor="@id/podcast_detail_appbar"
         app:layout_anchorGravity="bottom|right|end"/>
 

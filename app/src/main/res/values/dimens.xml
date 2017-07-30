@@ -14,5 +14,7 @@
     <dimen name="podcast_detail_appbar_size">120dp</dimen>
     <dimen name="podcast_detail_img_size">100dp</dimen>
     <dimen name="tiny_margin">5dp</dimen>
-    <dimen name="podcast_detail_card_size">300dp</dimen>
+    <dimen name="podcast_detail_minimize_size">250dp</dimen>
+    <dimen name="fab_elevate">5dp</dimen>
+    <dimen name="line_thick">2dp</dimen>
 </resources>

@@ -51,7 +51,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         }.subscribeOn(Schedulers.io())
     }
 
-    fun subscribePodcast(pod: Podcast, channelInfo: Channel): Boolean{
+    private fun subscribePodcast(pod: Podcast, channelInfo: Channel): Boolean{
         if (dataRepo.insertPodcastToDb(pod) && channelInfo != null) {
             // now update with field that not available from itune
             val cv = ContentValues()
@@ -64,7 +64,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         return false
     }
 
-    fun subscribePodcast(pod: Podcast): Boolean {
+    private fun subscribePodcast(pod: Podcast): Boolean {
         // fetch rss feed
         val channelInfo = dataRepo.downloadFeed(pod.feedUrl)
         if (channelInfo != null){

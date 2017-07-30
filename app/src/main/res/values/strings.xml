@@ -9,4 +9,5 @@
     <string name="search_str">Search</string>
     <string name="title_activity_podcast_detail_layout">PodcastDetailActivity</string>
     <string name="descriotion_title_str">Description</string>
+    <string name="total_episodes">Total Episodes</string>
 </resources>
