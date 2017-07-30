@@ -90,10 +90,11 @@ class SearchPodcastFragment : Fragment() {
      * @newData : newData passed from the results of network fetching
      */
     fun updatePodcastList(newData: List<Podcast>) {
+        searchAdapter.podcastList = newData
+        searchAdapter.notifyDataSetChanged()
         if (newData != null && newData.size > 0){
-            searchAdapter.podcastList = newData
-            searchAdapter.notifyDataSetChanged()
             search_empty_view.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
         else{
             recyclerView.visibility = View.INVISIBLE
@@ -127,6 +128,7 @@ class SearchPodcastFragment : Fragment() {
 
     private fun startLoadingAnim() {
         recyclerView.visibility = View.INVISIBLE
+        search_empty_view.visibility = View.GONE
         searching_prog_view.visibility = View.VISIBLE
         searching_prog_view.show()
     }
@@ -134,7 +136,6 @@ class SearchPodcastFragment : Fragment() {
     private fun stopLoadingAnim() {
         searching_prog_view.hide()
         searching_prog_view.visibility = View.GONE
-        recyclerView.visibility = View.VISIBLE
     }
 
 }// Required empty public constructor

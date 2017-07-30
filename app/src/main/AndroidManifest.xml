@@ -31,6 +31,11 @@
             android:label="@string/title_activity_podcast_detail_layout"
             android:theme="@style/TransluentNoActionbar">
         </activity>
+        <activity
+            android:name=".view.EpisodeListDetailsActivity"
+            android:label="@string/title_activity_episode_list_details"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>
