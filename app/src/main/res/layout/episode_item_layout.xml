@@ -69,8 +69,9 @@
             <com.github.lzyzsd.circleprogress.CircleProgress
                 android:id="@+id/circle_progress"
                 android:layout_marginLeft="@dimen/tiny_margin"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_gravity="end"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:visibility="gone"
                 custom:circle_progress="0"/>
 

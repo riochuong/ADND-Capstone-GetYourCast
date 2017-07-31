@@ -170,6 +170,19 @@ class EpisodeListFragment : Fragment() {
         return -1
     }
 
+    fun registerListener(id : Long, listener: FetchListener){
+        if (downloadService != null){
+            downloadService!!.registerListener(listener)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (downloadService != null){
+            downloadService!!.unbindService(serviceConnection)
+        }
+    }
+
     private fun bindDownloadService(){
         val intent = Intent(this.context, DownloadService::class.java)
         this.context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)

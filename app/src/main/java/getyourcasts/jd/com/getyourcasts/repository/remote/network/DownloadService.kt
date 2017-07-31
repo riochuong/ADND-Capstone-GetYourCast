@@ -27,6 +27,7 @@ class DownloadService : Service() {
 
 
     override fun onBind(intent: Intent?): IBinder {
+        Log.d(TAG,"Download Service bound ! ")
         fetcher = Fetch.newInstance(this)
         listReqIds  = HashMap<Long,Long>()
         return binder
@@ -42,6 +43,7 @@ class DownloadService : Service() {
 
     override fun onUnbind(intent: Intent?): Boolean {
         fetcher.release()
+        Log.d(TAG,"Download Service Unbound")
         return super.onUnbind(intent)
     }
 
@@ -61,6 +63,7 @@ class DownloadService : Service() {
             val req = Request(url, dirPath, filename)
             val id = fetcher.enqueue(req)
             listReqIds.put(id,id)
+            return id
         }
 
         return -1
@@ -69,7 +72,7 @@ class DownloadService : Service() {
     fun registerListener (listener: FetchListener){
         if (fetcher.isValid){
             fetcher.addFetchListener(listener)
+            Log.d(TAG,"Successfully register Listener for Fetch download")
         }
-
     }
 }

@@ -63,9 +63,9 @@ class StorageUtil {
          * check and give the abspath to store ep
          */
         fun getPathToStoreEp(podcastId: String, ep: Episode, ctx: Context): Pair<String,String>? {
-            val root = "$MEDIA_ROOT/$podcastId"
+            val root = "$MEDIA_ROOT"
             val file = ctx.getDir(root, Context.MODE_PRIVATE)
-            val fileName = "$podcastId/${ep.title.hashCode()}"
+            val fileName = "${podcastId}_${ep.title.hashCode()}"
             val finalPath = File(file, fileName)
             if (finalPath.exists()){
                 return null
