@@ -119,7 +119,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                         EpisodeTable.NAME,
                         EpisodeTable.EPISODE_NAME to episode.title,
                         EpisodeTable.PODCAST_ID to episode.podcastId,
-                        EpisodeTable.DOWNLOADED to 0,
+                        EpisodeTable.DOWNLOADED to episode.downloaded,
                         EpisodeTable.FILE_SIZE to episode.fileSize,
                         EpisodeTable.DATE_RELEASED to episode.pubDate,
                         EpisodeTable.MEDIA_TYPE to episode.type,

@@ -2,9 +2,14 @@ package getyourcasts.jd.com.getyourcasts.view
 
 
 import android.app.ActionBar
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.drawable.Drawable
 import android.support.v4.app.Fragment
 import android.os.Bundle
+import android.os.IBinder
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,10 +19,12 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.adapter.SearchPodcastRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
@@ -57,6 +64,8 @@ class EpisodeListFragment : Fragment() {
 
         // now load image
         initViews()
+
+        bindDownloadService()
 
 
     }
@@ -134,6 +143,36 @@ class EpisodeListFragment : Fragment() {
             return podcast
         }
         return null
+    }
+
+    /* ============================ CONNECT TO DOWNLOAD SERVICE ========================================= */
+    private var boundToDownload = false
+    private  var downloadService : DownloadService? = null
+
+    // connection to service
+    private val serviceConnection : ServiceConnection = object: ServiceConnection {
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            boundToDownload = false
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            boundToDownload = true
+            downloadService = (service as DownloadService.DownloadServiceBinder).getService()
+        }
+
+    }
+
+    fun requestDownload(url: String, dir: String, fileName:String): Long{
+        if (downloadService != null){
+            return( downloadService!!.requestDownLoad(url,dir,fileName))
+        }
+        return -1
+    }
+
+    private fun bindDownloadService(){
+        val intent = Intent(this.context, DownloadService::class.java)
+        this.context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     private fun startAnim(){

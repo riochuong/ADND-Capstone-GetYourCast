@@ -68,6 +68,21 @@ class EpisodesRecyclerViewAdapter(var episodeList: List<Episode>,
         // load download or play icons depends on podcast url link available or not
         loadCorrectDownOrPlayImg(episode, vh)
 
+        // set on click listener to download file
+        vh.downPlayImg.setOnClickListener(object: View.OnClickListener{
+            override fun onClick(v: View?) {
+                // check if
+                if (episode.downloaded == 0){
+                    // Now start Downloading
+                    val url = episode.downloadUrl
+                    val pairItems = StorageUtil.getPathToStoreEp(episode.podcastId, episode, fragment.context)
+                    if (url != null){
+                        fragment.requestDownload(url, pairItems!!.first, pairItems.second)
+                    }
+                }
+            }
+
+        })
     }
 
     // suggest to download or play episode

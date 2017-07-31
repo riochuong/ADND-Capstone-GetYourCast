@@ -18,7 +18,8 @@ data class Episode (val podcastId: String,
                     val fileSize : String?,
                     val type : String?,
                     val favorite: Int?,
-                    val progress: Int?
+                    val progress: Int?,
+                    val downloaded: Int?
                     ) {
 
 
@@ -35,6 +36,7 @@ data class Episode (val podcastId: String,
                     feedItem.mediaInfo?.size,
                     feedItem.mediaInfo?.type,
                     0 ,// initilize favorite to NOT
+                    0,
                     0
             )
         }
@@ -52,7 +54,8 @@ data class Episode (val podcastId: String,
                         cursor.getStringValue(EpisodeTable.FILE_SIZE),
                         cursor.getStringValue(EpisodeTable.MEDIA_TYPE),
                         cursor.getIntValue(EpisodeTable.FAVORITE),
-                        cursor.getIntValue(EpisodeTable.PROGRESS)
+                        cursor.getIntValue(EpisodeTable.PROGRESS),
+                        cursor.getIntValue(EpisodeTable.DOWNLOADED)
                 )
             }
             return null

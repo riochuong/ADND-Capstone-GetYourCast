@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/tools"
     card_view:cardCornerRadius="@dimen/podcast_item_corner_radius"
     card_view:cardElevation="@dimen/card_elevation"
     >
@@ -54,22 +55,32 @@
         android:scrollHorizontally="false"
         android:layout_columnSpan="1"/>
 
-    <ImageView
-        android:id="@+id/episode_down_play_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_rowSpan="1"
-        android:layout_margin="@dimen/tiny_margin"
-        android:layout_columnSpan="1"/>
+    <FrameLayout>
 
+        <ImageView
+            android:id="@+id/episode_down_play_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_rowSpan="1"
+            android:layout_margin="@dimen/tiny_margin"
+            android:layout_columnSpan="1"/>
+
+            <com.github.lzyzsd.circleprogress.CircleProgress
+                android:id="@+id/circle_progress"
+                android:layout_marginLeft="@dimen/tiny_margin"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:visibility="gone"
+                custom:circle_progress="0"/>
+
+    </FrameLayout>
 
 
     <TextView
         android:id="@+id/episode_file_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
         android:layout_rowSpan="1"
         android:layout_margin="@dimen/tiny_margin"
         android:layout_columnSpan="1"/>
