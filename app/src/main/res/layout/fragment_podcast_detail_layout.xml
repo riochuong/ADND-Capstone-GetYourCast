@@ -127,8 +127,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/line_thick"
                     android:layout_marginBottom="@dimen/small_margin"
-                    android:layout_marginEnd="@dimen/small_margin"
-                    android:layout_marginStart="@dimen/small_margin"
                     android:layout_marginTop="@dimen/small_margin"
                     android:background="@color/gray"/>
 

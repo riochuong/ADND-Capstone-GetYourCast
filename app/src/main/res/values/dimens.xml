@@ -18,4 +18,6 @@
     <dimen name="fab_elevate">5dp</dimen>
     <dimen name="line_thick">2dp</dimen>
     <dimen name="episode_podcast_img_size">150dp</dimen>
+    <dimen name="fragment_list_appbar">200dp</dimen>
+    <dimen name="tiny_margin_episode">1dp</dimen>
 </resources>

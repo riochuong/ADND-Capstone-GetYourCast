@@ -34,7 +34,7 @@
         <activity
             android:name=".view.EpisodeListActivity"
             android:label="@string/title_activity_episode_list_details"
-            android:theme="@style/TransluentNoActionbar">
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 

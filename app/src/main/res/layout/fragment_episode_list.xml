@@ -1,58 +1,60 @@
-<FrameLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    tools:context="getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment">
 
-    <android.support.design.widget.CoordinatorLayout
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/podcast_detail_appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:visibility="invisible"
+        >
 
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/episode_list_main_fragment"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_margin="@dimen/small_margin"
+
+                app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">
+
+                <ImageView
+                    android:id="@+id/episode_podcast_img"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_width="@dimen/episode_podcast_img_size"
+                    android:layout_height="@dimen/episode_podcast_img_size"/>
+
+                <TextView
+                    android:id="@+id/episode_podcast_title"
+                    android:textColor="@color/colorWhite"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/episode_list_recylcer_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/transparent"
-        android:visibility="invisible"
-        tools:context="getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+    </android.support.v7.widget.RecyclerView>
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/podcast_detail_appbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
-            android:theme="@style/AppTheme.NoActionBar"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/episode_podcast_img"
-                        android:layout_width="@dimen/episode_podcast_img_size"
-                        android:layout_height="@dimen/episode_podcast_img_size"/>
-
-                    <TextView
-                        android:id="@+id/episode_podcast_title"
-                        android:textAppearance="?android:textAppearanceMedium"
-                        android:textStyle="bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
-
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
-
-       <android.support.v7.widget.RecyclerView
-           android:id="@+id/episode_list_recylcer_view"
-           android:layout_width="match_parent"
-           android:layout_height="match_parent">
-       </android.support.v7.widget.RecyclerView>
-
-    </android.support.design.widget.CoordinatorLayout>
 
     <com.wang.avi.AVLoadingIndicatorView
         android:id="@+id/episode_list_loading_prog_view"
@@ -64,5 +66,4 @@
         app:indicatorColor="@color/colorWhite"
         app:indicatorName="BallPulseIndicator"
         />
-
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -50,6 +50,7 @@ class EpisodeListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        startAnim()
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context))
         super.onViewCreated(view, savedInstanceState)
         podcast = getPodcastFromIntent()!!
@@ -78,7 +79,6 @@ class EpisodeListFragment : Fragment() {
                                 // now show the image
                                 stopAnim()
                                 // make the main view visible now
-                                episode_list_main_fragment.visibility = View.VISIBLE
                                 Log.d(TAG,
                                         "Successfully fetched all Episodes of Podcast : ${podcast.collectionName}")
                             }
@@ -138,12 +138,14 @@ class EpisodeListFragment : Fragment() {
 
     private fun startAnim(){
         episode_list_loading_prog_view.show()
-        episode_list_loading_prog_view.visibility = View.GONE
+        episode_list_loading_prog_view.visibility = View.VISIBLE
+        podcast_detail_appbar.visibility = View.INVISIBLE
     }
 
     private fun stopAnim() {
         episode_list_loading_prog_view.hide()
-        episode_list_loading_prog_view.visibility = View.INVISIBLE
+        episode_list_loading_prog_view.visibility = View.GONE
+        podcast_detail_appbar.visibility = View.VISIBLE
     }
 
 }
