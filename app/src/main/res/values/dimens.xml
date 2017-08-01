@@ -21,4 +21,7 @@
     <dimen name="fragment_list_appbar">200dp</dimen>
     <dimen name="tiny_margin_episode">1dp</dimen>
     <dimen name="circle_prog_size">50dp</dimen>
+    <dimen name="img_view_elevation">15dp</dimen>
+    <dimen name="episode_img_radius">10dp</dimen>
+    <dimen name="episode_img_elevation">15dp</dimen>
 </resources>

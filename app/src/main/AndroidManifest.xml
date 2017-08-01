@@ -42,6 +42,12 @@
         <service
             android:name=".repository.remote.network.DownloadService"
             android:label="DownloadService"/>
+
+        <activity
+            android:name=".view.EpisodeInfoActivity"
+            android:label="@string/title_activity_episode_info"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>

@@ -2,7 +2,6 @@ package getyourcasts.jd.com.getyourcasts.view.adapter
 
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -12,8 +11,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.github.lzyzsd.circleprogress.CircleProgress
-import com.tonyodev.fetch.Fetch
-import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.local.EpisodeTable
@@ -78,77 +75,96 @@ class EpisodesRecyclerViewAdapter(var episodeList: List<Episode>,
         loadCorrectDownOrPlayImg(episode, vh)
 
         // set on click listener to download file and updat progress
+        setViewholderListenerForDowmload(vh, episode)
+    }
+
+
+    /**
+     * Set viewholder logic for pressing download button or play
+     */
+    private fun setViewholderListenerForDowmload(vh: EpisodeItemViewHolder, episode: Episode) {
+
         vh.downPlayImg.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 // check if
                 if (episode.downloaded == 0) {
-                    // Now start Downloading
-                    val url = episode.downloadUrl
-                    val pairItems = StorageUtil.getPathToStoreEp(episode.podcastId, episode, fragment.context)
-                    // TODO :detect duplicate here to avoid crash
-                    if (url != null) {
-                        val transactionId = fragment.requestDownload(url, pairItems!!.first, pairItems.second)
-                        // if transaction is valid we can start listener to updat progress here
-                        if (transactionId > 0) {
-                            // disable play view and show progress
-                            vh.downPlayImg.visibility = View.GONE
-                            vh.progressView.visibility = View.VISIBLE
-                            vh.progressView.finishedColor = ContextCompat.getColor(ctx, R.color.unfin_color)
-
-                            // register listener for progress update
-                            val cvUpdate = ContentValues()
-                            cvUpdate.put(EpisodeTable.DOWNLOADED,1)
-                            val listener = object : EpisodeDownloadListener (transactionId) {
-
-                                override fun onProgressUpdate(progress: Int) {
-                                    vh.progressView.progress = progress
-                                }
-
-                                override fun onComplete() {
-                                    // now update db with new path to the audio file and downloaded
-                                    val cvUpdate = ContentValues()
-                                    cvUpdate.put(EpisodeTable.LOCAL_URL, pairItems.first)
-                                    cvUpdate.put(EpisodeTable.DOWNLOADED, 1)
-                                    val updateDbObsv = viewModel.getUpdateEpisodeObservable(episode, cvUpdate)
-                                    // update db with new local url and downloaded columns
-                                    updateDbObsv.observeOn(AndroidSchedulers.mainThread()).subscribe (
-                                            {
-                                                if (it){
-                                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
-                                                    vh.downPlayImg.visibility = View.VISIBLE
-                                                    vh.progressView.visibility = View.GONE
-                                                }
-                                                else{
-                                                    // failed here also call onError
-                                                    onError()
-                                                }
-                                            },
-                                            {
-                                                Log.e(TAG, "Failed to update episode DB data ${episode.title}")
-                                                onError()
-                                            }
-                                    )
-                                }
-
-                                override fun onError() {
-                                    Log.e(TAG, "Failed to download episode ${episode.title}")
-                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down)
-                                    vh.downPlayImg.visibility= View.VISIBLE
-                                    vh.progressView.visibility = View.GONE
-                                }
-
-                            }
-                            // register listener to do the update progress
-                            fragment.registerListener(transactionId, listener)
-                        } else {
-                            Log.e(TAG, "Failed to start Download file from Fetch ${episode.downloadUrl}")
-                        }
-                    }
+                    startDownloadEpisodeFile(episode, vh)
+                } else {
+                    // TODO : add play feature here after implementing exoplayer
                 }
             }
+        }
+        )
 
-        })
     }
+
+    /**
+     * start to download episode here
+     */
+    private fun startDownloadEpisodeFile(episode: Episode, vh: EpisodeItemViewHolder) {
+        // Now start Downloading
+        val url = episode.downloadUrl
+        val pairItems = StorageUtil.getPathToStoreEp(episode.podcastId, episode, fragment.context)
+        // TODO :detect duplicate here to avoid crash
+        if (url != null) {
+            val transactionId = fragment.requestDownload(url, pairItems!!.first, pairItems.second)
+            // if transaction is valid we can start listener to updat progress here
+            if (transactionId > 0) {
+                // disable play view and show progress
+                vh.downPlayImg.visibility = View.GONE
+                vh.progressView.visibility = View.VISIBLE
+                vh.progressView.finishedColor = ContextCompat.getColor(ctx, R.color.unfin_color)
+
+                // register listener for progress update
+                val cvUpdate = ContentValues()
+                cvUpdate.put(EpisodeTable.DOWNLOADED, 1)
+                val listener = object : EpisodeDownloadListener(transactionId) {
+
+                    override fun onProgressUpdate(progress: Int) {
+                        vh.progressView.progress = progress
+                    }
+
+                    override fun onComplete() {
+                        // now update db with new path to the audio file and downloaded
+                        val cvUpdate = ContentValues()
+                        cvUpdate.put(EpisodeTable.LOCAL_URL, pairItems.first)
+                        cvUpdate.put(EpisodeTable.DOWNLOADED, 1)
+                        val updateDbObsv = viewModel.getUpdateEpisodeObservable(episode, cvUpdate)
+                        // update db with new local url and downloaded columns
+                        updateDbObsv.observeOn(AndroidSchedulers.mainThread()).subscribe(
+                                {
+                                    if (it) {
+                                        vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                        vh.downPlayImg.visibility = View.VISIBLE
+                                        vh.progressView.visibility = View.GONE
+                                    } else {
+                                        // failed here also call onError
+                                        onError()
+                                    }
+                                },
+                                {
+                                    Log.e(EpisodesRecyclerViewAdapter.TAG, "Failed to update episode DB data ${episode.title}")
+                                    onError()
+                                }
+                        )
+                    }
+
+                    override fun onError() {
+                        Log.e(EpisodesRecyclerViewAdapter.TAG, "Failed to download episode ${episode.title}")
+                        vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down)
+                        vh.downPlayImg.visibility = View.VISIBLE
+                        vh.progressView.visibility = View.GONE
+                    }
+
+                }
+                // register listener to do the update progress
+                fragment.registerListener(transactionId, listener)
+            } else {
+                Log.e(EpisodesRecyclerViewAdapter.TAG, "Failed to start Download file from Fetch ${episode.downloadUrl}")
+            }
+        }
+    }
+
 
     // suggest to download or play episode
     private fun loadCorrectDownOrPlayImg(ep: Episode, vh: EpisodeItemViewHolder) {

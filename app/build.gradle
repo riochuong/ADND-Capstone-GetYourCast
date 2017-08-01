@@ -57,6 +57,10 @@ dependencies {
     implementation 'com.android.support:design:25.4.0'
     compile 'com.android.support:support-v4:25.3.1'
 
+    // COLOR PALETTE
+    compile 'com.android.support:palette-v7:25.4.0'
+
+
     // ANKO
     compile "org.jetbrains.anko:anko-sqlite:$anko_version"
 

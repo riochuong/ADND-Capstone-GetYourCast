@@ -1,15 +1,17 @@
 package getyourcasts.jd.com.getyourcasts.view
 
 
-import android.app.ActionBar
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.support.v4.app.Fragment
 import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.app.Fragment
+import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
@@ -26,7 +28,6 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
-import getyourcasts.jd.com.getyourcasts.view.adapter.SearchPodcastRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -43,13 +44,13 @@ class EpisodeListFragment : Fragment() {
 
     private lateinit var  episodeAdapter: EpisodesRecyclerViewAdapter
 
+
+
     companion object {
         val PODCAST_KEY = "podcast_key"
         val TAG = EpisodeListFragment.javaClass.simpleName
+        val PALETTE_BG_MASK = 0x00555555
     }
-
-
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -119,6 +120,18 @@ class EpisodeListFragment : Fragment() {
                                                  DataSource?, isFirstResource: Boolean): Boolean
                     {
                         // TODO : do some bitmap pallete operations here
+                        if (resource != null && resource is BitmapDrawable){
+                            val bitmap = resource.bitmap
+                            // this will done in background thread with
+                            val palette = Palette.from(bitmap).generate(
+                                    Palette.PaletteAsyncListener {
+                                        podcast_detail_appbar.setBackgroundColor(it.getDarkVibrantColor(PALETTE_BG_MASK))
+                                        if (it.darkVibrantSwatch != null){
+                                            episode_podcast_title.setTextColor(it.darkVibrantSwatch!!.titleTextColor)
+                                        }
+
+                            });
+                        }
                         return false
                     }
 
@@ -178,8 +191,9 @@ class EpisodeListFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if (downloadService != null){
-            downloadService!!.unbindService(serviceConnection)
+        if (downloadService != null && boundToDownload){
+            boundToDownload = false
+            context.unbindService(serviceConnection)
         }
     }
 
