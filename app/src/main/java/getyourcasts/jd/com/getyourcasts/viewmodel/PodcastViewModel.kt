@@ -121,5 +121,14 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         ) .subscribeOn(Schedulers.io())
     }
 
+    /**
+     * get update Pod
+     */
+    fun getUpdateEpisodeObservable (episode: Episode, cv: ContentValues) : Observable<Boolean> {
+        return Observable.defer {
+             Observable.just(dataRepo.updateEpisode(cv,episode))
+        }.subscribeOn(Schedulers.io())
+    }
+
 
 }

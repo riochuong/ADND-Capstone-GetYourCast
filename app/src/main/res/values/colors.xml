@@ -8,5 +8,6 @@
     <color name="colorWhite">#FFF</color>
     <color name="fab_subscribed_color">#00cc66</color>
     <color name="fab_tosubscribe_color">#f44336</color>
+    <color name="unfin_color">#C90000</color>
     <color name="gray">#CDCCCC</color>
 </resources>

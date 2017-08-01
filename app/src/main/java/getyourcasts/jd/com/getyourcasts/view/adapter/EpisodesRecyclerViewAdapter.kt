@@ -1,6 +1,9 @@
 package getyourcasts.jd.com.getyourcasts.view.adapter
 
+import android.content.ContentValues
 import android.content.Context
+import android.graphics.Color
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,11 +16,13 @@ import com.tonyodev.fetch.Fetch
 import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.local.EpisodeTable
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.EpisodeListFragment
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 /**
@@ -80,49 +85,64 @@ class EpisodesRecyclerViewAdapter(var episodeList: List<Episode>,
                     // Now start Downloading
                     val url = episode.downloadUrl
                     val pairItems = StorageUtil.getPathToStoreEp(episode.podcastId, episode, fragment.context)
+                    // TODO :detect duplicate here to avoid crash
                     if (url != null) {
                         val transactionId = fragment.requestDownload(url, pairItems!!.first, pairItems.second)
-
+                        // if transaction is valid we can start listener to updat progress here
                         if (transactionId > 0) {
                             // disable play view and show progress
                             vh.downPlayImg.visibility = View.GONE
                             vh.progressView.visibility = View.VISIBLE
-                            // register listener
-                            // TODO: refactor and extends this class
-                            val listener = object : FetchListener {
-                                override fun onUpdate(id: Long, status: Int, progress: Int, downloadedBytes: Long, fileSize: Long, error: Int) {
-                                    // if this is the id that we are concerned
-                                    if (id == transactionId) {
-                                        when (status) {
-                                            Fetch.STATUS_DOWNLOADING -> {
-                                                vh.progressView.progress = progress
+                            vh.progressView.finishedColor = ContextCompat.getColor(ctx, R.color.unfin_color)
+
+                            // register listener for progress update
+                            val cvUpdate = ContentValues()
+                            cvUpdate.put(EpisodeTable.DOWNLOADED,1)
+                            val listener = object : EpisodeDownloadListener (transactionId) {
+
+                                override fun onProgressUpdate(progress: Int) {
+                                    vh.progressView.progress = progress
+                                }
+
+                                override fun onComplete() {
+                                    // now update db with new path to the audio file and downloaded
+                                    val cvUpdate = ContentValues()
+                                    cvUpdate.put(EpisodeTable.LOCAL_URL, pairItems.first)
+                                    cvUpdate.put(EpisodeTable.DOWNLOADED, 1)
+                                    val updateDbObsv = viewModel.getUpdateEpisodeObservable(episode, cvUpdate)
+                                    // update db with new local url and downloaded columns
+                                    updateDbObsv.observeOn(AndroidSchedulers.mainThread()).subscribe (
+                                            {
+                                                if (it){
+                                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                                    vh.downPlayImg.visibility = View.VISIBLE
+                                                    vh.progressView.visibility = View.GONE
+                                                }
+                                                else{
+                                                    // failed here also call onError
+                                                    onError()
+                                                }
+                                            },
+                                            {
+                                                Log.e(TAG, "Failed to update episode DB data ${episode.title}")
+                                                onError()
                                             }
-                                            Fetch.STATUS_DONE ->{
-                                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
-                                                vh.downPlayImg.visibility = View.VISIBLE
-                                                vh.progressView.visibility = View.GONE
-                                                // TODO: update database that the episode is already downloaded with
-                                                // correct local url
-                                            }
-                                        }
-                                    } else if (error != Fetch.NO_ERROR){
-                                        Log.e(TAG, "Error happens ${error.toString()}")
-                                        // TODO: Show snackbar or sth
-                                    }
+                                    )
+                                }
+
+                                override fun onError() {
+                                    Log.e(TAG, "Failed to download episode ${episode.title}")
+                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down)
+                                    vh.downPlayImg.visibility= View.VISIBLE
+                                    vh.progressView.visibility = View.GONE
                                 }
 
                             }
+                            // register listener to do the update progress
                             fragment.registerListener(transactionId, listener)
-
                         } else {
-                            Log.e(TAG, "Failed to start Download file ${episode.downloadUrl}")
-
+                            Log.e(TAG, "Failed to start Download file from Fetch ${episode.downloadUrl}")
                         }
-
-
-                        // register listener for progress update and also update DB later on
-
-
                     }
                 }
             }

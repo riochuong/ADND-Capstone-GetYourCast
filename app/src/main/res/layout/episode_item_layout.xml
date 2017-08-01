@@ -68,11 +68,13 @@
 
             <com.github.lzyzsd.circleprogress.CircleProgress
                 android:id="@+id/circle_progress"
-                android:layout_marginLeft="@dimen/tiny_margin"
+                android:layout_margin="@dimen/tiny_margin"
                 android:layout_gravity="end"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/circle_prog_size"
+                android:layout_height="@dimen/circle_prog_size"
                 android:visibility="gone"
+                custom:circle_unfinished_color="@color/unfin_color"
+                custom:circle_finished_color="@color/unfin_color"
                 custom:circle_progress="0"/>
 
     </FrameLayout>
