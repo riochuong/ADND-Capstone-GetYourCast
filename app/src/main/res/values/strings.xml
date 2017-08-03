@@ -15,4 +15,6 @@
     <string name="title_activity_episode_info">EpisodeInfoActivity</string>
     <string name="release_date_str">Release Date</string>
     <string name="ep_info_file_size">Media Info</string>
+    <string name="download_in_prog">Download In Progress</string>
+    <string name="download_complete">Download Complete</string>
 </resources>

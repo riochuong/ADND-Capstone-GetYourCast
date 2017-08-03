@@ -47,8 +47,8 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
     private var downloadItemMaps = HashMap<String, Long>()
 
     init {
-        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(fragment.context))
-        ctx = fragment.context
+        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(fragment.activity.applicationContext))
+        ctx = fragment.activity.applicationContext
         // quick hack to get bgColor
         bgColor =
                 ((fragment.view!!.findViewById(R.id.podcast_detail_appbar) as View).background as ColorDrawable).color
@@ -143,7 +143,7 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                             val pos = t.first
                             val transactionId = t.second
 
-                            val paths = StorageUtil.getPathToStoreEp(ep, fragment.context)
+                            val paths = StorageUtil.getPathToStoreEp(ep, fragment.activity.applicationContext)
                             val fullUrl = "${paths!!.first}/${paths.second}"
 
                             if (pos.equals(ep.getEpisodeUniqueKey())) {
@@ -212,7 +212,7 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                                          ) {
         // Now start Downloading
         val url = episode.downloadUrl
-        val pathItems = StorageUtil.getPathToStoreEp(episode, fragment.context)
+        val pathItems = StorageUtil.getPathToStoreEp(episode, fragment.activity.applicationContext)
         // TODO :detect duplicate here to avoid crash
         if (url != null) {
             val transactionId = fragment.requestDownload(url, pathItems!!.first, pathItems.second)

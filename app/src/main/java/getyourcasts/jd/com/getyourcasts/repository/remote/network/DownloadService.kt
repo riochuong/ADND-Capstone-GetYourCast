@@ -1,6 +1,5 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote.network
 
-import android.app.IntentService
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -10,6 +9,11 @@ import android.util.Log
 import com.tonyodev.fetch.Fetch
 import com.tonyodev.fetch.listener.FetchListener
 import com.tonyodev.fetch.request.Request
+import android.app.NotificationManager
+import android.support.v7.app.NotificationCompat
+import getyourcasts.jd.com.getyourcasts.R
+import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener
+
 
 /**
  * Created by chuondao on 7/30/17.
@@ -20,25 +24,40 @@ class DownloadService : Service() {
     private var binder: IBinder = DownloadServiceBinder()
     private lateinit var fetcher: Fetch
     private var listReqIds: MutableMap<Long,Long> = HashMap<Long,Long>()
-
+    private lateinit var notifyManager : NotificationManager
     companion object {
         val TAG = DownloadService.javaClass.simpleName
+        const val CONCC_LIMIT = 2
+
+    }
+
+    private fun initFetch(){
+        fetcher = Fetch.newInstance(this)
+        fetcher.setConcurrentDownloadsLimit(CONCC_LIMIT)
+        listReqIds  = HashMap<Long,Long>()
     }
 
 
     override fun onBind(intent: Intent?): IBinder {
         Log.d(TAG,"Download Service bound ! ")
-        fetcher = Fetch.newInstance(this)
-        listReqIds  = HashMap<Long,Long>()
+        initFetch()
         return binder
     }
 
     override fun onRebind(intent: Intent?) {
         if (! fetcher.isValid){
-            fetcher = Fetch.newInstance(this)
-            listReqIds  = HashMap<Long,Long>()
+            initFetch()
         }
         super.onRebind(intent)
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        notifyManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -53,6 +72,38 @@ class DownloadService : Service() {
           }
     }
 
+    private fun buildProgressNotification (fileName: String): NotificationCompat.Builder{
+        val mBuilder = NotificationCompat.Builder(this)
+        mBuilder.setContentTitle(fileName)
+                .setContentText(getString(R.string.download_in_prog))
+                .setSmallIcon(R.mipmap.ic_todownload)
+        return mBuilder
+    }
+
+    private fun registerLisenerForNotiProg(transId: Long, notiBuilder: NotificationCompat.Builder){
+        registerListener(
+                object: EpisodeDownloadListener(transId) {
+                    override fun onProgressUpdate(progress: Int) {
+                        notiBuilder.setProgress(100, progress, false)
+                        notifyManager.notify(1, notiBuilder.build())
+                    }
+
+                    override fun onComplete() {
+                       // remove progress bar
+                        notiBuilder.setProgress(0,0,false)
+                        // notify manager
+                        notifyManager.notify(1, notiBuilder.build())
+                        notiBuilder.setContentText(getString(R.string.download_complete))
+                    }
+
+                    override fun onError() {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+
+                }
+        )
+    }
+
     /**
      * the request download link
      * will be enqued and the id for the request will be returned
@@ -63,6 +114,7 @@ class DownloadService : Service() {
             val req = Request(url, dirPath, filename)
             val id = fetcher.enqueue(req)
             listReqIds.put(id,id)
+            registerLisenerForNotiProg(id, buildProgressNotification(filename))
             return id
         }
 
