@@ -173,15 +173,19 @@ class LocalDataRepository(val ctx: Context): DataRepository {
         return list
     }
 
-    override fun getEpisode(episodeName: String, podcastID: String): List<Episode> {
-        var list : List<Episode> = ArrayList<Episode>()
+    override fun getEpisode(episodeName: String, podcastID: String): Episode {
+        var ep : Episode = Episode("","","","","","","","",0,0,0)
         ctx.database.use {
-            val cursor = select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = $podcastID ) and ("
-                +EpisodeTable.EPISODE_NAME+" = $episodeName").exec {
-                list = convertToEpisodeList(this)
+             select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = $podcastID) and ("
+                +EpisodeTable.EPISODE_NAME+" = \"$episodeName\")").exec {
+                 if (this.count > 0){
+                     this.moveToFirst()
+                     ep = Episode.fromCursor(this)!!
+                 }
+
             }
         }
-        return list
+        return ep
     }
 
     override fun updatePodcast(cv: ContentValues, podcastId: String): Boolean {
@@ -199,6 +203,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
            val arrArgs = arrayOf(episode.title, episode.podcastId)
            this.update(EpisodeTable.NAME,cv, EPISODE_UPDATE_SELECT, arrArgs)
        }
+
        return res == 1
     }
 

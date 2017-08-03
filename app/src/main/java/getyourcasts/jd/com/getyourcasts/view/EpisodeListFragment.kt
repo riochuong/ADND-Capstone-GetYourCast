@@ -54,21 +54,22 @@ class EpisodeListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        podcast = getPodcastFromIntent()!!
+        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context))
         return inflater.inflate(R.layout.fragment_episode_list, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         startAnim()
-        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context))
         super.onViewCreated(view, savedInstanceState)
-        podcast = getPodcastFromIntent()!!
-
         // now load image
         initViews()
-
         bindDownloadService()
+    }
 
-
+    override fun onResume() {
+        super.onResume()
+        bindDownloadService()
     }
 
     private fun initViews(){
@@ -84,7 +85,7 @@ class EpisodeListFragment : Fragment() {
                         {
                             // now we can update adapter
                             if (it.size > 0){
-                                episodeAdapter.episodeList = it
+                                episodeAdapter.episodeList = it.toMutableList()
                                 episodeAdapter.notifyDataSetChanged()
                                 // now show the image
                                 stopAnim()
@@ -106,7 +107,7 @@ class EpisodeListFragment : Fragment() {
         layoutManager.orientation = LinearLayoutManager.VERTICAL
         episode_list_recylcer_view.layoutManager = layoutManager
         // initialize with empty list for now
-        episodeAdapter = EpisodesRecyclerViewAdapter(ArrayList<Episode>(),this)
+        episodeAdapter = EpisodesRecyclerViewAdapter(ArrayList<Episode>(),this, podcast)
         episode_list_recylcer_view.adapter = episodeAdapter
     }
 
@@ -119,7 +120,6 @@ class EpisodeListFragment : Fragment() {
                                                  Target<Drawable>?, dataSource:
                                                  DataSource?, isFirstResource: Boolean): Boolean
                     {
-                        // TODO : do some bitmap pallete operations here
                         if (resource != null && resource is BitmapDrawable){
                             val bitmap = resource.bitmap
                             // this will done in background thread with
@@ -191,10 +191,14 @@ class EpisodeListFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+    }
+
+    override fun onDestroy() {
         if (downloadService != null && boundToDownload){
             boundToDownload = false
             context.unbindService(serviceConnection)
         }
+        super.onDestroy()
     }
 
     private fun bindDownloadService(){

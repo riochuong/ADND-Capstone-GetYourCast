@@ -13,4 +13,6 @@
     <string name="no_results_found">No Results Found</string>
     <string name="title_activity_episode_list_details">EpisodeListDetailsActivity</string>
     <string name="title_activity_episode_info">EpisodeInfoActivity</string>
+    <string name="release_date_str">Release Date</string>
+    <string name="ep_info_file_size">Media Info</string>
 </resources>

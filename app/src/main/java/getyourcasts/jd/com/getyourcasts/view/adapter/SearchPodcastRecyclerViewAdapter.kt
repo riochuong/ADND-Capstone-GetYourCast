@@ -80,30 +80,49 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
                     // set onclickListenter to launch details podcast
                     podcastVh.itemView.setOnClickListener {
-                        val intent = Intent(ctx, PodcastDetailsActivity::class.java)
-                        intent.putExtra(PODCAST_KEY, podcastToPass)
-                        intent.putExtra(ITEM_POS_KEY,position)
-                        fragment.activity.startActivityForResult(intent, REQUEST_CODE)
-                        // sync with the detail object for working data
-                        PodcastViewModel.subsribeItemSync(object: Observer<Pair<Int, String>>{
-                            override fun onError(e: Throwable) {
-                                Log.e(TAG, "Failed to receive subject from Detail activity")
-                            }
 
-                            override fun onNext(t: Pair<Int, String>) {
-                                val pos = t.first
-                                this@SearchPodcastRecyclerViewAdapter.notifyItemChanged(pos)
-                            }
+                        // need to get the podcast from db to make sure it's updated
+                        viewModel.getIsPodcastInDbObservable(podcastToPass!!.collectionId)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        {
+                                            val intent = Intent(ctx, PodcastDetailsActivity::class.java)
+                                            // just in case the podcast is not in the db
+                                            if (it.collectionId.equals("")){
+                                                intent.putExtra(PODCAST_KEY, podcast)
+                                            } else{
+                                                intent.putExtra(PODCAST_KEY, it)
+                                            }
 
-                            override fun onComplete() {
-                                Log.e(TAG,"Subject Closed")
-                            }
+                                            intent.putExtra(ITEM_POS_KEY,position)
+                                            fragment.activity.startActivityForResult(intent, REQUEST_CODE)
+                                            // sync with the detail object for working data
+                                            PodcastViewModel.subsribeItemSync(object: Observer<Pair<Int, String>>{
+                                                override fun onError(e: Throwable) {
+                                                    Log.e(TAG, "Failed to receive subject from Detail activity")
+                                                }
 
-                            override fun onSubscribe(d: Disposable) {
-                               Log.d(TAG,"Successfully subscribed")
-                            }
+                                                override fun onNext(t: Pair<Int, String>) {
+                                                    val pos = t.first
+                                                    this@SearchPodcastRecyclerViewAdapter.notifyItemChanged(pos)
+                                                }
 
-                        })
+                                                override fun onComplete() {
+                                                    Log.e(TAG,"Subject Closed")
+                                                }
+
+                                                override fun onSubscribe(d: Disposable) {
+                                                    Log.d(TAG,"Successfully subscribed")
+                                                }
+
+                                            })
+                                        },
+                                        {
+                                            Log.e(TAG,"Unexpected Error before launch detailed podcast activity")
+                                        }
+                                )
+
+
                     }
                 },
                 {

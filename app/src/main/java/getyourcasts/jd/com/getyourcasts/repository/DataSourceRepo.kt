@@ -41,7 +41,7 @@ class DataSourceRepo(ctx: Context) : DataRepository
     }
 
     companion object {
-        var INST: DataSourceRepo? = null
+        private var INST: DataSourceRepo? = null
 
         fun getInstance(ctx: Context): DataSourceRepo {
              if (INST == null){
@@ -70,8 +70,8 @@ class DataSourceRepo(ctx: Context) : DataRepository
         return localRepo.getAllEpisodesOfPodcast(podcastId);
     }
 
-    override fun getEpisode(episodeId: String, podcastId: String): List<Episode> {
-        return ArrayList<Episode>();
+    override fun getEpisode(episodeTitle: String, podcastId: String): Episode {
+        return localRepo.getEpisode(episodeTitle, podcastId)
     }
 
     override fun updatePodcast(cv: ContentValues, podcastID: String): Boolean {

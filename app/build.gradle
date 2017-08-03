@@ -93,5 +93,8 @@ dependencies {
     // CIRCLE PROGRESS
     compile 'com.github.lzyzsd:circleprogress:1.2.1'
 
+    // EXO PLAYER
+    compile 'com.google.android.exoplayer:exoplayer:r2.4.4'
+
 
 }

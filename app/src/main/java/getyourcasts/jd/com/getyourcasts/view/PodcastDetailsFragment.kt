@@ -252,8 +252,6 @@ class PodcastDetailsFragment : Fragment() {
         }
 
         override fun onSwipeUpward(): Boolean {
-//            pocast_detail_description_layout.layoutParams.height = MINIMIZE_SIZE
-//            pocast_detail_description_layout.requestLayout()
             return false
         }
 

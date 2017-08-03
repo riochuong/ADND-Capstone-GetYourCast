@@ -23,7 +23,7 @@ interface DataRepository {
 
     fun getAllEpisodesOfPodcast(podcastId: String) : List<Episode>
 
-    fun getEpisode (episodeId: String, podcastId: String): List<Episode>
+    fun getEpisode (episodeId: String, podcastId: String): Episode
 
     // updates function
     /**

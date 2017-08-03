@@ -42,7 +42,7 @@ class DownloadService : Service() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        fetcher.release()
+//        fetcher.release()
         Log.d(TAG,"Download Service Unbound")
         return super.onUnbind(intent)
     }
@@ -73,6 +73,14 @@ class DownloadService : Service() {
         if (fetcher.isValid){
             fetcher.addFetchListener(listener)
             Log.d(TAG,"Successfully register Listener for Fetch download")
+        }else{
+            Log.d(TAG, "Failed to register Listener!!")
+        }
+    }
+
+    fun unregisterListener(listener: FetchListener){
+        if (fetcher.isValid){
+            fetcher.removeFetchListener(listener)
         }
     }
 }

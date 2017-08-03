@@ -12,6 +12,7 @@
 
 <GridLayout
     android:layout_width="match_parent"
+    android:id="@+id/episode_main_view_layout"
     android:rowCount="3"
     android:columnCount="3"
     android:layout_gravity="center_vertical"

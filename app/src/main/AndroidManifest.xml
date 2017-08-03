@@ -46,7 +46,7 @@
         <activity
             android:name=".view.EpisodeInfoActivity"
             android:label="@string/title_activity_episode_info"
-            android:theme="@style/AppTheme">
+            android:theme="@style/TransluentNoActionbar">
         </activity>
     </application>
 

@@ -21,7 +21,6 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         val NUM_TOP_RESULTS : Long = 20
         private var INSTANCE : PodcastViewModel? = null
 
-        private val itemSync : PublishSubject<Pair<Int,String>> = PublishSubject.create()
 
         fun getInstance(repo: DataSourceRepo): PodcastViewModel {
             if (INSTANCE == null){
@@ -30,10 +29,16 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
             return INSTANCE as PodcastViewModel
         }
 
+        /**
+         * this subject will help synchronize between the search list adapter
+         * and the detail podcast activity
+         */
+        private val itemSync : PublishSubject<Pair<Int,String>> = PublishSubject.create()
+
         /*subscribe to this subject to get
-        * notice about change of the state of
-        * the podcast either subscribed or not
-        * */
+       * notice about change of the state of
+       * the podcast either subscribed or not
+       * */
         fun subsribeItemSync(observer: Observer<Pair<Int,String>>){
             itemSync.subscribe(observer)
         }
@@ -42,6 +47,27 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
         fun getItemSyncSubject(): PublishSubject<Pair<Int,String>> {
             return itemSync
         }
+
+        /**
+         * this subject will help to synchronize between episode list episode and
+         * episode detail info for the downloading status of the episode
+         * this will emit progress and episode id
+         */
+        private val episodeDownloadItemSync : PublishSubject<Pair<String,Long>> = PublishSubject.create()
+
+        fun subscribeEpisodeDownload( observer: Observer<Pair<String, Long>>) {
+            episodeDownloadItemSync.subscribe(observer)
+        }
+
+        fun getEpisodeDownloadSubject() : PublishSubject<Pair<String,Long>> {
+            return episodeDownloadItemSync
+        }
+
+
+
+
+
+
     }
 
 
@@ -127,6 +153,12 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
     fun getUpdateEpisodeObservable (episode: Episode, cv: ContentValues) : Observable<Boolean> {
         return Observable.defer {
              Observable.just(dataRepo.updateEpisode(cv,episode))
+        }.subscribeOn(Schedulers.io())
+    }
+
+    fun getEpisodeObsevatble(episode: Episode): Observable<Episode> {
+        return Observable.defer {
+            Observable.just(dataRepo.getEpisode(episode.title, episode.podcastId))
         }.subscribeOn(Schedulers.io())
     }
 
