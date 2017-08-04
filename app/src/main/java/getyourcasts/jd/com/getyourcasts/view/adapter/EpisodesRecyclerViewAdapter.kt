@@ -70,6 +70,10 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
         val view = LayoutInflater.from(parent!!.context).inflate(R.layout.episode_item_layout, parent, false)
         // set view onClickListener
         val vh = EpisodeItemViewHolder(view)
+
+        // always make the progress to be red
+        vh.progressView.finishedColor = ContextCompat.getColor(ctx, R.color.unfin_color)
+
         return vh
     }
 
@@ -142,11 +146,14 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                         override fun onNext(t: Pair<String, Long>) {
                             val pos = t.first
                             val transactionId = t.second
-
                             val paths = StorageUtil.getPathToStoreEp(ep, fragment.activity.applicationContext)
                             val fullUrl = "${paths!!.first}/${paths.second}"
-
                             if (pos.equals(ep.getEpisodeUniqueKey())) {
+                                // need to update the downloading table
+                                synchronized(mapLock) {
+                                    downloadItemMaps.put(ep.getEpisodeUniqueKey(), transactionId)
+                                }
+
                                 val listener = getListenerForDownload(transactionId,
                                         vh,
                                         fullUrl,
@@ -215,7 +222,7 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
         val pathItems = StorageUtil.getPathToStoreEp(episode, fragment.activity.applicationContext)
         // TODO :detect duplicate here to avoid crash
         if (url != null) {
-            val transactionId = fragment.requestDownload(url, pathItems!!.first, pathItems.second)
+            val transactionId = fragment.requestDownload(url, pathItems!!.first, pathItems.second, episode.title)
 
             // if transaction is valid we can start listener to updat progress here
             if (transactionId > 0) {
@@ -228,7 +235,6 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                         transactionId))
                 // disable play view and show progress
                 showProgressView(vh)
-                vh.progressView.finishedColor = ContextCompat.getColor(ctx, R.color.unfin_color)
 
                 // register listener for progress update
                 val fullUrl = "${pathItems.first}/${pathItems}"

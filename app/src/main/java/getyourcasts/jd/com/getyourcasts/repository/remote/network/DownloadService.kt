@@ -25,6 +25,7 @@ class DownloadService : Service() {
     private lateinit var fetcher: Fetch
     private var listReqIds: MutableMap<Long,Long> = HashMap<Long,Long>()
     private lateinit var notifyManager : NotificationManager
+    private var currentId = 0
     companion object {
         val TAG = DownloadService.javaClass.simpleName
         const val CONCC_LIMIT = 2
@@ -36,6 +37,8 @@ class DownloadService : Service() {
         fetcher.setConcurrentDownloadsLimit(CONCC_LIMIT)
         listReqIds  = HashMap<Long,Long>()
     }
+
+
 
 
     override fun onBind(intent: Intent?): IBinder {
@@ -80,20 +83,22 @@ class DownloadService : Service() {
         return mBuilder
     }
 
-    private fun registerLisenerForNotiProg(transId: Long, notiBuilder: NotificationCompat.Builder){
+    private fun registerLisenerForNotiProg(transId: Long,
+                                           notiBuilder: NotificationCompat.Builder,
+                                           notiId: Int){
         registerListener(
                 object: EpisodeDownloadListener(transId) {
                     override fun onProgressUpdate(progress: Int) {
                         notiBuilder.setProgress(100, progress, false)
-                        notifyManager.notify(1, notiBuilder.build())
+                        notifyManager.notify(notiId, notiBuilder.build())
                     }
 
                     override fun onComplete() {
                        // remove progress bar
                         notiBuilder.setProgress(0,0,false)
                         // notify manager
-                        notifyManager.notify(1, notiBuilder.build())
                         notiBuilder.setContentText(getString(R.string.download_complete))
+                        notifyManager.notify(notiId, notiBuilder.build())
                     }
 
                     override fun onError() {
@@ -109,12 +114,15 @@ class DownloadService : Service() {
      * will be enqued and the id for the request will be returned
      * @return: -1 if failed to enqueue otherwise valid Id will be returned
      */
-    fun requestDownLoad (url: String, dirPath: String, filename: String): Long{
+    fun requestDownLoad (url: String,
+                         dirPath: String,
+                         filename: String,
+                         display: String): Long{
         if (fetcher.isValid){
             val req = Request(url, dirPath, filename)
             val id = fetcher.enqueue(req)
             listReqIds.put(id,id)
-            registerLisenerForNotiProg(id, buildProgressNotification(filename))
+            registerLisenerForNotiProg(id, buildProgressNotification(display), currentId++)
             return id
         }
 
@@ -134,5 +142,9 @@ class DownloadService : Service() {
         if (fetcher.isValid){
             fetcher.removeFetchListener(listener)
         }
+    }
+
+    fun requestStopDownload(transId: Long) {
+
     }
 }

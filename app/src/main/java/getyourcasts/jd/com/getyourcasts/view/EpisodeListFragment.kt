@@ -176,9 +176,12 @@ class EpisodeListFragment : Fragment() {
 
     }
 
-    fun requestDownload(url: String, dir: String, fileName:String): Long{
+    fun requestDownload(url: String,
+                        dir: String,
+                        fileName:String,
+                        display: String): Long{
         if (downloadService != null){
-            return( downloadService!!.requestDownLoad(url,dir,fileName))
+            return( downloadService!!.requestDownLoad(url,dir,fileName,display))
         }
         return -1
     }

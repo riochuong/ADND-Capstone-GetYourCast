@@ -4,7 +4,6 @@ package getyourcasts.jd.com.getyourcasts.repository.local
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import android.util.Log
 import getyourcasts.jd.com.getyourcasts.repository.DataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
@@ -13,7 +12,6 @@ import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import org.jetbrains.anko.db.insertOrThrow
 import org.jetbrains.anko.db.select
-import org.jetbrains.anko.db.transaction
 import org.jetbrains.anko.runOnUiThread
 
 
@@ -35,6 +33,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                            EpisodeTable.NAME,
                            EpisodeTable.EPISODE_NAME to it.title,
                            EpisodeTable.PODCAST_ID to it.podcastId,
+                           EpisodeTable.UNIQUE_ID to it.uniqueId,
                            EpisodeTable.DOWNLOADED to 0,
                            EpisodeTable.FILE_SIZE to it.fileSize,
                            EpisodeTable.DATE_RELEASED to it.pubDate,
@@ -54,7 +53,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
 
     companion object {
         val TAG = "LocalDataRepo"
-        val EPISODE_UPDATE_SELECT = "(${EpisodeTable.EPISODE_NAME}=?) and (${EpisodeTable.PODCAST_ID}=?)"
+        val EPISODE_UPDATE_SELECT = "(${EpisodeTable.UNIQUE_ID}=?) and (${EpisodeTable.PODCAST_ID}=?)"
         val PODCAST_UPDATE_SELECT = "${PodcastsTable.UNIQUE_ID}=?"
 
     }
@@ -106,7 +105,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
             select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = ${episode
                     .podcastId} ) " +
                     "and ("
-                    +EpisodeTable.EPISODE_NAME+" = ${episode.title}").exec {
+                    +EpisodeTable.UNIQUE_ID+" = ${episode.uniqueId}").exec {
                 this.count > 0
             }
         }
@@ -121,6 +120,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                         EpisodeTable.PODCAST_ID to episode.podcastId,
                         EpisodeTable.DOWNLOADED to episode.downloaded,
                         EpisodeTable.FILE_SIZE to episode.fileSize,
+                        EpisodeTable.UNIQUE_ID to episode.uniqueId,
                         EpisodeTable.DATE_RELEASED to episode.pubDate,
                         EpisodeTable.MEDIA_TYPE to episode.type,
                         EpisodeTable.DESCRIPTION to episode.description,
@@ -173,11 +173,11 @@ class LocalDataRepository(val ctx: Context): DataRepository {
         return list
     }
 
-    override fun getEpisode(episodeName: String, podcastID: String): Episode {
-        var ep : Episode = Episode("","","","","","","","",0,0,0)
+    override fun getEpisode(episodeUniqueId: String, podcastID: String): Episode {
+        var ep : Episode = Episode("","","","","","","","","",0,0,0)
         ctx.database.use {
              select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = $podcastID) and ("
-                +EpisodeTable.EPISODE_NAME+" = \"$episodeName\")").exec {
+                +EpisodeTable.UNIQUE_ID+" = \"$episodeUniqueId\")").exec {
                  if (this.count > 0){
                      this.moveToFirst()
                      ep = Episode.fromCursor(this)!!
@@ -200,7 +200,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
 
     override fun updateEpisode(cv: ContentValues, episode: Episode): Boolean {
        val res = ctx.database.use {
-           val arrArgs = arrayOf(episode.title, episode.podcastId)
+           val arrArgs = arrayOf(episode.uniqueId, episode.podcastId)
            this.update(EpisodeTable.NAME,cv, EPISODE_UPDATE_SELECT, arrArgs)
        }
 

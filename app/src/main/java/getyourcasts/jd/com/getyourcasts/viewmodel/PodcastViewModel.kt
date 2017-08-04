@@ -158,7 +158,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     fun getEpisodeObsevatble(episode: Episode): Observable<Episode> {
         return Observable.defer {
-            Observable.just(dataRepo.getEpisode(episode.title, episode.podcastId))
+            Observable.just(dataRepo.getEpisode(episode.uniqueId, episode.podcastId))
         }.subscribeOn(Schedulers.io())
     }
 

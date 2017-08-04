@@ -25,6 +25,9 @@ abstract class EpisodeDownloadListener(val transactionId: Long) : FetchListener 
                 Fetch.STATUS_DONE ->{
                     this.onComplete()
                 }
+                Fetch.STATUS_REMOVED -> {
+                    this.onStop()
+                }
             }
         } else if (error != Fetch.NO_ERROR){
             Log.e(EpisodesRecyclerViewAdapter.TAG, "Error happens ${error.toString()}")
@@ -35,6 +38,9 @@ abstract class EpisodeDownloadListener(val transactionId: Long) : FetchListener 
     abstract fun onProgressUpdate(progress:Int)
 
     abstract fun onComplete ()
+
+    /* called when we stop the download in the middle !! */
+    abstract fun onStop ()
 
     abstract fun onError()
 

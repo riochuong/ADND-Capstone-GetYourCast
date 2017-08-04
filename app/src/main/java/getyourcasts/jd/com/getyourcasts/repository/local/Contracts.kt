@@ -24,6 +24,7 @@ object EpisodeTable {
     val ID = "_id"
     val NAME = "EpisodeTable"
     val PODCAST_ID = "podcast_id"
+    val UNIQUE_ID = "unique_id"
     val EPISODE_NAME = "episode_name"
     val DATE_RELEASED = "date_released"
     val DATE_DOWNLOADED = "date_downloaded"

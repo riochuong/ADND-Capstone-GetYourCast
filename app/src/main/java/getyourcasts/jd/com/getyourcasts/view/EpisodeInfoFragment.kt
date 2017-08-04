@@ -39,6 +39,7 @@ class EpisodeInfoFragment : Fragment() {
     private lateinit var viewModel: PodcastViewModel
     private var isEpDownloading = false
     private var downloadListener : FetchListener? = null
+    private var transactionId = -1L
 
     companion object {
         val DATE_PUB_FORMAT = "%s-%s-%s"
@@ -89,22 +90,51 @@ class EpisodeInfoFragment : Fragment() {
             ep_info_media_info.text = MEDIA_INFO_FORMAT.format(StorageUtil.convertToMbRep(episode.fileSize!!))
         }
 
+        // get transaction id to determine downloading status
+        transactionId = getDownloadingStatusFromIntent()
+        if (transactionId > 0){
+            isEpDownloading = true
+        }
+
         setFabButtonOnClickListener()
 
         // add swipe detector to scroll views
         episode_info_main_layout.setOnTouchListener(SimpleSwipeDetector())
         episode_info_scroll_view.setOnTouchListener(SimpleSwipeDetector())
 
+        // init fab
+        initFabState()
+
         // enable main view
         stopAnim()
 
-        // check to see if we need to register listenser for downloading item
 
+
+    }
+
+    /**
+     * helper to initialize FAB button
+     */
+    private fun initFabState(){
+        // change fab color to red always
+        changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
+
+        if (isEpDownloading){
+            ep_info_fab.visibility = View.INVISIBLE
+            ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
+        }
+        else if (episode.downloaded == 0) {
+            ep_info_fab.visibility = View.VISIBLE
+            ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
+
+        } else {
+            ep_info_fab.visibility = View.VISIBLE
+            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+        }
     }
 
 
     private fun registerDownloadListener(){
-        val transactionId = getDownloadingStatusFromIntent()
         if (transactionId > 0) {
             isEpDownloading = true
             // if this is too early we can bind manually here
@@ -134,28 +164,13 @@ class EpisodeInfoFragment : Fragment() {
     }
 
     private fun setFabButtonOnClickListener() {
-
-        // set image icon for fab
-        // cheange to stop icon if it is downloading
-        if (isEpDownloading){
-            ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
-        }
-        else if (episode.downloaded == 0) {
-            ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
-            changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
-
-        } else {
-            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
-            changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
-        }
-
-
-
         // set on click listener
         ep_info_fab.setOnClickListener {
             // check if the ep is donwloading
-            if (!isEpDownloading) {
 
+            if (! isEpDownloading) {
+
+                // check if episode is already downloaded or not
                 if (episode.downloaded == 0) {
                     // bind download service
                     ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
@@ -171,11 +186,11 @@ class EpisodeInfoFragment : Fragment() {
             else{
                 // TODO: EPISODE IS DOWNLOADING ... WE CAN SEND REQUEST TO STOP HERE
             }
-
-
-
-
         }
+    }
+
+    private fun requestStopDownloadAndCleanup {
+
     }
 
     private fun startDownloadEpisode (){
@@ -189,9 +204,9 @@ class EpisodeInfoFragment : Fragment() {
             val downloadsPath = StorageUtil.getPathToStoreEp(episode, this.context)
 
             // get transaction id for
-            val transactionId = downloadService!!.requestDownLoad(episode.downloadUrl!!,
+            transactionId = downloadService!!.requestDownLoad(episode.downloadUrl!!,
                     downloadsPath!!.first,
-                    downloadsPath.second)
+                    downloadsPath.second, episode.title)
             //register listener for progress update
             if (transactionId > 0) {
                 if (downloadService != null) {

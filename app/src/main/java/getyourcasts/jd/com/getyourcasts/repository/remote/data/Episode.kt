@@ -12,6 +12,7 @@ import getyourcasts.jd.com.getyourcasts.repository.local.getStringValue
  */
 data class Episode(val podcastId: String,
                    val title: String,
+                   val uniqueId: String,
                    val pubDate: String?,
                    val description: String?,
                    val downloadUrl: String?,
@@ -33,7 +34,8 @@ data class Episode(val podcastId: String,
         fun fromFeedItem(feedItem: FeedItem, podcastId: String): Episode {
             return Episode(
                     podcastId,
-                    feedItem.title,
+                    feedItem.title.trim(),
+                    "${podcastId}_${feedItem.title.trim()}".hashCode().toString(),
                     feedItem.pubDate,
                     feedItem.description,
                     feedItem.mediaInfo?.url,
@@ -49,9 +51,14 @@ data class Episode(val podcastId: String,
         fun fromCursor(cursor: Cursor): Episode? {
             if (cursor.count > 0) {
 
+                val uniqueId =
+                        "${cursor.getStringValue(EpisodeTable.PODCAST_ID)}_${cursor.getStringValue(EpisodeTable
+                                .EPISODE_NAME)}".hashCode().toString()
+
                 return Episode(
                         cursor.getStringValue(EpisodeTable.PODCAST_ID)!!,
                         cursor.getStringValue(EpisodeTable.EPISODE_NAME)!!,
+                        uniqueId,
                         cursor.getStringValue(EpisodeTable.DATE_RELEASED),
                         cursor.getStringValue(EpisodeTable.DESCRIPTION),
                         cursor.getStringValue(EpisodeTable.FETCH_URL),
@@ -71,10 +78,11 @@ data class Episode(val podcastId: String,
     }
 
     fun getEpisodeUniqueKey(): String {
-        return "${this.podcastId}_${this.title}"
+        return "${this.podcastId}_${this.title}".hashCode().toString()
     }
 
     constructor(source: Parcel) : this(
+            source.readString(),
             source.readString(),
             source.readString(),
             source.readString(),
@@ -93,6 +101,7 @@ data class Episode(val podcastId: String,
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(podcastId)
         dest.writeString(title)
+        dest.writeString(uniqueId)
         dest.writeString(pubDate)
         dest.writeString(description)
         dest.writeString(downloadUrl)

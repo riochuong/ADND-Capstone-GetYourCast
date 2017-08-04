@@ -50,6 +50,7 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     EpisodeTable.ID to INTEGER + PRIMARY_KEY,
                     EpisodeTable.EPISODE_NAME to TEXT,
                     EpisodeTable.PODCAST_ID to TEXT,
+                    EpisodeTable.UNIQUE_ID to TEXT,
                     EpisodeTable.DOWNLOADED to INTEGER,
                     EpisodeTable.DATE_DOWNLOADED  to TEXT,
                     EpisodeTable.DATE_RELEASED to TEXT,
