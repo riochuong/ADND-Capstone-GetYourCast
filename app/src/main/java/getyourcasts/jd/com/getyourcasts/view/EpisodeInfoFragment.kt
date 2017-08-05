@@ -24,7 +24,9 @@ import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
+import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_episode_info.*
 
 /**
@@ -112,6 +114,46 @@ class EpisodeInfoFragment : Fragment() {
 
     }
 
+    private fun subscribeToEpisodeSubject (ep: Episode){
+        PodcastViewModel.subscribeEpisodeSubject(object : Observer<PodcastViewModel.EpisodeState> {
+            override fun onNext(epState: PodcastViewModel.EpisodeState) {
+                if (epState.uniqueId.equals(ep.getEpisodeUniqueKey())) {
+
+                    when (epState.state){
+                        PodcastViewModel.EpisodeState.DOWNLOADING -> {
+                            ep_info_fab.visibility = View.INVISIBLE
+                            ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
+                        }
+
+                        PodcastViewModel.EpisodeState.FETCHED -> {
+                            ep_info_fab.visibility = View.VISIBLE
+                            ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
+                        }
+
+                        PodcastViewModel.EpisodeState.DOWNLOADED -> {
+                            ep_info_fab.visibility = View.VISIBLE
+                            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                        }
+                    }
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onSubscribe(d: Disposable) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onComplete() {
+                ep_info_fab.visibility = View.VISIBLE
+                ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+            }
+
+        })
+    }
+
     /**
      * helper to initialize FAB button
      */
@@ -119,11 +161,11 @@ class EpisodeInfoFragment : Fragment() {
         // change fab color to red always
         changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
 
-        if (isEpDownloading){
+        if (episode.state == PodcastViewModel.EpisodeState.DOWNLOADING){
             ep_info_fab.visibility = View.INVISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
         }
-        else if (episode.downloaded == 0) {
+        else if (episode.state == PodcastViewModel.EpisodeState.FETCHED) {
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
 
@@ -134,16 +176,6 @@ class EpisodeInfoFragment : Fragment() {
     }
 
 
-    private fun registerDownloadListener(){
-        if (transactionId > 0) {
-            isEpDownloading = true
-            // if this is too early we can bind manually here
-            this.downloadListener = getDownloadListener(transactionId, null)
-            if (downloadListener != null){
-                this.downloadService!!.registerListener(downloadListener!!)
-            }
-        }
-    }
 
     // start loading animation
     private fun startAnim() {
@@ -170,8 +202,8 @@ class EpisodeInfoFragment : Fragment() {
 
             if (! isEpDownloading) {
 
-                // check if episode is already downloaded or not
-                if (episode.downloaded == 0) {
+                // check if episode is already state or not
+                if (episode.state == 0) {
                     // bind download service
                     ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
                     isEpDownloading = true
@@ -189,7 +221,7 @@ class EpisodeInfoFragment : Fragment() {
         }
     }
 
-    private fun requestStopDownloadAndCleanup {
+    private fun requestStopDownloadAndCleanup() {
 
     }
 
@@ -204,77 +236,14 @@ class EpisodeInfoFragment : Fragment() {
             val downloadsPath = StorageUtil.getPathToStoreEp(episode, this.context)
 
             // get transaction id for
-            transactionId = downloadService!!.requestDownLoad(episode.downloadUrl!!,
+            transactionId = downloadService!!.requestDownLoad(
+                    episode.uniqueId,
+                    episode.downloadUrl!!,
                     downloadsPath!!.first,
                     downloadsPath.second, episode.title)
-            //register listener for progress update
-            if (transactionId > 0) {
-                if (downloadService != null) {
-                    val fullUrl = "${downloadsPath.first}/${downloadsPath.second}"
-                    this.downloadListener = getDownloadListener(transactionId, fullUrl)
-                    this.downloadService!!.registerListener(this.downloadListener!!)
-                    // let's the subscriber of this subject know that this episode has
-                    // been started to download from this activity
-                    PodcastViewModel.getEpisodeDownloadSubject().onNext(Pair(getEpKeyFromIntent(),
-                            transactionId))
-                }
-            }
         } else {
             Log.e(TAG, "Download Service is not bound or Download URL is bad ${episode.toString()} ")
         }
-    }
-
-
-    /**
-     * download listener
-     */
-    private fun getDownloadListener(transId: Long, localUrl: String?): FetchListener {
-
-        val listener = object : EpisodeDownloadListener(transId) {
-
-            override fun onProgressUpdate(progress: Int) {
-                ep_info_fab.visibility = View.VISIBLE
-                ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
-            }
-
-            override fun onComplete() {
-                isEpDownloading = false
-                // update database
-                if (localUrl != null) {
-                    val cvUpdate = ContentValues()
-                    cvUpdate.put(EpisodeTable.LOCAL_URL, localUrl)
-                    cvUpdate.put(EpisodeTable.DOWNLOADED, 1)
-                    val updateDbObsv = viewModel.getUpdateEpisodeObservable(episode, cvUpdate)
-                    // update db with new local url and downloaded columns
-                    updateDbObsv.observeOn(AndroidSchedulers.mainThread()).subscribe(
-
-                            //
-                            {
-                                ep_info_fab.visibility = View.VISIBLE
-                                ep_info_fab.setImageResource(R.mipmap.ic_play_white)
-                                Log.d(TAG, "Download complete !!! ")
-                            },
-
-                            // ON ERROR
-                            {
-                                it.printStackTrace()
-                            }
-                    )
-                } else {
-                    // this case just set it to play we dont have to update the DB
-                    ep_info_fab.visibility = View.VISIBLE
-                    ep_info_fab.setImageResource(R.mipmap.ic_play_white)
-                }
-
-            }
-
-            override fun onError() {
-
-            }
-
-        }
-
-        return listener
     }
 
     private fun loadEpisodeImage() {
@@ -325,8 +294,6 @@ class EpisodeInfoFragment : Fragment() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             boundToDownload = true
             downloadService = (service as DownloadService.DownloadServiceBinder).getService()
-            // register download listener to listen as soon as it's available
-            registerDownloadListener()
         }
 
     }

@@ -20,7 +20,9 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
+import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.content_main_podcast.*
 import kotlinx.android.synthetic.main.fragment_podcast_detail_layout.*
@@ -44,14 +46,38 @@ class PodcastDetailsFragment : Fragment() {
     private lateinit var podcast : Podcast
     private var subscribed : Boolean = false
     private var isFullScreen: Boolean = false
-    private lateinit var itemSyncSubject : PublishSubject<Pair<Int, String>>
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        itemSyncSubject = PodcastViewModel.getItemSyncSubject()
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this.context))
         // disable subscribe button until all views are ready
         return inflater!!.inflate(R.layout.fragment_podcast_detail_layout, container, false)
+    }
+
+
+    private fun subscribeToPodcastUpdate(podcast: Podcast) {
+        PodcastViewModel.subscribePodcastSubject(object : Observer<PodcastViewModel.PodcastState> {
+            override fun onError(e: Throwable) {
+
+            }
+
+            override fun onNext(t: PodcastViewModel.PodcastState) {
+                if (t.uniqueId.equals(podcast.collectionId)) {
+                    // only the button and state have to change
+                    this@PodcastDetailsFragment.subscribed = (t.state == PodcastViewModel.PodcastState.SUBSCRIBED)
+                    this@PodcastDetailsFragment.setSubscribeButtonImg()
+                }
+            }
+
+            override fun onComplete() {
+
+            }
+
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+        })
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
@@ -60,6 +86,8 @@ class PodcastDetailsFragment : Fragment() {
         podcast = getPodcastFromIntent()!!
         pocast_detail_scroll_view.setOnTouchListener(DetailSwipeDetector())
         subscribed = if (podcast.description != null) true else false
+
+        // load all podcast details
         if (podcast != null) {
             // load details info
             loadPodcastImage(podcast)
@@ -67,7 +95,11 @@ class PodcastDetailsFragment : Fragment() {
             podcast_detail_title.text = podcast.collectionName
             podcast_detail_artist.text = podcast.artistName
             podcast_total_episodes.text = "${podcast.trackCount.toString()} Episodes"
+
+            // subscribe to any outside change
+            subscribeToPodcastUpdate(podcast)
         }
+
         // enable swipe detector
         podcast_detail_main_fragment.setOnTouchListener(DetailSwipeDetector())
 
@@ -80,7 +112,6 @@ class PodcastDetailsFragment : Fragment() {
                              .observeOn(AndroidSchedulers.mainThread())
                              .subscribe(
                                      {
-                                         itemSyncSubject.onNext(Pair(getItemPosFromIntent(),podcast.collectionId))
 
                                          // update podcast field of this device global val with the updated value
                                          // from db
@@ -144,7 +175,7 @@ class PodcastDetailsFragment : Fragment() {
         }
     }
 
-    fun loadRssDescription(pod: Podcast) {
+    private fun loadRssDescription(pod: Podcast) {
         if (subscribed && pod != null) {
             podcast_detail_desc.text = pod.description!!.trim()
             subscribe_button.isEnabled = true
@@ -182,7 +213,7 @@ class PodcastDetailsFragment : Fragment() {
     /**
      * load podcast from either local path or from http url
      */
-    fun loadPodcastImage(pod: Podcast) {
+    private fun loadPodcastImage(pod: Podcast) {
         if (pod.imgLocalPath != null) {
             GlideApp.with(this.context).load(pod.imgLocalPath).into(podcast_detail_img)
         } else {
@@ -193,7 +224,7 @@ class PodcastDetailsFragment : Fragment() {
     /**
      * get podcast pass from intent
      */
-    fun getPodcastFromIntent(): Podcast? {
+    private fun getPodcastFromIntent(): Podcast? {
         val podcast = activity.intent.extras[PODCAST_KEY]
         if (podcast is Podcast) {
             return podcast
@@ -202,13 +233,6 @@ class PodcastDetailsFragment : Fragment() {
         return null
     }
 
-    fun getItemPosFromIntent(): Int{
-        val pos = activity.intent.extras[ITEM_POS_KEY]
-        if (pos != null){
-            return pos as Int
-        }
-        return -1
-    }
 
     /**
      * Swipe detector

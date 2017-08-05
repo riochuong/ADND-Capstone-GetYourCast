@@ -51,6 +51,32 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
         return vh
     }
 
+
+    private fun subscribeToPodcastUpdate(podcastId: String, pos: Int) {
+        PodcastViewModel.subscribePodcastSubject(
+                object : Observer<PodcastViewModel.PodcastState> {
+            override fun onError(e: Throwable) {
+
+            }
+
+            override fun onNext(t: PodcastViewModel.PodcastState) {
+                if (t.uniqueId.equals(podcastId)) {
+                    // only the button and state have to change
+                    this@SearchPodcastRecyclerViewAdapter.notifyItemChanged(pos)
+                }
+            }
+
+            override fun onComplete() {
+
+            }
+
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+        })
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
         val podcast = podcastList[position]
         val podcastVh = holder as PodcastItemViewHolder
@@ -58,7 +84,6 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
         podcastVh.title.text = podcast.collectionName
         // need glide to load the image here
         val checkPodcastDbObs = viewModel.getIsPodcastInDbObservable(podcast.collectionId)
-
         // check to decide where to load image
         checkPodcastDbObs.observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
@@ -76,6 +101,11 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                             GlideApp.with(fragment).load(podcast.artworkUrl100.trim()).into(podcastVh.imgView)
                         }
                         podcastToPass = podcast
+                    }
+
+                    // subscribe to listen to change in podcast
+                    if (podcastToPass != null){
+                        subscribeToPodcastUpdate(podcastToPass.collectionId,position)
                     }
 
                     // set onclickListenter to launch details podcast
@@ -96,26 +126,6 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
                                             intent.putExtra(ITEM_POS_KEY,position)
                                             fragment.activity.startActivityForResult(intent, REQUEST_CODE)
-                                            // sync with the detail object for working data
-                                            PodcastViewModel.subsribeItemSync(object: Observer<Pair<Int, String>>{
-                                                override fun onError(e: Throwable) {
-                                                    Log.e(TAG, "Failed to receive subject from Detail activity")
-                                                }
-
-                                                override fun onNext(t: Pair<Int, String>) {
-                                                    val pos = t.first
-                                                    this@SearchPodcastRecyclerViewAdapter.notifyItemChanged(pos)
-                                                }
-
-                                                override fun onComplete() {
-                                                    Log.e(TAG,"Subject Closed")
-                                                }
-
-                                                override fun onSubscribe(d: Disposable) {
-                                                    Log.d(TAG,"Successfully subscribed")
-                                                }
-
-                                            })
                                         },
                                         {
                                             Log.e(TAG,"Unexpected Error before launch detailed podcast activity")
@@ -125,6 +135,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
                     }
                 },
+
                 {
                     it.printStackTrace()
                 } // failed to check

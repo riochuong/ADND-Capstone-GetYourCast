@@ -108,8 +108,8 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
     private fun setOnClickListenerForEpisodeInfo(vh: EpisodeItemViewHolder,
                                                  ep: Episode,
                                                  itemPos: Int
-                                                ) {
-
+    ) {
+        subscribeToEpisodeSyncSubject(ep, vh, itemPos)
         vh.mainLayout.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 val intent = Intent(ctx, EpisodeInfoActivity::class.java)
@@ -117,73 +117,76 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                 intent.putExtra(EPISODE_KEY, ep)
                 intent.putExtra(PODAST_IMG_KEY, podcast.imgLocalPath)
                 intent.putExtra(ITEM_KEY, ep.getEpisodeUniqueKey())
-                // check if this item is being downloaded
-                synchronized(mapLock) {
-                    if (downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
-                        intent.putExtra(IS_DOWNLOADING_KEY, downloadItemMaps[ep.getEpisodeUniqueKey()])
-                    }
-                }
                 ctx.startActivity(intent)
-
-
-                // subscribe to item sync just incase user start
-                // download episode from the details screen
-                if (ep.downloaded == 0) {
-                    // have to subscribe
-                    PodcastViewModel.subscribeEpisodeDownload(object : Observer<Pair<String, Long>> {
-                        override fun onError(e: Throwable) {
-                            e.printStackTrace()
-                        }
-
-                        override fun onComplete() {
-
-                        }
-
-                        override fun onSubscribe(d: Disposable) {
-
-                        }
-
-                        override fun onNext(t: Pair<String, Long>) {
-                            val pos = t.first
-                            val transactionId = t.second
-                            val paths = StorageUtil.getPathToStoreEp(ep, fragment.activity.applicationContext)
-                            val fullUrl = "${paths!!.first}/${paths.second}"
-                            if (pos.equals(ep.getEpisodeUniqueKey())) {
-                                // need to update the downloading table
-                                synchronized(mapLock) {
-                                    downloadItemMaps.put(ep.getEpisodeUniqueKey(), transactionId)
-                                }
-
-                                val listener = getListenerForDownload(transactionId,
-                                        vh,
-                                        fullUrl,
-                                        ep,
-                                        itemPos)
-
-                                // start showing progress
-                                showProgressView(vh)
-                                this@EpisodesRecyclerViewAdapter.fragment.registerListener(transactionId, listener)
-
-                            }
-                        }
-
-                    })
-                }
             }
 
         })
 
     }
 
+
+    private fun subscribeToEpisodeSyncSubject(ep: Episode, vh: EpisodeItemViewHolder, itemPos: Int) {
+        PodcastViewModel.subscribeEpisodeSubject(object : Observer<PodcastViewModel.EpisodeState> {
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+            }
+
+            override fun onComplete() {
+
+            }
+
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+            override fun onNext(epState: PodcastViewModel.EpisodeState) {
+                if (epState.uniqueId.equals(ep.getEpisodeUniqueKey())) {
+                    val paths = StorageUtil.getPathToStoreEp(ep, fragment.activity.applicationContext)
+                    val fullUrl = "${paths!!.first}/${paths.second}"
+                    when (epState.state) {
+                        PodcastViewModel.EpisodeState.DOWNLOADING -> {
+                            Log.d(TAG, "downloading update for episode ${ep.toString()}")
+                            val listener =
+                                    this@EpisodesRecyclerViewAdapter.getListenerForDownload(
+                                            epState.transId!!,
+                                            vh,
+                                            fullUrl,
+                                            ep,
+                                            itemPos)
+
+                            // start showing progress
+                            showProgressView(vh)
+                            this@EpisodesRecyclerViewAdapter.fragment.registerListener(epState.transId, listener)
+                            this@EpisodesRecyclerViewAdapter.updateItemData(ep, itemPos)
+                        }
+
+                        PodcastViewModel.EpisodeState.FETCHED -> {
+                            hideProgressView(vh)
+                            vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down)
+                            this@EpisodesRecyclerViewAdapter.updateItemData(ep, itemPos)
+                        }
+
+                        PodcastViewModel.EpisodeState.DOWNLOADED -> {
+                            hideProgressView(vh)
+                            vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                            this@EpisodesRecyclerViewAdapter.updateItemData(ep, itemPos)
+                        }
+                    }
+                }
+            }
+
+        })
+    }
+
     /**
      * show porgress view and hide button
      */
-    private fun showProgressView(vh : EpisodeItemViewHolder){
+    private fun showProgressView(vh: EpisodeItemViewHolder) {
         vh.downPlayImg.visibility = View.GONE
         vh.progressView.visibility = View.VISIBLE
     }
 
-    private fun hideProgressView(vh: EpisodeItemViewHolder){
+    private fun hideProgressView(vh: EpisodeItemViewHolder) {
         vh.downPlayImg.visibility = View.VISIBLE
         vh.progressView.visibility = View.GONE
     }
@@ -199,8 +202,8 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
         vh.downPlayImg.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 // check if
-                if (episode.downloaded == 0) {
-                    startDownloadEpisodeFile(episode, vh ,pos)
+                if (episode.state == 0) {
+                    startDownloadEpisodeFile(episode, vh, pos)
                 } else {
                     // TODO : add play feature here after implementing exoplayer
                 }
@@ -216,31 +219,38 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
     private fun startDownloadEpisodeFile(episode: Episode,
                                          vh: EpisodeItemViewHolder,
                                          itempos: Int
-                                         ) {
+    ) {
         // Now start Downloading
         val url = episode.downloadUrl
         val pathItems = StorageUtil.getPathToStoreEp(episode, fragment.activity.applicationContext)
         // TODO :detect duplicate here to avoid crash
         if (url != null) {
-            val transactionId = fragment.requestDownload(url, pathItems!!.first, pathItems.second, episode.title)
+            val transactionId = fragment.requestDownload(episode.uniqueId, url, pathItems!!.first, pathItems.second,
+                    episode
+                            .title)
 
             // if transaction is valid we can start listener to updat progress here
             if (transactionId > 0) {
-                // stored it in the map
-                synchronized(mapLock) {
-                    downloadItemMaps.put(episode.getEpisodeUniqueKey(), transactionId)
-                }
-                // synchronize with other views if it's availabe
-                PodcastViewModel.getEpisodeDownloadSubject().onNext(Pair(episode.getEpisodeUniqueKey(),
-                        transactionId))
-                // disable play view and show progress
-                showProgressView(vh)
 
-                // register listener for progress update
-                val fullUrl = "${pathItems.first}/${pathItems}"
-                val listener = getListenerForDownload(transactionId, vh, fullUrl, episode,itempos)
-                // register listener to do the update progress
-                fragment.registerListener(transactionId, listener)
+                // put it into the db
+                val cv = ContentValues()
+                cv.put(EpisodeTable.STATE, PodcastViewModel.EpisodeState.DOWNLOADING)
+                // update state of the episode only
+                viewModel.getUpdateEpisodeObservable(episode, cv)
+                        .subscribe(
+                                {
+                                    // register listener for progress update
+                                    val fullUrl = "${pathItems.first}/${pathItems}"
+                                    val listener = getListenerForDownload(transactionId, vh, fullUrl, episode, itempos)
+                                    // register listener to do the update progress
+                                    fragment.registerListener(transactionId, listener)
+                                },
+                                {
+                                    it.printStackTrace()
+                                    Log.e(TAG, "Unexpected error on Update downloading state")
+                                }
+                        )
+
             } else {
                 Log.e(EpisodesRecyclerViewAdapter.TAG, "Failed to start Download file from Fetch ${episode.downloadUrl}")
             }
@@ -253,43 +263,42 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                                        localUrl: String?,
                                        episode: Episode,
                                        itemPos: Int
-                                      ): EpisodeDownloadListener {
+    ): EpisodeDownloadListener {
         val listener = object : EpisodeDownloadListener(transactionId) {
 
             override fun onProgressUpdate(progress: Int) {
                 vh.progressView.progress = progress
             }
 
-            override fun onComplete() {
-                // remove downloaded item from map
-                synchronized(mapLock) {
-                    downloadItemMaps.remove(episode.getEpisodeUniqueKey())
-                }
-                // now update db with new path to the audio file and downloaded
+            override fun onStop() {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
 
-                    val cvUpdate = ContentValues()
-                    cvUpdate.put(EpisodeTable.LOCAL_URL, localUrl)
-                    cvUpdate.put(EpisodeTable.DOWNLOADED, 1)
-                    val updateDbObsv = viewModel.getUpdateEpisodeObservable(episode, cvUpdate)
-                    // update db with new local url and downloaded columns
-                    updateDbObsv.observeOn(AndroidSchedulers.mainThread()).subscribe(
-                            {
-                                if (it) {
-                                    // remove downloaded item from list
-                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
-                                    hideProgressView(vh)
-                                    updateItemData(episode, itemPos)
-                                } else {
-                                    // failed here also call onError
-                                    Log.e(TAG," Failed to update the db after download. The media file should be " +
-                                            "good  ")
-                                }
-                            },
-                            {
-                                Log.e(EpisodesRecyclerViewAdapter.TAG, "Failed to update episode DB data ${episode.title}")
-                                onError()
+            override fun onComplete() {
+
+                // now update db with new path to the audio file and state
+                val cvUpdate = ContentValues()
+                cvUpdate.put(EpisodeTable.LOCAL_URL, localUrl)
+                cvUpdate.put(EpisodeTable.STATE, PodcastViewModel.EpisodeState.DOWNLOADED)
+                val updateDbObsv = viewModel.getUpdateEpisodeObservable(episode, cvUpdate)
+                // update db with new local url and state columns
+                updateDbObsv.observeOn(AndroidSchedulers.mainThread()).subscribe(
+                        {
+                            if (it) {
+                                // remove state item from list
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                hideProgressView(vh)
+                            } else {
+                                // failed here also call onError
+                                Log.e(TAG, " Failed to update the db after download. The media file should be " +
+                                        "good  ")
                             }
-                    )
+                        },
+                        {
+                            Log.e(EpisodesRecyclerViewAdapter.TAG, "Failed to update episode DB data ${episode.title}")
+                            onError()
+                        }
+                )
 
 
             }
@@ -307,24 +316,19 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
     }
 
 
-    private fun updateItemData (ep: Episode, pos: Int) {
-        viewModel.getEpisodeObsevatble(ep)
+    private fun updateItemData(ep: Episode, pos: Int) {
+        viewModel.getEpisodeObsevable(ep)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (it.downloaded == 1){
-                        episodeList[pos] = it
-                        notifyItemChanged(pos)
-                    } else{
-                        // something wrong with db update
-                        Log.e(TAG,"Failed DB update very Unexepected")
-                    }
+                    episodeList[pos] = it
+                    notifyItemChanged(pos)
                 }
 
     }
 
     // suggest to download or play episode
     private fun loadCorrectDownOrPlayImg(ep: Episode, vh: EpisodeItemViewHolder) {
-        // check if the file is already downloaded or not
+        // check if the file is already state or not
         if (ep.localUrl == null) {
             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down)
         } else {

@@ -56,16 +56,21 @@
         android:scrollHorizontally="false"
         android:layout_columnSpan="1"/>
 
-    <FrameLayout>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_rowSpan="1"
+        android:layout_columnSpan="1"
+        >
 
         <ImageView
             android:id="@+id/episode_down_play_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_rowSpan="1"
             android:layout_margin="@dimen/tiny_margin"
-            android:layout_columnSpan="1"/>
+            />
 
             <com.github.lzyzsd.circleprogress.CircleProgress
                 android:id="@+id/circle_progress"

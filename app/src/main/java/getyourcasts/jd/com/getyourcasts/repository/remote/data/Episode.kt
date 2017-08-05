@@ -6,6 +6,7 @@ import android.os.Parcelable
 import getyourcasts.jd.com.getyourcasts.repository.local.EpisodeTable
 import getyourcasts.jd.com.getyourcasts.repository.local.getIntValue
 import getyourcasts.jd.com.getyourcasts.repository.local.getStringValue
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 
 /**
  * Created by chuondao on 7/22/17.
@@ -21,7 +22,8 @@ data class Episode(val podcastId: String,
                    val type: String?,
                    val favorite: Int?,
                    val progress: Int?,
-                   val downloaded: Int?
+                   val state: Int,
+                   val downloadTransId: String?
 ) : Parcelable {
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<Episode> = object : Parcelable.Creator<Episode> {
@@ -44,7 +46,8 @@ data class Episode(val podcastId: String,
                     feedItem.mediaInfo?.type,
                     0, // initilize favorite to NOT
                     0,
-                    0
+                    PodcastViewModel.EpisodeState.FETCHED,
+                    null
             )
         }
 
@@ -67,7 +70,8 @@ data class Episode(val podcastId: String,
                         cursor.getStringValue(EpisodeTable.MEDIA_TYPE),
                         cursor.getIntValue(EpisodeTable.FAVORITE),
                         cursor.getIntValue(EpisodeTable.PROGRESS),
-                        cursor.getIntValue(EpisodeTable.DOWNLOADED)
+                        cursor.getIntValue(EpisodeTable.STATE)!!,
+                        cursor.getStringValue(EpisodeTable.DOWNLOAD_TRANS_ID)
                 )
             }
             return null
@@ -93,7 +97,9 @@ data class Episode(val podcastId: String,
             source.readString(),
             source.readValue(Int::class.java.classLoader) as Int?,
             source.readValue(Int::class.java.classLoader) as Int?,
-            source.readValue(Int::class.java.classLoader) as Int?
+            source.readValue(Int::class.java.classLoader) as Int,
+            source.readString()
+
     )
 
     override fun describeContents() = 0
@@ -110,6 +116,7 @@ data class Episode(val podcastId: String,
         dest.writeString(type)
         dest.writeValue(favorite)
         dest.writeValue(progress)
-        dest.writeValue(downloaded)
+        dest.writeValue(state)
+        dest.writeValue(downloadTransId)
     }
 }

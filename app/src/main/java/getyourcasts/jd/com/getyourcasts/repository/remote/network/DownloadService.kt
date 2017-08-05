@@ -13,6 +13,8 @@ import android.app.NotificationManager
 import android.support.v7.app.NotificationCompat
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener
+import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastItemViewHolder
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 
 
 /**
@@ -83,11 +85,16 @@ class DownloadService : Service() {
         return mBuilder
     }
 
-    private fun registerLisenerForNotiProg(transId: Long,
+    private fun registerLisenerForNotiProg( epId: String,
+                                            transId: Long,
                                            notiBuilder: NotificationCompat.Builder,
                                            notiId: Int){
         registerListener(
                 object: EpisodeDownloadListener(transId) {
+                    override fun onStop() {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+
                     override fun onProgressUpdate(progress: Int) {
                         notiBuilder.setProgress(100, progress, false)
                         notifyManager.notify(notiId, notiBuilder.build())
@@ -99,6 +106,9 @@ class DownloadService : Service() {
                         // notify manager
                         notiBuilder.setContentText(getString(R.string.download_complete))
                         notifyManager.notify(notiId, notiBuilder.build())
+                        PodcastViewModel.updateEpisodeSubject(
+                                PodcastViewModel.EpisodeState(epId, PodcastViewModel.EpisodeState.DOWNLOADED, transId)
+                        )
                     }
 
                     override fun onError() {
@@ -114,15 +124,17 @@ class DownloadService : Service() {
      * will be enqued and the id for the request will be returned
      * @return: -1 if failed to enqueue otherwise valid Id will be returned
      */
-    fun requestDownLoad (url: String,
+    fun requestDownLoad (epId: String,
+                        url: String,
                          dirPath: String,
                          filename: String,
                          display: String): Long{
-        if (fetcher.isValid){
+        if (fetcher.isValid) {
             val req = Request(url, dirPath, filename)
             val id = fetcher.enqueue(req)
             listReqIds.put(id,id)
-            registerLisenerForNotiProg(id, buildProgressNotification(display), currentId++)
+            registerLisenerForNotiProg(epId, id, buildProgressNotification(display), currentId++)
+            // notify other views to change status
             return id
         }
 

@@ -33,7 +33,8 @@ object EpisodeTable {
     val LOCAL_URL = "local_url"
     val FETCH_URL = "fetch_url"
     val FILE_SIZE = "file_size"
-    val DOWNLOADED = "downloaded"
+    val STATE = "state"
     val FAVORITE = "favor"
     val MEDIA_TYPE = "media_type"
+    val DOWNLOAD_TRANS_ID = "dl_trans_id"
 }
