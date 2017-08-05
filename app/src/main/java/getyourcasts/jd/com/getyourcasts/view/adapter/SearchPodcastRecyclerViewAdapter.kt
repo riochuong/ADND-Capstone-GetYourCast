@@ -31,6 +31,8 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
 
     private val ctx: Context
 
+    private var disposableList = ArrayList<Disposable>()
+
     init {
         viewModel = fragment.searchViewModel
         ctx = fragment.context
@@ -71,10 +73,17 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
             }
 
             override fun onSubscribe(d: Disposable) {
-
+                disposableList.add(d)
             }
 
         })
+    }
+
+    fun cleanUpAllDisposable(){
+        disposableList.forEach {
+            it.dispose()
+        }
+        disposableList = ArrayList<Disposable>()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {

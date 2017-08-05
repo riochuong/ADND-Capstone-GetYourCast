@@ -13,19 +13,16 @@ import android.view.ViewGroup
 import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
-import getyourcasts.jd.com.getyourcasts.repository.local.EpisodeTable
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
 import getyourcasts.jd.com.getyourcasts.util.DatePub
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
-import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_episode_info.*
 
@@ -42,6 +39,7 @@ class EpisodeInfoFragment : Fragment() {
     private var isEpDownloading = false
     private var downloadListener : FetchListener? = null
     private var transactionId = -1L
+    private  var mainObserverDisposable : Disposable? = null
 
     companion object {
         val DATE_PUB_FORMAT = "%s-%s-%s"
@@ -107,21 +105,26 @@ class EpisodeInfoFragment : Fragment() {
         // init fab
         initFabState()
 
+
+        subscribeToEpisodeSubject(episode)
+
         // enable main view
         stopAnim()
-
-
-
     }
 
     private fun subscribeToEpisodeSubject (ep: Episode){
-        PodcastViewModel.subscribeEpisodeSubject(object : Observer<PodcastViewModel.EpisodeState> {
+        val observer = object : Observer<PodcastViewModel.EpisodeState> {
+
+            override fun onSubscribe(d: Disposable) {
+                mainObserverDisposable = d
+            }
+
             override fun onNext(epState: PodcastViewModel.EpisodeState) {
                 if (epState.uniqueId.equals(ep.getEpisodeUniqueKey())) {
 
                     when (epState.state){
                         PodcastViewModel.EpisodeState.DOWNLOADING -> {
-                            ep_info_fab.visibility = View.INVISIBLE
+                            ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
                         }
 
@@ -142,16 +145,13 @@ class EpisodeInfoFragment : Fragment() {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
-            override fun onSubscribe(d: Disposable) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
             override fun onComplete() {
                 ep_info_fab.visibility = View.VISIBLE
                 ep_info_fab.setImageResource(R.mipmap.ic_play_white)
             }
 
-        })
+        }
+        PodcastViewModel.subscribeEpisodeSubject(observer)
     }
 
     /**
@@ -161,17 +161,17 @@ class EpisodeInfoFragment : Fragment() {
         // change fab color to red always
         changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
 
-        if (episode.state == PodcastViewModel.EpisodeState.DOWNLOADING){
+        if (getIsDownloadingFromIntent()){
             ep_info_fab.visibility = View.INVISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
         }
-        else if (episode.state == PodcastViewModel.EpisodeState.FETCHED) {
+        else if (episode.downloaded == PodcastViewModel.EpisodeState.DOWNLOADED) {
             ep_info_fab.visibility = View.VISIBLE
-            ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
+            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
 
         } else {
             ep_info_fab.visibility = View.VISIBLE
-            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+            ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
         }
     }
 
@@ -203,7 +203,7 @@ class EpisodeInfoFragment : Fragment() {
             if (! isEpDownloading) {
 
                 // check if episode is already state or not
-                if (episode.state == 0) {
+                if (episode.downloaded == 0) {
                     // bind download service
                     ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
                     isEpDownloading = true
@@ -237,14 +237,15 @@ class EpisodeInfoFragment : Fragment() {
 
             // get transaction id for
             transactionId = downloadService!!.requestDownLoad(
-                    episode.uniqueId,
+                    episode,
                     episode.downloadUrl!!,
                     downloadsPath!!.first,
-                    downloadsPath.second, episode.title)
+                    downloadsPath.second)
         } else {
             Log.e(TAG, "Download Service is not bound or Download URL is bad ${episode.toString()} ")
         }
     }
+
 
     private fun loadEpisodeImage() {
         GlideApp.with(context)
@@ -265,6 +266,11 @@ class EpisodeInfoFragment : Fragment() {
         if (this.downloadListener != null
                 && downloadService != null){
             downloadService!!.unregisterListener(this.downloadListener!!)
+        }
+        // destroy main observer
+        if (mainObserverDisposable != null){
+            mainObserverDisposable!!.dispose()
+            mainObserverDisposable = null
         }
 
     }
@@ -319,8 +325,8 @@ class EpisodeInfoFragment : Fragment() {
         return data
     }
 
-    private fun getEpKeyFromIntent(): String {
-        val data = activity.intent.extras[EpisodesRecyclerViewAdapter.ITEM_KEY] as String
+    private fun getIsDownloadingFromIntent(): Boolean {
+        val data = activity.intent.getBooleanExtra(EpisodesRecyclerViewAdapter.IS_DOWNLOADING,false)
         return data
     }
 

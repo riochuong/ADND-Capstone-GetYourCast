@@ -46,6 +46,7 @@ class PodcastDetailsFragment : Fragment() {
     private lateinit var podcast : Podcast
     private var subscribed : Boolean = false
     private var isFullScreen: Boolean = false
+    private var podDisposable : Disposable? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -74,7 +75,7 @@ class PodcastDetailsFragment : Fragment() {
             }
 
             override fun onSubscribe(d: Disposable) {
-
+                podDisposable = d
             }
 
         })
@@ -152,6 +153,10 @@ class PodcastDetailsFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         this.activity.setResult(Activity.RESULT_OK, getIntentResult())
+        if (podDisposable != null){
+            podDisposable!!.dispose()
+            podDisposable = null
+        }
     }
 
     private fun getIntentResult(): Intent {

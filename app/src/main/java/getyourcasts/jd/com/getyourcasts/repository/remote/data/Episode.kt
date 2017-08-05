@@ -22,8 +22,7 @@ data class Episode(val podcastId: String,
                    val type: String?,
                    val favorite: Int?,
                    val progress: Int?,
-                   val state: Int,
-                   val downloadTransId: String?
+                   val downloaded: Int
 ) : Parcelable {
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<Episode> = object : Parcelable.Creator<Episode> {
@@ -46,8 +45,7 @@ data class Episode(val podcastId: String,
                     feedItem.mediaInfo?.type,
                     0, // initilize favorite to NOT
                     0,
-                    PodcastViewModel.EpisodeState.FETCHED,
-                    null
+                    0
             )
         }
 
@@ -70,8 +68,7 @@ data class Episode(val podcastId: String,
                         cursor.getStringValue(EpisodeTable.MEDIA_TYPE),
                         cursor.getIntValue(EpisodeTable.FAVORITE),
                         cursor.getIntValue(EpisodeTable.PROGRESS),
-                        cursor.getIntValue(EpisodeTable.STATE)!!,
-                        cursor.getStringValue(EpisodeTable.DOWNLOAD_TRANS_ID)
+                        cursor.getIntValue(EpisodeTable.DOWNLOADED)!!
                 )
             }
             return null
@@ -97,8 +94,8 @@ data class Episode(val podcastId: String,
             source.readString(),
             source.readValue(Int::class.java.classLoader) as Int?,
             source.readValue(Int::class.java.classLoader) as Int?,
-            source.readValue(Int::class.java.classLoader) as Int,
-            source.readString()
+            (source.readValue(Int::class.java.classLoader) as Int?)!!
+
 
     )
 
@@ -116,7 +113,6 @@ data class Episode(val podcastId: String,
         dest.writeString(type)
         dest.writeValue(favorite)
         dest.writeValue(progress)
-        dest.writeValue(state)
-        dest.writeValue(downloadTransId)
+        dest.writeValue(downloaded)
     }
 }

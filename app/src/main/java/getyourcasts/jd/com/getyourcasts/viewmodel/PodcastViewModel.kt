@@ -10,8 +10,10 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 
 /**
  * Created by chuondao on 7/22/17.
@@ -34,7 +36,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
          * this subject will help synchronize between the search list adapter
          * and the detail podcast activity
          */
-        private val podcastSyncSubject: BehaviorSubject<PodcastState> = BehaviorSubject.create()
+        private val podcastSyncSubject: PublishSubject<PodcastState> = PublishSubject.create()
 
         /*subscribe to this subject to get
        * notice about change of the state of
@@ -54,18 +56,18 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
          * episode detail info for the downloading status of the episode
          * this will emit progress and episode id
          */
-        private val episodeSyncSubject: BehaviorSubject<EpisodeState> = BehaviorSubject.create()
+        private val episodeSyncSubject: PublishSubject<EpisodeState> = PublishSubject.create()
 
-        fun subscribeEpisodeSubject(observer: Observer<EpisodeState>) {
-            episodeSyncSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(observer)
+        fun subscribeEpisodeSubject(observer: Observer<EpisodeState>){
+            episodeSyncSubject
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .subscribe(observer)
         }
 
         fun updateEpisodeSubject(epState: EpisodeState){
             episodeSyncSubject.onNext(epState)
         }
-
-
-
 
 
 
@@ -198,22 +200,6 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     private fun updateEpisode(episode: Episode, cv: ContentValues): Boolean{
         var res = dataRepo.updateEpisode(cv,episode)
-        if (res){
-            val state = cv[EpisodeTable.STATE] as Int
-            val transId = cv[EpisodeTable.DOWNLOAD_TRANS_ID] as String?
-            val uniqueId = episode.uniqueId
-
-            // update sync subject
-            if (transId == null){
-                updateEpisodeSubject(
-                        EpisodeState(uniqueId, state, null))
-            } else{
-                updateEpisodeSubject(
-                        EpisodeState(uniqueId, state, transId.toLong()))
-            }
-
-        }
-
         return res
     }
 

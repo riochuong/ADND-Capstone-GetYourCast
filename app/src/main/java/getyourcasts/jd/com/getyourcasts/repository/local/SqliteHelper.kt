@@ -51,7 +51,6 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     EpisodeTable.EPISODE_NAME to TEXT,
                     EpisodeTable.PODCAST_ID to TEXT,
                     EpisodeTable.UNIQUE_ID to TEXT,
-                    EpisodeTable.STATE to INTEGER,
                     EpisodeTable.DATE_DOWNLOADED  to TEXT,
                     EpisodeTable.DATE_RELEASED to TEXT,
                     EpisodeTable.PROGRESS to INTEGER,
@@ -61,7 +60,7 @@ class PodCastSqliteHelper (ctx: Context): ManagedSQLiteOpenHelper(ctx, PodCastSq
                     EpisodeTable.MEDIA_TYPE to TEXT,
                     EpisodeTable.DESCRIPTION to TEXT,
                     EpisodeTable.FAVORITE to INTEGER,
-                    EpisodeTable.DOWNLOAD_TRANS_ID to TEXT// either 0 or 1
+                    EpisodeTable.DOWNLOADED to INTEGER
             )
 
         }

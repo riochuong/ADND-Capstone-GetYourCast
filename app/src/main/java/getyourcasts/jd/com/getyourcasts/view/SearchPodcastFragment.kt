@@ -138,4 +138,9 @@ class SearchPodcastFragment : Fragment() {
         searching_prog_view.visibility = View.GONE
     }
 
+    override fun onPause() {
+        super.onPause()
+        searchAdapter.cleanUpAllDisposable()
+    }
+
 }// Required empty public constructor

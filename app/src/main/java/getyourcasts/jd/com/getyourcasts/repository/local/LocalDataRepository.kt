@@ -34,14 +34,12 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                            EpisodeTable.EPISODE_NAME to it.title,
                            EpisodeTable.PODCAST_ID to it.podcastId,
                            EpisodeTable.UNIQUE_ID to it.uniqueId,
-                           EpisodeTable.STATE to 0,
                            EpisodeTable.FILE_SIZE to it.fileSize,
                            EpisodeTable.DATE_RELEASED to it.pubDate,
                            EpisodeTable.MEDIA_TYPE to it.type,
                            EpisodeTable.DESCRIPTION to it.description,
                            EpisodeTable.FETCH_URL to it.downloadUrl,
-                           EpisodeTable.FAVORITE to 0,
-                           EpisodeTable.DOWNLOAD_TRANS_ID to it.downloadTransId
+                           EpisodeTable.FAVORITE to 0
                    ) > 0
                }
            }
@@ -119,7 +117,6 @@ class LocalDataRepository(val ctx: Context): DataRepository {
                         EpisodeTable.NAME,
                         EpisodeTable.EPISODE_NAME to episode.title,
                         EpisodeTable.PODCAST_ID to episode.podcastId,
-                        EpisodeTable.STATE to episode.state,
                         EpisodeTable.FILE_SIZE to episode.fileSize,
                         EpisodeTable.UNIQUE_ID to episode.uniqueId,
                         EpisodeTable.DATE_RELEASED to episode.pubDate,
@@ -175,7 +172,7 @@ class LocalDataRepository(val ctx: Context): DataRepository {
     }
 
     override fun getEpisode(episodeUniqueId: String, podcastID: String): Episode {
-        var ep : Episode = Episode("","","","","","","","","",0,0,0,"")
+        var ep : Episode = Episode("","","","","","","","","",0,0,0)
         ctx.database.use {
              select(EpisodeTable.NAME).whereArgs("("+EpisodeTable.PODCAST_ID+" = $podcastID) and ("
                 +EpisodeTable.UNIQUE_ID+" = \"$episodeUniqueId\")").exec {

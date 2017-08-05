@@ -10,11 +10,16 @@ import com.tonyodev.fetch.Fetch
 import com.tonyodev.fetch.listener.FetchListener
 import com.tonyodev.fetch.request.Request
 import android.app.NotificationManager
+import android.content.ContentValues
 import android.support.v7.app.NotificationCompat
 import getyourcasts.jd.com.getyourcasts.R
+import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.local.EpisodeTable
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener
 import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastItemViewHolder
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 /**
@@ -28,6 +33,9 @@ class DownloadService : Service() {
     private var listReqIds: MutableMap<Long,Long> = HashMap<Long,Long>()
     private lateinit var notifyManager : NotificationManager
     private var currentId = 0
+
+    private lateinit  var viewModel : PodcastViewModel
+
     companion object {
         val TAG = DownloadService.javaClass.simpleName
         const val CONCC_LIMIT = 2
@@ -46,6 +54,7 @@ class DownloadService : Service() {
     override fun onBind(intent: Intent?): IBinder {
         Log.d(TAG,"Download Service bound ! ")
         initFetch()
+        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this))
         return binder
     }
 
@@ -85,10 +94,11 @@ class DownloadService : Service() {
         return mBuilder
     }
 
-    private fun registerLisenerForNotiProg( epId: String,
+    private fun registerLisenerForNotiProg( ep: Episode,
                                             transId: Long,
                                            notiBuilder: NotificationCompat.Builder,
-                                           notiId: Int){
+                                           notiId: Int,
+                                            fullUrl: String){
         registerListener(
                 object: EpisodeDownloadListener(transId) {
                     override fun onStop() {
@@ -98,6 +108,10 @@ class DownloadService : Service() {
                     override fun onProgressUpdate(progress: Int) {
                         notiBuilder.setProgress(100, progress, false)
                         notifyManager.notify(notiId, notiBuilder.build())
+                        PodcastViewModel.updateEpisodeSubject(
+                                PodcastViewModel.EpisodeState(ep.uniqueId,
+                                                              PodcastViewModel.EpisodeState.DOWNLOADING,
+                                                              transId.toLong()))
                     }
 
                     override fun onComplete() {
@@ -106,35 +120,80 @@ class DownloadService : Service() {
                         // notify manager
                         notiBuilder.setContentText(getString(R.string.download_complete))
                         notifyManager.notify(notiId, notiBuilder.build())
-                        PodcastViewModel.updateEpisodeSubject(
-                                PodcastViewModel.EpisodeState(epId, PodcastViewModel.EpisodeState.DOWNLOADED, transId)
-                        )
+                        // update the DB
+                        val cvUpdate = ContentValues()
+                        cvUpdate.put(EpisodeTable.LOCAL_URL, fullUrl)
+                        cvUpdate.put(EpisodeTable.DOWNLOADED, PodcastViewModel.EpisodeState.DOWNLOADED)
+                        viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        {
+                                           Log.d(TAG,"Successfully update DB $ep")
+                                            PodcastViewModel.updateEpisodeSubject(
+                                                    PodcastViewModel.EpisodeState(ep.uniqueId,
+                                                            PodcastViewModel.EpisodeState.DOWNLOADED,
+                                                            transId.toLong()))
+                                        },
+                                        {
+
+                                        }
+                                )
+
+
                     }
 
                     override fun onError() {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                        Log.e(TAG, "Failed to request download ${ep.downloadUrl}")
+                        val cvUpdate = ContentValues()
+                        cvUpdate.put(EpisodeTable.LOCAL_URL, "")
+                        cvUpdate.put(EpisodeTable.DOWNLOADED, 0)
+                        viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        {
+                                            Log.d(TAG,"Successfully update DB $ep")
+                                            PodcastViewModel.updateEpisodeSubject(
+                                                    PodcastViewModel.EpisodeState(ep.uniqueId,
+                                                            PodcastViewModel.EpisodeState.FETCHED,
+                                                            transId.toLong()))
+                                        },
+                                        {
+
+                                        }
+                                )
+
                     }
 
                 }
         )
     }
 
+
     /**
      * the request download link
      * will be enqued and the id for the request will be returned
      * @return: -1 if failed to enqueue otherwise valid Id will be returned
      */
-    fun requestDownLoad (epId: String,
-                        url: String,
+    fun requestDownLoad (episode: Episode,
+                         url: String,
                          dirPath: String,
-                         filename: String,
-                         display: String): Long{
+                         filename: String): Long{
         if (fetcher.isValid) {
             val req = Request(url, dirPath, filename)
             val id = fetcher.enqueue(req)
             listReqIds.put(id,id)
-            registerLisenerForNotiProg(epId, id, buildProgressNotification(display), currentId++)
+            val fullUrl = "${dirPath}/$filename"
+            registerLisenerForNotiProg(episode,
+                                        id,
+                    buildProgressNotification(episode.title),
+                    currentId++,
+                    fullUrl)
+
             // notify other views to change status
+            PodcastViewModel.updateEpisodeSubject(
+                    PodcastViewModel.EpisodeState(episode.uniqueId, PodcastViewModel.EpisodeState.DOWNLOADING, id
+                            .toLong()))
+
             return id
         }
 

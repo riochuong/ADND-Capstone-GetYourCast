@@ -176,26 +176,28 @@ class EpisodeListFragment : Fragment() {
 
     }
 
-    fun requestDownload(epId: String,
+    fun requestDownload(ep: Episode,
                         url: String,
                         dir: String,
-                        fileName:String,
-                        display: String): Long{
+                        fileName:String): Long{
         if (downloadService != null){
-            return downloadService!!.requestDownLoad(epId,url,dir,fileName,display)
+            return downloadService!!.requestDownLoad(ep,url,dir,fileName)
         }
         return -1
     }
 
-    fun registerListener(id : Long, listener: FetchListener){
+    fun registerListener(listener: FetchListener){
         if (downloadService != null){
             downloadService!!.registerListener(listener)
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    fun unRegisterListener(listener: FetchListener){
+        if (downloadService != null){
+            downloadService!!.unregisterListener(listener)
+        }
     }
+
 
     override fun onDestroy() {
         if (downloadService != null && boundToDownload){
@@ -203,6 +205,7 @@ class EpisodeListFragment : Fragment() {
             context.unbindService(serviceConnection)
         }
         super.onDestroy()
+        episodeAdapter.cleanUpAllDisposables()
     }
 
     private fun bindDownloadService(){
