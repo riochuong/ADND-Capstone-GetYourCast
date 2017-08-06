@@ -2,7 +2,6 @@ package getyourcasts.jd.com.getyourcasts.viewmodel
 
 import android.content.ContentValues
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
-import getyourcasts.jd.com.getyourcasts.repository.local.EpisodeTable
 import getyourcasts.jd.com.getyourcasts.repository.local.PodcastsTable
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
@@ -10,9 +9,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
 /**
@@ -188,6 +185,18 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
             }
         ) .subscribeOn(Schedulers.io())
     }
+
+
+    fun getAllSubscribedPodcastObservable() : Observable<MutableList<Podcast>> {
+        return Observable.defer {
+            Observable.just (getAllPodcasts())
+        }.subscribeOn(Schedulers.io())
+    }
+
+    private fun getAllPodcasts():MutableList<Podcast> {
+        return dataRepo.getAllPodcast().toMutableList()
+    }
+
 
     /**
      * get update Pod

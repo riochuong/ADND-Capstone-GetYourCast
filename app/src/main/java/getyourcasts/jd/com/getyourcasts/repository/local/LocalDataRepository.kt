@@ -57,6 +57,27 @@ class LocalDataRepository(val ctx: Context): DataRepository {
 
     }
 
+
+    /**
+     * query all available podcasts in the db
+     */
+    override fun getAllPodcast(): List<Podcast> {
+        var list : List<Podcast> = ArrayList<Podcast>()
+        try {
+            ctx.database.use {
+                select(PodcastsTable.NAME).exec {
+                    list = convertToPodcastList(this)
+                }
+            }
+        }
+        catch(e: Exception) {
+            e.printStackTrace()
+        }
+
+        return list
+    }
+
+
     override fun insertPodcastToDb(pod: Podcast): Boolean {
             // check if Podcast is already inserted before
             val isInDb = ctx.database.use{
@@ -221,7 +242,13 @@ class LocalDataRepository(val ctx: Context): DataRepository {
     }
 
     private fun convertToPodcastList (cursor:Cursor): List<Podcast>{
-        return ArrayList<Podcast>()
+        val list = ArrayList<Podcast>()
+        cursor.moveToFirst()
+        for (i in 0..(cursor.count - 1)) {
+            cursor.moveToPosition(i)
+            list.add(Podcast.fromCursor(cursor)!!)
+        }
+        return list
     }
 
 

@@ -19,6 +19,8 @@ interface DataRepository {
 
     fun getPodcast(podcastId: String) : Podcast?
 
+    fun getAllPodcast() : List<Podcast>
+
     fun downloadFeed(feedUrl: String): Channel?
 
     fun getAllEpisodesOfPodcast(podcastId: String) : List<Episode>

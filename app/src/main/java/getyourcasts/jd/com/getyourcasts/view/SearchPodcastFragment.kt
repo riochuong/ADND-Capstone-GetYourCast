@@ -140,7 +140,10 @@ class SearchPodcastFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        searchAdapter.cleanUpAllDisposable()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        searchAdapter.cleanUpAllDisposable()
+    }
 }// Required empty public constructor

@@ -17,22 +17,24 @@
             android:name=".view.SearchNewPodcastActivity"
             android:label="@string/app_name"
             android:theme="@style/TransluentNoActionbar">
+
+        </activity>
+        <activity
+            android:name=".view.MainPodcastActivity"
+            android:theme="@style/RegularNoActionbar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name=".view.MainPodcastActivity"
-            android:label="@string/title_activity_main_podcast"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+
         <activity
             android:name=".view.PodcastDetailsActivity"
             android:label="@string/title_activity_podcast_detail_layout"
             android:theme="@style/TransluentNoActionbar">
         </activity>
+
         <activity
             android:name=".view.EpisodeListActivity"
             android:label="@string/title_activity_episode_list_details"
@@ -48,6 +50,7 @@
             android:label="@string/title_activity_episode_info"
             android:theme="@style/TransluentNoActionbar">
         </activity>
+
     </application>
 
 </manifest>

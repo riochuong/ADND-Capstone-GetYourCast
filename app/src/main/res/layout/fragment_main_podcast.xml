@@ -1,10 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="getyourcasts.jd.com.getyourcasts.view.MainPodcastActivityFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="getyourcasts.jd.com.getyourcasts.view.MainPodcastFragment"
     tools:showIn="@layout/activity_main_podcast">
+    
+    
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            
+            <!--Search layout-->
+            <ImageView
+                android:id="@+id/search_podcast_btn"
+                android:src="@mipmap/ic_pod_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            
+        </android.support.v7.widget.Toolbar>
+        
+    </android.support.design.widget.AppBarLayout>
+    
+    
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/subscribed_podcast_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/small_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
 
-</android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.RecyclerView>
+
+</android.support.design.widget.CoordinatorLayout>

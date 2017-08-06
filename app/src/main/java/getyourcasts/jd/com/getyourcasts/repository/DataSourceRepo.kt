@@ -15,6 +15,10 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 
 class DataSourceRepo(ctx: Context) : DataRepository
 {
+    override fun getAllPodcast(): List<Podcast> {
+        return localRepo.getAllPodcast()
+    }
+
     override fun insertEpisodes(episodes: List<Episode>): Boolean {
         return localRepo.insertEpisodes(episodes)
     }
