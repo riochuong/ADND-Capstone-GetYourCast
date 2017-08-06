@@ -18,11 +18,17 @@
             android:layout_height="wrap_content">
             
             <!--Search layout-->
-            <ImageView
-                android:id="@+id/search_podcast_btn"
-                android:src="@mipmap/ic_pod_search"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:gravity="end"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/search_podcast_btn"
+                    android:src="@mipmap/ic_pod_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
             
         </android.support.v7.widget.Toolbar>
         

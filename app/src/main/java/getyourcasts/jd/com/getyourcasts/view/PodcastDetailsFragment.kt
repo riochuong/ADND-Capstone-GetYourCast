@@ -138,7 +138,7 @@ class PodcastDetailsFragment : Fragment() {
                                      }
                              )
                 }
-                else{
+                else {
                     // now we need to start details list of all episodes
                     val intent = Intent(fragment.activity, EpisodeListActivity::class.java)
                     intent.putExtra(PODCAST_KEY,podcast)
@@ -152,17 +152,10 @@ class PodcastDetailsFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        this.activity.setResult(Activity.RESULT_OK, getIntentResult())
         if (podDisposable != null){
             podDisposable!!.dispose()
             podDisposable = null
         }
-    }
-
-    private fun getIntentResult(): Intent {
-        val result = Intent()
-        result.putExtra(SUBSCRIBED_KEY,subscribed)
-        return result
     }
 
     private fun changeFabColor (color :Int){

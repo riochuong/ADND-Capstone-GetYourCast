@@ -4,21 +4,19 @@ import android.content.Intent
 import android.support.v4.app.Fragment
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastMainViewAdapter
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
+import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_main_podcast.*
-import android.util.DisplayMetrics
-
 
 
 /**
@@ -36,15 +34,16 @@ class MainPodcastFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context))
-        adapter = PodcastMainViewAdapter(ArrayList<Podcast>(), context)
+        adapter = PodcastMainViewAdapter(ArrayList<Podcast>(), this)
         return inflater.inflate(R.layout.fragment_main_podcast, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeRecyclerView()
-        loadDatatoAdapter()
+        updateDataToAdapter()
         setSearchButtonOnClickListener()
+        subscribeToPodcastSubject()
     }
 
     private fun getScreenSizes (): Pair<Float,Float> {
@@ -68,8 +67,8 @@ class MainPodcastFragment : Fragment() {
     }
 
     // load data to adapter
-    private fun loadDatatoAdapter() {
-        if (viewModel != null){
+    private fun updateDataToAdapter() {
+        if (viewModel != null) {
             viewModel.getAllSubscribedPodcastObservable()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -94,4 +93,32 @@ class MainPodcastFragment : Fragment() {
             context.startActivity(launchSearch)
         }
     }
+
+    private fun subscribeToPodcastSubject () {
+        PodcastViewModel.subscribePodcastSubject(
+                object : Observer<PodcastViewModel.PodcastState> {
+                    override fun onComplete() {
+
+                    }
+
+                    override fun onError(e: Throwable) {
+
+                    }
+
+                    override fun onNext(t: PodcastViewModel.PodcastState) {
+                        if (t.state == PodcastViewModel.PodcastState.SUBSCRIBED) {
+                            // need to update the list
+                            updateDataToAdapter()
+                        }
+                    }
+
+                    override fun onSubscribe(d: Disposable) {
+
+                    }
+
+                }
+        )
+
+    }
+
 }
