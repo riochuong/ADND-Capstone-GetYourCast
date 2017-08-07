@@ -37,7 +37,7 @@ class EpisodeInfoFragment : Fragment() {
     private lateinit var imgUrl: String
     private var datePub: DatePub? = null
     private lateinit var viewModel: PodcastViewModel
-    private var isEpDownloading = false
+    private var fabState = PRESS_TO_DOWNLOAD
     private var downloadListener : FetchListener? = null
     private var transactionId = -1L
     private  var mainObserverDisposable : Disposable? = null
@@ -47,6 +47,14 @@ class EpisodeInfoFragment : Fragment() {
         val DATE_PUB_FORMAT = "%s-%s-%s"
         val MEDIA_INFO_FORMAT = "Size: %s"
         val TAG = EpisodeInfoFragment::class.java.simpleName
+
+
+        // STATE OF FAB
+        const val PRESS_TO_DOWNLOAD = 0
+        const val PRESS_TO_STOP_DOWNLOAD =1
+        const val PRESS_TO_PLAY = 2
+        const val PRESS_TO_PAUSE = 3
+        const val PRESS_TO_UNPAUSE = 4
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -92,12 +100,6 @@ class EpisodeInfoFragment : Fragment() {
             ep_info_media_info.text = MEDIA_INFO_FORMAT.format(StorageUtil.convertToMbRep(episode.fileSize!!))
         }
 
-        // get transaction id to determine downloading status
-        transactionId = getDownloadingStatusFromIntent()
-        if (transactionId > 0){
-            isEpDownloading = true
-        }
-
         setFabButtonOnClickListener()
 
         // add swipe detector to scroll views
@@ -106,7 +108,6 @@ class EpisodeInfoFragment : Fragment() {
 
         // init fab
         initFabState()
-
 
         subscribeToEpisodeSubject(episode)
 
@@ -126,16 +127,19 @@ class EpisodeInfoFragment : Fragment() {
 
                     when (epState.state){
                         PodcastViewModel.EpisodeState.DOWNLOADING -> {
+                            fabState = PRESS_TO_STOP_DOWNLOAD
                             ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
                         }
 
                         PodcastViewModel.EpisodeState.FETCHED -> {
+                            fabState = PRESS_TO_DOWNLOAD
                             ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
                         }
 
                         PodcastViewModel.EpisodeState.DOWNLOADED -> {
+                            fabState = PRESS_TO_PLAY
                             ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
                         }
@@ -164,14 +168,17 @@ class EpisodeInfoFragment : Fragment() {
         changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
 
         if (getIsDownloadingFromIntent()){
+            fabState = PRESS_TO_STOP_DOWNLOAD
             ep_info_fab.visibility = View.INVISIBLE
-            ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
+            ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
         }
         else if (episode.downloaded == PodcastViewModel.EpisodeState.DOWNLOADED) {
+            fabState = PRESS_TO_PLAY
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
 
         } else {
+            fabState = PRESS_TO_DOWNLOAD
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
         }
@@ -202,31 +209,51 @@ class EpisodeInfoFragment : Fragment() {
         ep_info_fab.setOnClickListener {
             // check if the ep is donwloading
 
-            if (! isEpDownloading) {
-
-                // check if episode is already state or not
-                if (episode.downloaded == 0) {
+            when (fabState){
+                PRESS_TO_DOWNLOAD ->{
+                    // check if episode is already state or not
                     // bind download service
-                    ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
-                    isEpDownloading = true
+                    ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
+                    fabState = PRESS_TO_STOP_DOWNLOAD
                     startDownloadEpisode ()
+
                 }
-                // PLAY THE FILE ERE
-                else {
-                    //TODO : add this when exoplayer is ready
-                    if (episode != null && episode.localUrl != null){
-                        if (mediaService != null){
-                            Log.d(TAG, "Rquest to play url ${episode.localUrl}")
-                            mediaService!!.playLocalUrlAudio(episode.localUrl!!)
-                        }
+
+                PRESS_TO_STOP_DOWNLOAD ->{
+                    // TODO : need to implement stop download
+                    fabState = PRESS_TO_DOWNLOAD
+                    ep_info_fab.setImageResource(R.mipmap.ic_todownload)
+                }
+
+                PRESS_TO_PLAY -> {
+                    // limited to downloaded episode only for now
+                    if (mediaService != null && episode != null && episode.localUrl != null){
+                        fabState = PRESS_TO_PAUSE
+                        ep_info_fab.setImageResource(R.mipmap.ic_pause)
+                        mediaService!!.playLocalUrlAudio(episode)
+                    }
+
+                }
+
+                PRESS_TO_PAUSE -> {
+                    if (mediaService != null && episode != null){
+                        fabState = PRESS_TO_UNPAUSE
+                        ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                        mediaService!!.pausePlayback()
+                    }
+
+                }
+
+                PRESS_TO_UNPAUSE -> {
+                    if (mediaService != null && episode != null){
+                        fabState = PRESS_TO_PAUSE
+                        ep_info_fab.setImageResource(R.mipmap.ic_pause)
+                        mediaService!!.resumePlayback()
                     }
 
                 }
             }
 
-            else{
-                // TODO: EPISODE IS DOWNLOADING ... WE CAN SEND REQUEST TO STOP HERE
-            }
         }
     }
 
@@ -264,9 +291,16 @@ class EpisodeInfoFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        // clean up download service
         if (serviceConnection != null && boundToDownload) {
             this.context.unbindService(serviceConnection)
             downloadService = null
+        }
+
+        // cleanup media service
+        if (mediaServiceConnection != null && boundToMediaService) {
+            this.context.unbindService(mediaServiceConnection)
+            mediaService = null
         }
     }
 

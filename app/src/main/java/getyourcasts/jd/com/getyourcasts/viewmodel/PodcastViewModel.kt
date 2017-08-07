@@ -40,7 +40,7 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
        * the podcast either subscribed or not
        * */
         fun subscribePodcastSubject(observer: Observer<PodcastState>){
-            podcastSyncSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(observer)
+                podcastSyncSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(observer)
         }
 
         /*get the source for synchronize */
