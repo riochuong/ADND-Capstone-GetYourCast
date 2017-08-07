@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.exoplayer2.ExoPlayer
 import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
@@ -41,7 +42,7 @@ class EpisodeInfoFragment : Fragment() {
     private var downloadListener : FetchListener? = null
     private var transactionId = -1L
     private  var mainObserverDisposable : Disposable? = null
-
+    private var mediaServiceDisposable : Disposable? = null
 
     companion object {
         val DATE_PUB_FORMAT = "%s-%s-%s"
@@ -102,17 +103,54 @@ class EpisodeInfoFragment : Fragment() {
 
         setFabButtonOnClickListener()
 
+        // init fab
+        adjustFabState()
+
         // add swipe detector to scroll views
         episode_info_main_layout.setOnTouchListener(SimpleSwipeDetector())
         episode_info_scroll_view.setOnTouchListener(SimpleSwipeDetector())
 
-        // init fab
-        initFabState()
-
-        subscribeToEpisodeSubject(episode)
-
         // enable main view
         stopAnim()
+    }
+
+
+    private fun subscribeToMediaServiceSubject (episode: Episode) {
+        MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<String,Int>> {
+            override fun onNext(t: Pair<String, Int>) {
+                val episodeId = t.first
+                val state = t.second
+                if (episode.uniqueId.equals(episodeId)){
+                    // check which state we should set the fab
+                    when(state) {
+                        // only need to change if this is already playing
+                        MediaPlayBackService.MEDIA_PLAYING -> {
+                            fabState = PRESS_TO_PAUSE
+                            ep_info_fab.setImageResource(R.mipmap.ic_pause)
+                        }
+                        MediaPlayBackService.MEDIA_STOPPED -> {
+                            fabState = PRESS_TO_PLAY
+                            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                        }
+                    }
+
+                }
+            }
+
+            override fun onSubscribe(d: Disposable) {
+                mediaServiceDisposable = d
+            }
+
+            override fun onError(e: Throwable) {
+                Log.e(TAG, "Error during receiving media playback service info ")
+                e.printStackTrace()
+            }
+
+            override fun onComplete() {
+
+            }
+
+        })
     }
 
     private fun subscribeToEpisodeSubject (ep: Episode){
@@ -163,7 +201,7 @@ class EpisodeInfoFragment : Fragment() {
     /**
      * helper to initialize FAB button
      */
-    private fun initFabState(){
+    private fun adjustFabState(){
         // change fab color to red always
         changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
 
@@ -231,6 +269,8 @@ class EpisodeInfoFragment : Fragment() {
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
                         mediaService!!.playLocalUrlAudio(episode)
+                        // subscribe to media player service
+
                     }
 
                 }
@@ -316,6 +356,11 @@ class EpisodeInfoFragment : Fragment() {
             mainObserverDisposable = null
         }
 
+        if (mediaServiceDisposable != null ){
+            mediaServiceDisposable!!.dispose()
+            mediaServiceDisposable = null
+        }
+
     }
 
 
@@ -323,6 +368,8 @@ class EpisodeInfoFragment : Fragment() {
         super.onResume()
         bindDownloadService()
         bindMediaService()
+        subscribeToEpisodeSubject(episode)
+        subscribeToMediaServiceSubject(episode)
     }
 
     private fun bindDownloadService() {

@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import java.util.*
@@ -47,7 +48,7 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
         val  MediaPlaybackSubject : Subject<Pair<String, Int>> = BehaviorSubject.create()
 
         fun subscribeMediaPlaybackSubject(obsvr: Observer<Pair<String, Int>>) {
-            MediaPlaybackSubject.subscribe(obsvr)
+            MediaPlaybackSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(obsvr)
         }
 
         fun publishMediaPlaybackSubject(episodeId: String, state: Int){
@@ -101,6 +102,9 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
         if (exoPlayer != null && episode.localUrl != null){
             exoPlayer!!.prepare(buildMediaSourceFromUrl(episode.localUrl))
             exoPlayer!!.playWhenReady = true
+
+            // before stop this player ...send out a cast for other view
+            if (currEpisode != null) publishMediaPlaybackSubject(currEpisode!!.uniqueId, MEDIA_STOPPED)
             currEpisode = episode
             startServiceAsForeground()
         }
@@ -176,6 +180,18 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+        if (currEpisode != null){
+            when(playbackState) {
+
+                ExoPlayer.STATE_BUFFERING -> {
+                    publishMediaPlaybackSubject(currEpisode!!.uniqueId, MEDIA_PLAYING)
+                }
+
+                ExoPlayer.STATE_IDLE -> {
+                    publishMediaPlaybackSubject(currEpisode!!.uniqueId, MEDIA_STOPPED)
+                }
+            }
+        }
 
     }
 
