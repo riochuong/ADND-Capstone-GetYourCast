@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
+import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
@@ -40,6 +41,7 @@ class EpisodeInfoFragment : Fragment() {
     private var downloadListener : FetchListener? = null
     private var transactionId = -1L
     private  var mainObserverDisposable : Disposable? = null
+
 
     companion object {
         val DATE_PUB_FORMAT = "%s-%s-%s"
@@ -212,6 +214,13 @@ class EpisodeInfoFragment : Fragment() {
                 // PLAY THE FILE ERE
                 else {
                     //TODO : add this when exoplayer is ready
+                    if (episode != null && episode.localUrl != null){
+                        if (mediaService != null){
+                            Log.d(TAG, "Rquest to play url ${episode.localUrl}")
+                            mediaService!!.playLocalUrlAudio(episode.localUrl!!)
+                        }
+                    }
+
                 }
             }
 
@@ -279,11 +288,17 @@ class EpisodeInfoFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         bindDownloadService()
+        bindMediaService()
     }
 
     private fun bindDownloadService() {
         val intent = Intent(this.context, DownloadService::class.java)
         this.context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun bindMediaService() {
+        val intent = Intent(this.context, MediaPlayBackService::class.java)
+        this.context.bindService(intent, mediaServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
     /* ============================ CONNECT TO DOWNLOAD SERVICE ========================================= */
@@ -300,6 +315,24 @@ class EpisodeInfoFragment : Fragment() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             boundToDownload = true
             downloadService = (service as DownloadService.DownloadServiceBinder).getService()
+        }
+
+    }
+
+    /* ============================ CONNECT TO MEDIA SERVICE ========================================= */
+    private var boundToMediaService = false
+    private var mediaService: MediaPlayBackService? = null
+
+    // connection to service
+    private val mediaServiceConnection: ServiceConnection = object : ServiceConnection {
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            boundToMediaService = false
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            boundToMediaService = true
+            mediaService = (service as MediaPlayBackService.MediaPlayBackServiceBinder).getService()
         }
 
     }

@@ -17,7 +17,6 @@
             android:name=".view.SearchNewPodcastActivity"
             android:label="@string/app_name"
             android:theme="@style/TransluentNoActionbar">
-
         </activity>
         <activity
             android:name=".view.MainPodcastActivity"
@@ -28,13 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
             android:name=".view.PodcastDetailsActivity"
             android:label="@string/title_activity_podcast_detail_layout"
             android:theme="@style/TransluentNoActionbar">
         </activity>
-
         <activity
             android:name=".view.EpisodeListActivity"
             android:label="@string/title_activity_episode_list_details"
@@ -51,6 +48,11 @@
             android:theme="@style/TransluentNoActionbar">
         </activity>
 
+        <service
+            android:name=".exoplayer.MediaPlayBackService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
     </application>
 
 </manifest>
