@@ -8,7 +8,9 @@ import android.os.Binder
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
@@ -17,6 +19,7 @@ import getyourcasts.jd.com.getyourcasts.R
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
@@ -26,12 +29,14 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import java.util.*
 
-class MediaPlayBackService : Service(), ExoPlayer.EventListener {
+class MediaPlayBackService : Service(), Player.EventListener {
+
+
 
     private var  exoPlayer: SimpleExoPlayer? = null
     private var dataSourceFactory : DataSource.Factory? = null
     private var extractorFactory: ExtractorsFactory? = null
-    private lateinit var mediaSession: MediaSessionCompat
+    private lateinit var mediaSessionConn: MediaSessionConnector
     private var currEpisode: Episode? = null
     private var binder : MediaPlayBackServiceBinder = MediaPlayBackServiceBinder()
 
@@ -67,6 +72,8 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
             exoPlayer = ExoPlayerFactory.newSimpleInstance(this, DefaultTrackSelector())
             dataSourceFactory = buildDataSource()
             extractorFactory = buildExtractorFactory()
+            mediaSessionConn.setPlayer(exoPlayer, null ,null,null)
+            mediaSessionConn.mediaSession.isActive = true
         }
     }
 
@@ -86,10 +93,44 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
     }
 
 
+    private fun buildMediaSession(): MediaSessionConnector {
+        val mediaSession = MediaSessionCompat(this, TAG)
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat
+                .FLAG_HANDLES_TRANSPORT_CONTROLS)
+        // dont want media button to start our app when it is off
+        mediaSession.setMediaButtonReceiver(null)
+        mediaSession.setCallback(MediaSessionCallback())
+
+        // set an intiail playback state with ACTION_PLAY, so media buttons can start the player
+        val stateBuilder = PlaybackStateCompat.Builder().setActions(
+                PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE or
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_STOP
+        )
+        mediaSession.setPlaybackState(stateBuilder.build())
+        val mediaSessionConn = MediaSessionConnector(mediaSession)
+        return mediaSessionConn
+    }
+
+
     private fun buildMediaSourceFromUrl(localUrl: String): MediaSource {
         val mediaSource =
                 ExtractorMediaSource(Uri.parse(localUrl), dataSourceFactory, extractorFactory, null , null)
         return mediaSource
+    }
+
+    fun playLocalVideo(episode: Episode, view : SimpleExoPlayerView) {
+        stopPlayback()
+        initExoPlayer()
+        if (exoPlayer != null && episode.localUrl != null){
+            exoPlayer!!.prepare(buildMediaSourceFromUrl(episode.localUrl))
+            exoPlayer!!.playWhenReady = true
+            view.player = exoPlayer
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        mediaSessionConn = buildMediaSession()
+        return START_STICKY
     }
 
     /**
@@ -111,8 +152,13 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
     }
 
     override fun onDestroy() {
+        // stop playback
         if (exoPlayer != null){
             stopPlayback()
+        }
+        // clean up media session
+        if (mediaSessionConn != null){
+            mediaSessionConn.mediaSession.release()
         }
         super.onDestroy()
     }
@@ -121,7 +167,7 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
 
     }
 
-    fun registerPlayerListener (listener: ExoPlayer.EventListener) {
+    fun registerPlayerListener (listener: Player.EventListener) {
         if (exoPlayer != null ){
             exoPlayer!!.addListener(listener)
         }
@@ -134,6 +180,7 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
             exoPlayer = null
             currEpisode = null
             stopForeground(true)
+            mediaSessionConn.mediaSession.isActive = false
         }
 
     }
@@ -183,15 +230,19 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
         if (currEpisode != null){
             when(playbackState) {
 
-                ExoPlayer.STATE_BUFFERING -> {
+                Player.STATE_BUFFERING -> {
                     publishMediaPlaybackSubject(currEpisode!!.uniqueId, MEDIA_PLAYING)
                 }
 
-                ExoPlayer.STATE_IDLE -> {
+                Player.STATE_IDLE -> {
                     publishMediaPlaybackSubject(currEpisode!!.uniqueId, MEDIA_STOPPED)
                 }
             }
         }
+
+    }
+
+    override fun onRepeatModeChanged(repeatMode: Int) {
 
     }
 
@@ -205,5 +256,23 @@ class MediaPlayBackService : Service(), ExoPlayer.EventListener {
 
     override fun onLoadingChanged(isLoading: Boolean) {
 
+    }
+
+    private inner class MediaSessionCallback : MediaSessionCompat.Callback() {
+        override fun onSkipToPrevious() {
+            exoPlayer!!.seekTo(0)
+        }
+
+        override fun onPlay() {
+            exoPlayer!!.playWhenReady = true
+        }
+
+        override fun onStop() {
+            exoPlayer!!.stop()
+        }
+
+        override fun onPause() {
+            exoPlayer!!.playWhenReady = false
+        }
     }
 }

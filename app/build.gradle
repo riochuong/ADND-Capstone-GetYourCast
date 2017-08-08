@@ -60,7 +60,6 @@ dependencies {
     // COLOR PALETTE
     compile 'com.android.support:palette-v7:25.4.0'
 
-
     // ANKO
     compile "org.jetbrains.anko:anko-sqlite:$anko_version"
 
@@ -94,7 +93,8 @@ dependencies {
     compile 'com.github.lzyzsd:circleprogress:1.2.1'
 
     // EXO PLAYER
-    compile 'com.google.android.exoplayer:exoplayer:r2.4.4'
+    compile 'com.google.android.exoplayer:exoplayer:r2.5.0'
+    compile 'com.google.android.exoplayer:extension-mediasession:r2.5.0'
 
 
 }

@@ -53,6 +53,12 @@
             android:enabled="true"
             android:exported="true">
         </service>
+
+        <activity
+            android:name=".exoplayer.VideoActivity"
+            android:label="@string/title_activity_video"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>

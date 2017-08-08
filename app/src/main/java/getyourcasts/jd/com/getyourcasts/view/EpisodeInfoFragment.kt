@@ -268,8 +268,14 @@ class EpisodeInfoFragment : Fragment() {
                     if (mediaService != null && episode != null && episode.localUrl != null){
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
-                        mediaService!!.playLocalUrlAudio(episode)
-                        // subscribe to media player service
+                        // quick hack for fun
+                        if (episode.type!!.contains("audio")){
+                            mediaService!!.playLocalUrlAudio(episode)
+                        } else{
+
+                        }
+
+
 
                     }
 

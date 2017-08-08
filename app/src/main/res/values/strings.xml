@@ -17,4 +17,5 @@
     <string name="ep_info_file_size">Media Info</string>
     <string name="download_in_prog">Download In Progress</string>
     <string name="download_complete">Download Complete</string>
+    <string name="title_activity_video">VideoActivity</string>
 </resources>
