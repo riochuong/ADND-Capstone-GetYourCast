@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.jd.udacity.getyourcast.TERMS_WRITE"/>
 
     <application
         android:allowBackup="true"
@@ -68,6 +69,7 @@
         <provider
             android:name=".repository.local.CastProvider"
             android:authorities="com.jd.udacity.getyourcast"
+            android:writePermission="com.jd.udacity.getyourcast.TERMS_WRITE"
             android:enabled="true"
             android:exported="true">
         </provider>

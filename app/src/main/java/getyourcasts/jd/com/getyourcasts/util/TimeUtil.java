@@ -33,7 +33,7 @@ public final class TimeUtil {
     }
 
 
-    static class DatePub {
+    public static class DatePub {
         private String dayOfMonth;
         private String month;
         private String year;

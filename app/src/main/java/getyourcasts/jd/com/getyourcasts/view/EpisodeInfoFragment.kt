@@ -1,6 +1,9 @@
 package getyourcasts.jd.com.getyourcasts.view
 
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.IBinder
@@ -10,14 +13,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.exoplayer2.ExoPlayer
 import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
-import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
-import getyourcasts.jd.com.getyourcasts.util.DatePub
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
@@ -36,7 +37,7 @@ class EpisodeInfoFragment : Fragment() {
     private lateinit var episode: Episode
     private var bgColor: Int = 0
     private lateinit var imgUrl: String
-    private var datePub: DatePub? = null
+    private var datePub: TimeUtil.DatePub? = null
     private lateinit var viewModel: PodcastViewModel
     private var fabState = PRESS_TO_DOWNLOAD
     private var downloadListener : FetchListener? = null

@@ -1,6 +1,5 @@
 package getyourcasts.jd.com.getyourcasts.view
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -14,7 +13,7 @@ import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.widget.FrameLayout
 import getyourcasts.jd.com.getyourcasts.R
-import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
@@ -23,7 +22,6 @@ import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.content_main_podcast.*
 import kotlinx.android.synthetic.main.fragment_podcast_detail_layout.*
 

@@ -218,4 +218,9 @@ public class LocalDataRepository implements DataRepository {
 
         return count == cvs.size();
     }
+
+    @Override
+    public Channel fetchEpisodesFromFeedUrl(String feedUrl) {
+        return null;
+    }
 }

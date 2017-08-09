@@ -1,15 +1,15 @@
 package getyourcasts.jd.com.getyourcasts.view
 
 import android.content.Intent
-import android.support.v4.app.Fragment
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import getyourcasts.jd.com.getyourcasts.R
-import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastMainViewAdapter
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel

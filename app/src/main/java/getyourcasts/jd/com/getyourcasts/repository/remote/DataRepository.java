@@ -19,7 +19,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 
 public interface DataRepository {
     @NotNull
-    List searchPodcast(@NotNull String var1);
+    List<Podcast> searchPodcast(@NotNull String var1);
 
     @Nullable
     Podcast getPodcast(@NotNull String var1);
@@ -45,6 +45,8 @@ public interface DataRepository {
     boolean insertEpisode(@NotNull Episode var1);
 
     boolean insertEpisodes(@NotNull List<Episode> var1);
+
+    Channel fetchEpisodesFromFeedUrl(String feedUrl);
 }
 
 

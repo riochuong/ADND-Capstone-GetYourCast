@@ -13,7 +13,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import getyourcasts.jd.com.getyourcasts.R
-import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.adapter.SearchPodcastRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel

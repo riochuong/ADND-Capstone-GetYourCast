@@ -1,23 +1,22 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote.network
 
+import android.app.NotificationManager
 import android.app.Service
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.support.v7.app.NotificationCompat
 import android.util.Log
 import com.tonyodev.fetch.Fetch
 import com.tonyodev.fetch.listener.FetchListener
 import com.tonyodev.fetch.request.Request
-import android.app.NotificationManager
-import android.content.ContentValues
-import android.support.v7.app.NotificationCompat
 import getyourcasts.jd.com.getyourcasts.R
-import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
-import getyourcasts.jd.com.getyourcasts.repository.local.EpisodeTable
+import getyourcasts.jd.com.getyourcasts.repository.local.Contract
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener
-import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastItemViewHolder
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -122,8 +121,8 @@ class DownloadService : Service() {
                         notifyManager.notify(notiId, notiBuilder.build())
                         // update the DB
                         val cvUpdate = ContentValues()
-                        cvUpdate.put(EpisodeTable.LOCAL_URL, fullUrl)
-                        cvUpdate.put(EpisodeTable.DOWNLOADED, PodcastViewModel.EpisodeState.DOWNLOADED)
+                        cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, fullUrl)
+                        cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, PodcastViewModel.EpisodeState.DOWNLOADED)
                         viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
@@ -145,8 +144,8 @@ class DownloadService : Service() {
                     override fun onError() {
                         Log.e(TAG, "Failed to request download ${ep.downloadUrl}")
                         val cvUpdate = ContentValues()
-                        cvUpdate.put(EpisodeTable.LOCAL_URL, "")
-                        cvUpdate.put(EpisodeTable.DOWNLOADED, 0)
+                        cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, "")
+                        cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, 0)
                         viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(

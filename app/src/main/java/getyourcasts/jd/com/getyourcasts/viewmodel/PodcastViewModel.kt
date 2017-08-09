@@ -1,8 +1,8 @@
 package getyourcasts.jd.com.getyourcasts.viewmodel
 
 import android.content.ContentValues
-import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
-import getyourcasts.jd.com.getyourcasts.repository.local.PodcastsTable
+import getyourcasts.jd.com.getyourcasts.repository.local.Contract
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
@@ -15,7 +15,7 @@ import io.reactivex.subjects.PublishSubject
 /**
  * Created by chuondao on 7/22/17.
  */
-class PodcastViewModel(val dataRepo :DataSourceRepo ) {
+class PodcastViewModel(val dataRepo : DataSourceRepo) {
 
     companion object {
         val NUM_TOP_RESULTS : Long = 20
@@ -122,10 +122,10 @@ class PodcastViewModel(val dataRepo :DataSourceRepo ) {
 
     private fun subscribePodcast(pod: Podcast, channelInfo: Channel): Boolean{
         var res = false
-        if (dataRepo.insertPodcastToDb(pod) && channelInfo != null) {
+        if (dataRepo.insertPodcast(pod) && channelInfo != null) {
             // now update with field that not available from itune
             val cv = ContentValues()
-            cv.put(PodcastsTable.DESCRIPTION, channelInfo.channelDescription)
+            cv.put(Contract.PodcastTable.DESCRIPTION, channelInfo.channelDescription)
             // update data description
             dataRepo.updatePodcast(cv, pod.collectionId)
             // now insert episode into db

@@ -245,4 +245,21 @@ public final class Episode implements Parcelable {
         cv.put(Contract.EpisodeTable.FETCH_URL, this.getDownloadUrl());
         return cv;
     }
+
+    public static Episode fromFeedItem(Channel.FeedItem feedItem, String podcastId) {
+        return new Episode(
+                podcastId,
+                feedItem.getTitle().trim(),
+                (podcastId+"_"+feedItem.getTitle()).hashCode()+"",
+                feedItem.getPubDate(),
+                feedItem.getDescription(),
+                feedItem.getMediaInfo().getUrl(),
+                null, // no local url available
+                feedItem.getMediaInfo().getSize(),
+                feedItem.getMediaInfo().getType(),
+                0, // initilize favorite to NOT
+                0,
+                0
+            );
+    }
 }

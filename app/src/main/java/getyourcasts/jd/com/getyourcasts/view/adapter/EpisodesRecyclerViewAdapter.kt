@@ -13,7 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.github.lzyzsd.circleprogress.CircleProgress
 import getyourcasts.jd.com.getyourcasts.R
-import getyourcasts.jd.com.getyourcasts.repository.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
