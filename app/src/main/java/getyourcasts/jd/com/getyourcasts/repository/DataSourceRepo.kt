@@ -3,10 +3,10 @@ package getyourcasts.jd.com.getyourcasts.repository
 import android.content.ContentValues
 import android.content.Context
 import getyourcasts.jd.com.getyourcasts.repository.local.LocalDataRepository
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.RemoteDataRepository
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedItem
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 
 /**
@@ -32,7 +32,7 @@ class DataSourceRepo(ctx: Context) : DataRepository
     }
 
     override fun insertPodcastToDb(pod: Podcast): Boolean {
-        return localRepo.insertPodcastToDb(pod)
+        return localRepo.insertPodcast(pod)
     }
 
     private lateinit var localRepo: LocalDataRepository

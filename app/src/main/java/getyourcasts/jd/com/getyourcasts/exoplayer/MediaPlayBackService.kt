@@ -13,6 +13,7 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
+import com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import getyourcasts.jd.com.getyourcasts.R
@@ -31,14 +32,13 @@ import java.util.*
 
 class MediaPlayBackService : Service(), Player.EventListener {
 
-
-
     private var  exoPlayer: SimpleExoPlayer? = null
     private var dataSourceFactory : DataSource.Factory? = null
     private var extractorFactory: ExtractorsFactory? = null
     private lateinit var mediaSessionConn: MediaSessionConnector
     private var currEpisode: Episode? = null
     private var binder : MediaPlayBackServiceBinder = MediaPlayBackServiceBinder()
+    private var dynamicMediaSource  = DynamicConcatenatingMediaSource()
 
 
     companion object {
@@ -133,6 +133,29 @@ class MediaPlayBackService : Service(), Player.EventListener {
         return START_STICKY
     }
 
+    override fun onDestroy() {
+        // stop playback
+        if (exoPlayer != null){
+            stopPlayback()
+        }
+        // clean up media session
+        if (mediaSessionConn != null){
+            mediaSessionConn.mediaSession.release()
+        }
+        super.onDestroy()
+    }
+
+    private fun buildDataSource(): DataSource.Factory {
+        return  DefaultDataSourceFactory(this, resources.getString(R.string.app_name))
+    }
+
+    private fun buildExtractorFactory(): ExtractorsFactory {
+        return DefaultExtractorsFactory()
+    }
+
+
+    /*====================== SERVICE APP FUNTIONS EXPOSED TO CLIENTS ============ */
+
     /**
      * play an audio file from a local url
      */
@@ -151,20 +174,12 @@ class MediaPlayBackService : Service(), Player.EventListener {
         }
     }
 
-    override fun onDestroy() {
-        // stop playback
-        if (exoPlayer != null){
-            stopPlayback()
-        }
-        // clean up media session
-        if (mediaSessionConn != null){
-            mediaSessionConn.mediaSession.release()
-        }
-        super.onDestroy()
-    }
 
-    fun addTrackToPlaylist() {
-
+    fun addTrackToPlaylist(episode: Episode) {
+        if (episode.localUrl != null) {
+            val mediaSource = buildMediaSourceFromUrl(episode.localUrl)
+            dynamicMediaSource.addMediaSource(mediaSource)
+        }
     }
 
     fun registerPlayerListener (listener: Player.EventListener) {
@@ -202,16 +217,6 @@ class MediaPlayBackService : Service(), Player.EventListener {
             return this@MediaPlayBackService
         }
     }
-
-    private fun buildDataSource(): DataSource.Factory {
-        return  DefaultDataSourceFactory(this, resources.getString(R.string.app_name))
-    }
-
-    private fun buildExtractorFactory(): ExtractorsFactory {
-        return DefaultExtractorsFactory()
-    }
-
-
 
     /* ====== EXOPLAYER LISTENERS ===========*/
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {

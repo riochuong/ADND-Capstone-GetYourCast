@@ -59,6 +59,18 @@
             android:label="@string/title_activity_video"
             android:theme="@style/AppTheme">
         </activity>
+        <activity
+            android:name=".view.media.PlaylistActivity"
+            android:label="@string/title_activity_playlist"
+            android:theme="@style/AppTheme">
+        </activity>
+
+        <provider
+            android:name=".repository.local.CastProvider"
+            android:authorities="com.jd.udacity.getyourcast"
+            android:enabled="true"
+            android:exported="true">
+        </provider>
     </application>
 
 </manifest>
