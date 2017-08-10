@@ -17,6 +17,7 @@ import getyourcasts.jd.com.getyourcasts.repository.local.Contract
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener
+import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -108,8 +109,8 @@ class DownloadService : Service() {
                         notiBuilder.setProgress(100, progress, false)
                         notifyManager.notify(notiId, notiBuilder.build())
                         PodcastViewModel.updateEpisodeSubject(
-                                PodcastViewModel.EpisodeState(ep.uniqueId,
-                                                              PodcastViewModel.EpisodeState.DOWNLOADING,
+                                EpisodeState(ep.uniqueId,
+                                                              EpisodeState.DOWNLOADING,
                                                               transId.toLong()))
                     }
 
@@ -122,15 +123,15 @@ class DownloadService : Service() {
                         // update the DB
                         val cvUpdate = ContentValues()
                         cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, fullUrl)
-                        cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, PodcastViewModel.EpisodeState.DOWNLOADED)
+                        cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, EpisodeState.DOWNLOADED)
                         viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         {
                                            Log.d(TAG,"Successfully update DB $ep")
                                             PodcastViewModel.updateEpisodeSubject(
-                                                    PodcastViewModel.EpisodeState(ep.uniqueId,
-                                                            PodcastViewModel.EpisodeState.DOWNLOADED,
+                                                    EpisodeState(ep.uniqueId,
+                                                            EpisodeState.DOWNLOADED,
                                                             transId.toLong()))
                                         },
                                         {
@@ -152,8 +153,8 @@ class DownloadService : Service() {
                                         {
                                             Log.d(TAG,"Successfully update DB $ep")
                                             PodcastViewModel.updateEpisodeSubject(
-                                                    PodcastViewModel.EpisodeState(ep.uniqueId,
-                                                            PodcastViewModel.EpisodeState.FETCHED,
+                                                    EpisodeState(ep.uniqueId,
+                                                            EpisodeState.FETCHED,
                                                             transId.toLong()))
                                         },
                                         {
@@ -190,7 +191,7 @@ class DownloadService : Service() {
 
             // notify other views to change status
             PodcastViewModel.updateEpisodeSubject(
-                    PodcastViewModel.EpisodeState(episode.uniqueId, PodcastViewModel.EpisodeState.DOWNLOADING, id
+                    EpisodeState(episode.uniqueId, EpisodeState.DOWNLOADING, id
                             .toLong()))
 
             return id

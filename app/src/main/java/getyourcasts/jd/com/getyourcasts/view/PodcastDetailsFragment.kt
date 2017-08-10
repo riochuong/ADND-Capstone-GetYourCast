@@ -18,6 +18,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -55,15 +56,15 @@ class PodcastDetailsFragment : Fragment() {
 
 
     private fun subscribeToPodcastUpdate(podcast: Podcast) {
-        PodcastViewModel.subscribePodcastSubject(object : Observer<PodcastViewModel.PodcastState> {
+        PodcastViewModel.subscribePodcastSubject(object : Observer<PodcastState> {
             override fun onError(e: Throwable) {
 
             }
 
-            override fun onNext(t: PodcastViewModel.PodcastState) {
+            override fun onNext(t: PodcastState) {
                 if (t.uniqueId.equals(podcast.collectionId)) {
                     // only the button and state have to change
-                    this@PodcastDetailsFragment.subscribed = (t.state == PodcastViewModel.PodcastState.SUBSCRIBED)
+                    this@PodcastDetailsFragment.subscribed = (t.state == PodcastState.SUBSCRIBED)
                     this@PodcastDetailsFragment.setSubscribeButtonImg()
                 }
             }

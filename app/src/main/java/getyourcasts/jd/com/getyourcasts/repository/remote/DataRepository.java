@@ -31,7 +31,7 @@ public interface DataRepository {
     Channel downloadFeed(@NotNull String var1);
 
     @NotNull
-    List getAllEpisodesOfPodcast(@NotNull String var1);
+    List<Episode> getAllEpisodesOfPodcast(@NotNull String var1);
 
     @NotNull
     Episode getEpisode(@NotNull String var1, @NotNull String var2);

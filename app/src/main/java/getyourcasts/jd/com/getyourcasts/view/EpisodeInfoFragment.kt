@@ -24,6 +24,7 @@ import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
+import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
@@ -155,29 +156,28 @@ class EpisodeInfoFragment : Fragment() {
     }
 
     private fun subscribeToEpisodeSubject (ep: Episode){
-        val observer = object : Observer<PodcastViewModel.EpisodeState> {
+        val observer = object : Observer<EpisodeState> {
 
             override fun onSubscribe(d: Disposable) {
                 mainObserverDisposable = d
             }
 
-            override fun onNext(epState: PodcastViewModel.EpisodeState) {
+            override fun onNext(epState: EpisodeState) {
                 if (epState.uniqueId.equals(ep.getEpisodeUniqueKey())) {
 
                     when (epState.state){
-                        PodcastViewModel.EpisodeState.DOWNLOADING -> {
+                        EpisodeState.DOWNLOADING -> {
                             fabState = PRESS_TO_STOP_DOWNLOAD
                             ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
                         }
-
-                        PodcastViewModel.EpisodeState.FETCHED -> {
+                        EpisodeState.FETCHED -> {
                             fabState = PRESS_TO_DOWNLOAD
                             ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
                         }
 
-                        PodcastViewModel.EpisodeState.DOWNLOADED -> {
+                        EpisodeState.DOWNLOADED -> {
                             fabState = PRESS_TO_PLAY
                             ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
@@ -211,7 +211,7 @@ class EpisodeInfoFragment : Fragment() {
             ep_info_fab.visibility = View.INVISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
         }
-        else if (episode.downloaded == PodcastViewModel.EpisodeState.DOWNLOADED) {
+        else if (episode.downloaded == EpisodeState.DOWNLOADED) {
             fabState = PRESS_TO_PLAY
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_play_white)

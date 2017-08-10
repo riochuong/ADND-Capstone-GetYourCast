@@ -12,6 +12,7 @@ import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastMainViewAdapter
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -96,7 +97,7 @@ class MainPodcastFragment : Fragment() {
 
     private fun subscribeToPodcastSubject () {
         PodcastViewModel.subscribePodcastSubject(
-                object : Observer<PodcastViewModel.PodcastState> {
+                object : Observer<PodcastState> {
                     override fun onComplete() {
 
                     }
@@ -105,8 +106,8 @@ class MainPodcastFragment : Fragment() {
 
                     }
 
-                    override fun onNext(t: PodcastViewModel.PodcastState) {
-                        if (t.state == PodcastViewModel.PodcastState.SUBSCRIBED) {
+                    override fun onNext(t: PodcastState) {
+                        if (t.state == PodcastState.SUBSCRIBED) {
                             // need to update the list
                             updateDataToAdapter()
                         }

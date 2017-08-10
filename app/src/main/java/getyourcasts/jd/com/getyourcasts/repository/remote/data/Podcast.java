@@ -50,6 +50,7 @@ public final class Podcast implements Parcelable {
         this.description = description;
     }
 
+
     public String getCollectionId() {
         return collectionId;
     }
@@ -209,5 +210,20 @@ public final class Podcast implements Parcelable {
         cv.put(Contract.PodcastTable.TRACK_COUNT, this.getTrackCount());
         cv.put(Contract.PodcastTable.LAST_UPDATE, TimeUtil.getCurrentTimeInMs());
         return cv;
+    }
+
+    public static Podcast getEmptyPodcast() {
+        return new Podcast(
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                0L,
+                ""
+        );
     }
 }

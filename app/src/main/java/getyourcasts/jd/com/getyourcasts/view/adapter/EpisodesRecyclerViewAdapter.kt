@@ -20,6 +20,7 @@ import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.EpisodeInfoActivity
 import getyourcasts.jd.com.getyourcasts.view.EpisodeListFragment
+import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -135,7 +136,7 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
 
 
     private fun subscribeToEpisodeSyncSubject(ep: Episode, vh: EpisodeItemViewHolder, itemPos: Int) {
-        PodcastViewModel.subscribeEpisodeSubject(object : Observer<PodcastViewModel.EpisodeState> {
+        PodcastViewModel.subscribeEpisodeSubject(object : Observer<EpisodeState> {
             override fun onError(e: Throwable) {
                 e.printStackTrace()
             }
@@ -148,12 +149,12 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                 disposableList.add(d)
             }
 
-            override fun onNext(epState: PodcastViewModel.EpisodeState) {
+            override fun onNext(epState: EpisodeState) {
                 if (epState.uniqueId.equals(ep.getEpisodeUniqueKey())) {
                     val paths = StorageUtil.getPathToStoreEp(ep, fragment.activity.applicationContext)
                     val fullUrl = "${paths!!.first}/${paths.second}"
                     when (epState.state) {
-                        PodcastViewModel.EpisodeState.DOWNLOADING -> {
+                        EpisodeState.DOWNLOADING -> {
                             if (! downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())){
                                 Log.d(TAG, "downloading update for episode ${ep.toString()}")
 
@@ -168,13 +169,13 @@ class EpisodesRecyclerViewAdapter(var episodeList: MutableList<Episode>,
                             // else it's just a progress update
                         }
 
-                        PodcastViewModel.EpisodeState.FETCHED -> {
+                        EpisodeState.FETCHED -> {
                             if (downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
                                 this@EpisodesRecyclerViewAdapter.updateItemData(ep, itemPos)
                             }
                         }
 
-                        PodcastViewModel.EpisodeState.DOWNLOADED -> {
+                        EpisodeState.DOWNLOADED -> {
                             if (downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
                                 val oldListener = downloadItemMaps.get(ep.getEpisodeUniqueKey())
                                 this@EpisodesRecyclerViewAdapter.fragment.unRegisterListener(oldListener!!)
