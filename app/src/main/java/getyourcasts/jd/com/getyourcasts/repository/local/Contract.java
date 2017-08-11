@@ -11,11 +11,12 @@ public final class Contract {
 
     static final String AUTHORITY = "com.jd.udacity.getyourcast";
     static final String PATH_PODCAST = "podcast";
-    static final String PATH_PODCAST_ID = "podcast/#";
+    static final String PATH_PODCAST_ID = "podcast/*";
     static final String PATH_EPISODES = "episode";
-    static final String PATH_ALL_EPISODES_OF_POCAST = "episode/podcast/#";
-    static final String PATH_EPISODES_ID = "episode/#";
+    static final String PATH_ALL_EPISODES_OF_POCAST = "episode/podcast/*";
+    static final String PATH_EPISODES_ID = "episode/id/*";
     private static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
+    private static final String ID_EP_PATH = "id";
 
     private Contract () {
 
@@ -43,7 +44,8 @@ public final class Contract {
 
 
     public static final class EpisodeTable implements BaseColumns {
-        public static final Uri URI_EPISODE_ID = BASE_URI.buildUpon().appendPath(PATH_EPISODES).build();
+        public static final Uri URI_EPISODE_ID = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath(ID_EP_PATH)
+                .build();
         public static final Uri URI_OF_PODCAST = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
                 (PATH_PODCAST).build();
         public static final String  ID = "_id";

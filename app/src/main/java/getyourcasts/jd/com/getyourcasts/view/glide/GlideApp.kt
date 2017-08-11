@@ -1,6 +1,9 @@
 package getyourcasts.jd.com.getyourcasts.view.glide
 
 /**
+ * Created by chuondao on 8/11/17.
+ */
+/**
  * Created by chuondao on 7/27/17.
  */
 import com.bumptech.glide.annotation.GlideModule

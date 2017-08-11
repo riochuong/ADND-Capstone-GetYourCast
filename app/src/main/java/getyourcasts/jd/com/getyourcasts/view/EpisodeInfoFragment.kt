@@ -28,6 +28,7 @@ import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
+import android.util.Pair
 import kotlinx.android.synthetic.main.fragment_episode_info.*
 
 /**
@@ -132,6 +133,10 @@ class EpisodeInfoFragment : Fragment() {
                         }
                         MediaPlayBackService.MEDIA_STOPPED -> {
                             fabState = PRESS_TO_PLAY
+                            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                        }
+                        MediaPlayBackService.MEDIA_PAUSE -> {
+                            fabState = PRESS_TO_UNPAUSE
                             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
                         }
                     }
