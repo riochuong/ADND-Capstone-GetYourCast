@@ -78,7 +78,7 @@ public class NetworkHelper {
         Retrofit rssRetrofit = new Retrofit.Builder()
                 .baseUrl(getBaseUrl(feedUrl))
                 .client(okHttpClient)
-                .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(new Persister(new AnnotationStrategy())))
+                .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(new Persister( new AnnotationStrategy())))
                 .build();
 
 

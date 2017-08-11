@@ -76,8 +76,8 @@ public class DataSourceRepo implements   DataRepository {
     }
 
     @Override
-    public boolean updatePodcast(@NotNull ContentValues var1, @NotNull String var2) {
-        return false;
+    public boolean updatePodcast(@NotNull ContentValues cv, @NotNull String podcastId) {
+       return  localRepo.updatePodcast(cv, podcastId);
     }
 
     @Override

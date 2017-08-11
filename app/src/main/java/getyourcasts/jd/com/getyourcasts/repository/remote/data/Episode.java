@@ -246,7 +246,7 @@ public final class Episode implements Parcelable {
         return cv;
     }
 
-    public static Episode fromFeedItem(Channel.FeedItem feedItem, String podcastId) {
+    public static Episode fromFeedItem(FeedItem feedItem, String podcastId) {
         return new Episode(
                 podcastId,
                 feedItem.getTitle().trim(),

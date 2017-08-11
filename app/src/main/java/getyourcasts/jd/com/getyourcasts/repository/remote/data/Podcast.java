@@ -200,9 +200,9 @@ public final class Podcast implements Parcelable {
     public ContentValues toContentValues (Context ctx) {
         ContentValues cv = new ContentValues();
         cv.put(Contract.PodcastTable.UNIQUE_ID, this.getCollectionId());
-        cv.put(Contract.PodcastTable.UNIQUE_ID, this.getCollectionName());
-        cv.put(Contract.PodcastTable.UNIQUE_ID, this.getFeedUrl());
-        cv.put(Contract.PodcastTable.UNIQUE_ID, this.getReleaseDate());
+        cv.put(Contract.PodcastTable.PODCAST_NAME, this.getCollectionName());
+        cv.put(Contract.PodcastTable.FEED_URL, this.getFeedUrl());
+        cv.put(Contract.PodcastTable.RELEASE_DATE, this.getReleaseDate());
                 // only inject this for episode that get inserted to db
         cv.put(Contract.PodcastTable.IMG_LOCAL_PATH, StorageUtil.getPathToStorePodImg(this, ctx));
         cv.put(Contract.PodcastTable.IMG_ONLINE_PATH, this.getArtworkUrl100());

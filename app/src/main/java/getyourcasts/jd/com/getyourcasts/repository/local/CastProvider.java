@@ -76,7 +76,6 @@ public class CastProvider extends ContentProvider {
         if (rowsDeleted != 0) {
             setNotifyChange(uri);
         }
-
         return rowsDeleted;
     }
 
@@ -191,7 +190,7 @@ public class CastProvider extends ContentProvider {
 
 
         setNotificationUri(uri, returnCursor);
-
+        returnCursor.moveToFirst();
         return returnCursor;
     }
 
@@ -252,7 +251,8 @@ public class CastProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues cv : values){
-                        returnCount += db.insert(Contract.EpisodeTable.TABLE_NAME, null, cv);
+                        db.insert(Contract.EpisodeTable.TABLE_NAME, null, cv);
+                        returnCount += 1;
                     }
                     db.setTransactionSuccessful();
                 } finally {

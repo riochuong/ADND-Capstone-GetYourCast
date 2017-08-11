@@ -112,9 +112,9 @@ public class PodcastViewModel {
             ContentValues cv = new ContentValues();
             cv.put(Contract.PodcastTable.DESCRIPTION, channelInfo.getChannelDescription());
             // update data description
-            dataRepo.updatePodcast(cv, pod.getCollectionId());
+            res = dataRepo.updatePodcast(cv, pod.getCollectionId());
             // now insert episode into db
-            res = dataRepo.insertEpisodes(channelInfo.toListEpisodes(pod.getCollectionId()));
+            res = res && dataRepo.insertEpisodes(channelInfo.toListEpisodes(pod.getCollectionId()));
         }
 
         // update with behavior object .. otherwise nothing to update

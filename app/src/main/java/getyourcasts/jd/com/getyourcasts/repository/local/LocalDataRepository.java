@@ -204,9 +204,11 @@ public class LocalDataRepository implements DataRepository {
 
         try {
 
-            Uri uri = Contract.EpisodeTable.URI_OF_PODCAST.buildUpon().build();
+            String podcastId = episodeList.get(0).getPodcastId();
 
-            ContentValues[] cvas = null;
+            Uri uri = Contract.EpisodeTable.URI_OF_PODCAST.buildUpon().appendPath(podcastId).build();
+
+            ContentValues[] cvas = new ContentValues[cvs.size()];
 
             cvs.toArray(cvas);
 

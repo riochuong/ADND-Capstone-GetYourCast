@@ -40,7 +40,6 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 +Contract.PodcastTable.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 +Contract.PodcastTable.PODCAST_NAME + " TEXT, "
                 +Contract.PodcastTable.LAST_UPDATE + " TEXT, "
-                +Contract.PodcastTable.LAST_UPDATE + " TEXT, "
                 +Contract.PodcastTable.IMG_ONLINE_PATH + " TEXT, "
                 +Contract.PodcastTable.FEED_URL + " TEXT, "
                 +Contract.PodcastTable.TRACK_COUNT + " INTEGER, "
@@ -48,7 +47,8 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 +Contract.PodcastTable.IMG_LOCAL_PATH + " TEXT, "
                 +Contract.PodcastTable.RELEASE_DATE + " TEXT, "
                 +Contract.PodcastTable.DESCRIPTION + " TEXT, "
-                +Contract.PodcastTable.UNIQUE_ID + " TEXT UNIQUE, ";
+                +Contract.PodcastTable.UNIQUE_ID + " TEXT UNIQUE "
+                +")";
 
     }
 
@@ -68,7 +68,8 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 +Contract.EpisodeTable.DESCRIPTION + " TEXT, "
                 +Contract.EpisodeTable.FAVORITE + " TEXT, "
                 +Contract.EpisodeTable.FETCH_URL + " TEXT, "
-                +Contract.EpisodeTable.DOWNLOADED + " TEXT, ";
+                +Contract.EpisodeTable.DOWNLOADED + " TEXT "
+                +")";
     }
 
     @Override

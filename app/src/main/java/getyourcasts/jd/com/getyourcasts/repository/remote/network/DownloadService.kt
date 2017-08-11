@@ -75,7 +75,6 @@ class DownloadService : Service() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-//        fetcher.release()
         Log.d(TAG,"Download Service Unbound")
         return super.onUnbind(intent)
     }
