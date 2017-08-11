@@ -31,7 +31,7 @@ public class PodcastViewModel {
     }
 
     public static PodcastViewModel getInstance(DataSourceRepo repo) {
-        if (INSTANCE == null) {
+        if (INSTANCE == null ) {
             INSTANCE = new PodcastViewModel(repo);
         }
         return INSTANCE;
@@ -199,8 +199,9 @@ public class PodcastViewModel {
     }
 //
     public Observable<Episode> getEpisodeObsevable(Episode episode) {
-        return Observable.defer (() ->
-            Observable.just(dataRepo.getEpisode(episode.getUniqueId(), episode.getPodcastId())))
+        return Observable.defer (
+                () ->  Observable.just(
+                                dataRepo.getEpisode(episode.getUniqueId(), episode.getPodcastId())))
                     .subscribeOn(Schedulers.io());
     }
 

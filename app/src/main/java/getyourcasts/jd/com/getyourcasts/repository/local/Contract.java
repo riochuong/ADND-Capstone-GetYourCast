@@ -14,7 +14,7 @@ public final class Contract {
     static final String PATH_PODCAST_ID = "podcast/#";
     static final String PATH_EPISODES = "episode";
     static final String PATH_ALL_EPISODES_OF_POCAST = "episode/podcast/#";
-    static final String PATH_EPISODES_ID = "episode/id/#";
+    static final String PATH_EPISODES_ID = "episode/#";
     private static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
 
     private Contract () {

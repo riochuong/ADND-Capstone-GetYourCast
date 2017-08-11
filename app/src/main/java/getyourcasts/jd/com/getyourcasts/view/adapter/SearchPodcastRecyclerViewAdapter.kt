@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.view.PodcastDetailsActivity
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
@@ -154,6 +155,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
         // set onclick listener for download image locally and insert podcast to db
         podcastVh.downloadedView.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
+
                 // insert into db
                 viewModel.getSubscribeObservable(podcast)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -163,7 +165,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                                     if (it){
                                         Log.d(SearchPodcastRecyclerViewAdapter.TAG,
                                                 "Insert Podcast To DB Complete ${podcast.collectionName}")
-
+                                        StorageUtil.startGlideImageDownload(podcast, ctx)
                                         // change the icon
                                         podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
 

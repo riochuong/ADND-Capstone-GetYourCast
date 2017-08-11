@@ -16,6 +16,8 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataRepository;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
+import io.reactivex.Observable;
 
 /**
  * Created by chuondao on 8/8/17.
@@ -176,6 +178,9 @@ public class LocalDataRepository implements DataRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // need to start glide download for image also
+
         return returnUri != null;
     }
 

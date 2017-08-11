@@ -24,7 +24,7 @@ public class DataSourceRepo implements   DataRepository {
     private RemoteDataRepository remoteRepo;
 
     public DataSourceRepo(Context ctx) {
-        this.ctx = ctx;
+        this.ctx = ctx.getApplicationContext();
         localRepo = new LocalDataRepository(ctx);
         remoteRepo = RemoteDataRepository.getDataInstance();
     }

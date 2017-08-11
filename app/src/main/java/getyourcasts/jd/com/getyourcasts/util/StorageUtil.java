@@ -44,7 +44,7 @@ public final class StorageUtil {
         try {
             Float fileSize = Float.parseFloat(rawSize);
             fileSize = fileSize / ONE_MB;
-            return "%.2f MB" .format(fileSize.toString());
+            return String.format("%.2f MB",fileSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,7 +54,7 @@ public final class StorageUtil {
 
     // METHODS
     public static String getPathToStorePodImg(Podcast pod, Context ctx) {
-        String root = "$PODCAST_IMG_ROOT";
+        String root = PODCAST_IMG_ROOT;
         // this api wil lcreate directory if needed to
         File file = ctx.getDir(root, Context.MODE_PRIVATE);
         File finalPath = new File(file, pod.getCollectionId() + PNG_FORMAT);
@@ -69,7 +69,7 @@ public final class StorageUtil {
      * check and give the abspath to store ep
      */
     public static Pair<String, String> getPathToStoreEp(Episode ep, Context ctx) {
-        String root = "$MEDIA_ROOT";
+        String root = MEDIA_ROOT;
         File file = ctx.getDir(root, Context.MODE_PRIVATE);
         String fileName = ep.getEpisodeUniqueKey();
         File finalPath = new File(file, fileName);
@@ -110,7 +110,6 @@ public final class StorageUtil {
                                                 if (aBoolean) {
                                                     Log.d(TAG, "Successfully download limage"+pod.getArtworkUrl100());
                                                 }
-
 
                                                 try {
                                                     os.close();

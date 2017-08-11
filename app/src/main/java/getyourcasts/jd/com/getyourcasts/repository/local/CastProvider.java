@@ -161,7 +161,7 @@ public class CastProvider extends ContentProvider {
             case EPISODES_SPECIFIC:
                 String episodeId = Contract.EpisodeTable.getEpisodeIdFromUri(uri);
                 returnCursor = db.query(
-                        Contract.PodcastTable.TABLE_NAME,
+                        Contract.EpisodeTable.TABLE_NAME,
                         projection,
                         Contract.EpisodeTable.UNIQUE_ID + " = ?",
                         new String[]{episodeId},
@@ -174,7 +174,7 @@ public class CastProvider extends ContentProvider {
             case EPISODES_OF_PODCAST:
                 String podId = Contract.EpisodeTable.getEpisodeIdFromUri(uri);
                 returnCursor = db.query(
-                        Contract.PodcastTable.TABLE_NAME,
+                        Contract.EpisodeTable.TABLE_NAME,
                         projection,
                         Contract.EpisodeTable.PODCAST_ID + " = ?",
                         new String[]{podId},

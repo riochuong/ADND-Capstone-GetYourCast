@@ -16,6 +16,7 @@ import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState
@@ -108,6 +109,8 @@ class PodcastDetailsFragment : Fragment() {
             override fun onClick(v: View?) {
                 if (!subscribed){
                     // no suscription yet need to subscribed
+                    // download image icon
+                    StorageUtil.startGlideImageDownload(podcast, context)
                     viewModel.getSubscribeObservable(podcast, channelInfo)
                              .observeOn(AndroidSchedulers.mainThread())
                              .subscribe(
@@ -123,6 +126,7 @@ class PodcastDetailsFragment : Fragment() {
                                                              subscribed = true
                                                              // change fab logo
                                                              setSubscribeButtonImg()
+
                                                              Log.d(TAG, "Successfully update podcast global var")
                                                          },
                                                          {
