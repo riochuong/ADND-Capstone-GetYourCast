@@ -25,4 +25,5 @@
     <dimen name="episode_img_radius">10dp</dimen>
     <dimen name="episode_img_elevation">15dp</dimen>
     <dimen name="pod_img_size">130dp</dimen>
+    <dimen name="player_view_img_size">300dp</dimen>
 </resources>

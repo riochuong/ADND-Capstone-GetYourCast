@@ -36,6 +36,7 @@ public final class Contract {
         public static final String TRACK_COUNT = "track_count";
         public static final String RELEASE_DATE = "release_date";
         public static final String DESCRIPTION = "desc";
+        public static final String VIBRANT_COLOR = "vib_color";
         public  static final String TABLE_NAME="PodcastTable";
         public static final String getPodcastIdFromUri(Uri uri) {
             return uri.getLastPathSegment();

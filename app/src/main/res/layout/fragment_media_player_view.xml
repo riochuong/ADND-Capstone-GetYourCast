@@ -1,8 +1,10 @@
-<android.support.design.widget.CoordinatorLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/media_player_view_main_layout"
     tools:context="getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerViewFragment">
 
 
@@ -10,11 +12,15 @@
         android:id="@+id/main_audio_player_view"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_margin="@dimen/small_margin"
+            app:cardElevation="@dimen/small_margin"
+            app:cardCornerRadius="@dimen/small_margin"
+            android:layout_width="@dimen/player_view_img_size"
+            android:layout_height="@dimen/player_view_img_size">
 
             <ImageView
                 android:id="@+id/ep_podcast_img_view"
@@ -27,10 +33,11 @@
             android:id="@+id/simple_exo_video_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:layout_gravity="end|bottom|center_horizontal"
+            android:visibility="visible">
         </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
 
     </LinearLayout>
 
 
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

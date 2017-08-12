@@ -35,8 +35,10 @@ import org.jetbrains.annotations.NotNull;
 
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
+import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 
@@ -64,14 +66,15 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public static final int MEDIA_PAUSE = 1;
     public static final int MEDIA_STOPPED = 2;
 
-    private static Subject<Pair<String, Integer>> MediaPlaybackSubject = BehaviorSubject.create();
 
-    public static void subscribeMediaPlaybackSubject(Observer<Pair<String, Integer>> obsvr) {
+    private static Subject<Pair<Episode, Integer>> MediaPlaybackSubject = BehaviorSubject.create();
+
+    public static void subscribeMediaPlaybackSubject(Observer<Pair<Episode, Integer>> obsvr) {
         MediaPlaybackSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(obsvr);
     }
 
-    public static void publishMediaPlaybackSubject(String episodeId, int state) {
-        MediaPlaybackSubject.onNext(new Pair(episodeId, state));
+    public static void publishMediaPlaybackSubject(Episode episode, int state) {
+        MediaPlaybackSubject.onNext(new Pair(episode, state));
     }
 
     @Nullable
@@ -87,6 +90,8 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             extractorFactory = buildExtractorFactory();
             mediaSessionConn.setPlayer(exoPlayer, null);
             mediaSessionConn.mediaSession.setActive(true);
+            // start player activity
+            startActivity(new Intent(this, MediaPlayerActivity.class));
         }
     }
 
@@ -195,10 +200,14 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             exoPlayer.setPlayWhenReady(true);
 
             // before stop this player ...send out a cast for other view
-            if (currEpisode != null) publishMediaPlaybackSubject(currEpisode.getUniqueId(), MEDIA_STOPPED);
+            if (currEpisode != null) publishMediaPlaybackSubject(currEpisode, MEDIA_STOPPED);
             currEpisode = episode;
             startServiceAsForeground();
         }
+    }
+
+    public void setPlayerView (SimpleExoPlayerView view) {
+        view.setPlayer(exoPlayer);
     }
 
 
@@ -239,6 +248,8 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         }
     }
 
+
+    /* ======================================= LISTENER ================================================*/
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
 
@@ -258,19 +269,21 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         if (currEpisode != null) {
             switch (playbackState) {
+
                 case Player.STATE_READY:
                     if (exoPlayer.getPlayWhenReady()) {
-                        publishMediaPlaybackSubject(currEpisode.getUniqueId(), MEDIA_PLAYING);
+                        publishMediaPlaybackSubject(currEpisode, MEDIA_PLAYING);
                     }
                     else{
-                        publishMediaPlaybackSubject(currEpisode.getUniqueId(), MEDIA_PAUSE);
+                        publishMediaPlaybackSubject(currEpisode, MEDIA_PAUSE);
                     }
+
                 case Player.STATE_BUFFERING:
                     break;
 
                 case Player.STATE_ENDED:
                 case Player.STATE_IDLE:
-                    publishMediaPlaybackSubject(currEpisode.getUniqueId(), MEDIA_STOPPED);
+                    publishMediaPlaybackSubject(currEpisode, MEDIA_STOPPED);
 
             }
         }

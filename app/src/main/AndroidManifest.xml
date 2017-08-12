@@ -69,10 +69,16 @@
         <provider
             android:name=".repository.local.CastProvider"
             android:authorities="com.jd.udacity.getyourcast"
-            android:writePermission="com.jd.udacity.getyourcast.TERMS_WRITE"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            android:writePermission="com.jd.udacity.getyourcast.TERMS_WRITE">
         </provider>
+
+        <activity
+            android:name=".view.media.MediaPlayerActivity"
+            android:label="@string/title_activity_media_player"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>

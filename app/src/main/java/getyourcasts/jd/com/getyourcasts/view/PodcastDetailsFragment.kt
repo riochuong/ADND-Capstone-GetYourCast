@@ -118,7 +118,7 @@ class PodcastDetailsFragment : Fragment() {
 
                                          // update podcast field of this device global val with the updated value
                                          // from db
-                                         viewModel.getIsPodcastInDbObservable(podcast.collectionId)
+                                         viewModel.getPodcastObservable(podcast.collectionId)
                                                  .observeOn(AndroidSchedulers.mainThread())
                                                  .subscribe(
                                                          {

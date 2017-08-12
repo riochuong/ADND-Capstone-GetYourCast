@@ -1,10 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.view
 
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -22,6 +19,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
+import getyourcasts.jd.com.getyourcasts.repository.local.Contract
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
@@ -124,10 +122,22 @@ class EpisodeListFragment : Fragment() {
                             // this will done in background thread with
                             val palette = Palette.from(bitmap).generate(
                                     Palette.PaletteAsyncListener {
-                                        podcast_detail_appbar.setBackgroundColor(it.getDarkVibrantColor(PALETTE_BG_MASK))
+                                        val vibrantColor = it.getDarkVibrantColor(PALETTE_BG_MASK)
+                                        podcast_detail_appbar.setBackgroundColor(vibrantColor)
                                         if (it.darkVibrantSwatch != null){
                                             episode_podcast_title.setTextColor(it.darkVibrantSwatch!!.titleTextColor)
                                         }
+                                        val cv = ContentValues()
+                                        cv.put(Contract.PodcastTable.VIBRANT_COLOR, vibrantColor.toString())
+                                        viewModel.getUpdatePodcastObservable(podcast, cv)
+                                                .subscribe(
+                                                        {
+                                                            Log.d(TAG," Finish update vibrant color for podcast ")
+                                                        },
+                                                        {
+                                                            it.printStackTrace()
+                                                        }
+                                                )
 
                             });
                         }

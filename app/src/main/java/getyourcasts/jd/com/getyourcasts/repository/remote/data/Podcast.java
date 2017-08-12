@@ -27,6 +27,7 @@ public final class Podcast implements Parcelable {
     private String feedUrl;
     private Long trackCount;
     private String description;
+    private String vibrantColor;
 
     public Podcast(String collectionId,
                    String collectionName,
@@ -37,7 +38,8 @@ public final class Podcast implements Parcelable {
                    String lastUpdate,
                    String feedUrl,
                    Long trackCount,
-                   String description) {
+                   String description,
+                   String vibColor) {
         this.collectionId = collectionId;
         this.collectionName = collectionName;
         this.artistName = artistName;
@@ -48,6 +50,7 @@ public final class Podcast implements Parcelable {
         this.feedUrl = feedUrl;
         this.trackCount = trackCount;
         this.description = description;
+        this.vibrantColor = vibColor;
     }
 
 
@@ -131,6 +134,14 @@ public final class Podcast implements Parcelable {
         this.description = description;
     }
 
+    public String getVibrantColor() {
+        return vibrantColor;
+    }
+
+    public void setVibrantColor(String vibrantColor) {
+        this.vibrantColor = vibrantColor;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -148,6 +159,7 @@ public final class Podcast implements Parcelable {
         dest.writeString(this.feedUrl);
         dest.writeValue(this.trackCount);
         dest.writeString(this.description);
+        dest.writeString(this.vibrantColor);
     }
 
 
@@ -163,6 +175,7 @@ public final class Podcast implements Parcelable {
         this.feedUrl = in.readString();
         this.trackCount = (Long) in.readValue(Long.class.getClassLoader());
         this.description = in.readString();
+        this.vibrantColor =  in.readString();
     }
 
     public static final Parcelable.Creator<Podcast> CREATOR = new Parcelable.Creator<Podcast>() {
@@ -191,7 +204,8 @@ public final class Podcast implements Parcelable {
                     CursorHelper.getStringValue(cursor, Contract.PodcastTable.LAST_UPDATE),
                     CursorHelper.getStringValue(cursor, Contract.PodcastTable.FEED_URL),
                     (long)CursorHelper.getIntValue(cursor, Contract.PodcastTable.TRACK_COUNT),
-                    CursorHelper.getStringValue(cursor, Contract.PodcastTable.DESCRIPTION)
+                    CursorHelper.getStringValue(cursor, Contract.PodcastTable.DESCRIPTION),
+                    CursorHelper.getStringValue(cursor, Contract.PodcastTable.VIBRANT_COLOR)
             );
         }
         return null;
@@ -209,6 +223,7 @@ public final class Podcast implements Parcelable {
         cv.put(Contract.PodcastTable.ARTIST_NAME, this.getArtistName());
         cv.put(Contract.PodcastTable.TRACK_COUNT, this.getTrackCount());
         cv.put(Contract.PodcastTable.LAST_UPDATE, TimeUtil.getCurrentTimeInMs());
+        cv.put(Contract.PodcastTable.VIBRANT_COLOR, this.getVibrantColor());
         return cv;
     }
 
@@ -223,6 +238,7 @@ public final class Podcast implements Parcelable {
                 "",
                 "",
                 0L,
+                "",
                 ""
         );
     }

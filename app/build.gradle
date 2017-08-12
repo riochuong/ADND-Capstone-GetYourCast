@@ -100,5 +100,10 @@ dependencies {
     compile 'com.google.android.exoplayer:exoplayer:r2.5.0'
     compile 'com.google.android.exoplayer:extension-mediasession:r2.5.0'
 
+    // BUTTER KNIFE
+    compile 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+
 
 }

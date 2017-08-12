@@ -158,7 +158,7 @@ public class PodcastViewModel {
     }
 //
 
-    public Observable<Podcast> getIsPodcastInDbObservable(String podcastId) {
+    public Observable<Podcast> getPodcastObservable(String podcastId) {
         return Observable.defer(
                 () -> {
                     try {
@@ -192,6 +192,12 @@ public class PodcastViewModel {
     public  Observable<Boolean> getUpdateEpisodeObservable (Episode episode, ContentValues cv)  {
         return Observable.defer (() -> Observable.just(updateEpisode(episode,cv)))
         .subscribeOn(Schedulers.io());
+    }
+
+    public  Observable<Boolean> getUpdatePodcastObservable (Podcast podcast, ContentValues cv)  {
+        return Observable.defer (
+                () -> Observable.just(dataRepo.updatePodcast(cv, podcast.getCollectionId()))
+                .subscribeOn(Schedulers.io()));
     }
 //
     private  Boolean updateEpisode(Episode episode, ContentValues cv) {

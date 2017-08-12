@@ -94,7 +94,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
         podcastVh.author.text = podcast.artistName
         podcastVh.title.text = podcast.collectionName
         // need glide to load the image here
-        val checkPodcastDbObs = viewModel.getIsPodcastInDbObservable(podcast.collectionId)
+        val checkPodcastDbObs = viewModel.getPodcastObservable(podcast.collectionId)
         // check to decide where to load image
         checkPodcastDbObs.observeOn(AndroidSchedulers.mainThread()).subscribe(
                 {
@@ -123,7 +123,7 @@ class SearchPodcastRecyclerViewAdapter(var podcastList: List<Podcast>,
                     podcastVh.itemView.setOnClickListener {
 
                         // need to get the podcast from db to make sure it's updated
-                        viewModel.getIsPodcastInDbObservable(podcastToPass!!.collectionId)
+                        viewModel.getPodcastObservable(podcastToPass!!.collectionId)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         {

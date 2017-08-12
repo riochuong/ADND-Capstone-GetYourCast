@@ -19,4 +19,5 @@
     <string name="download_complete">Download Complete</string>
     <string name="title_activity_video">VideoActivity</string>
     <string name="title_activity_playlist">PlaylistActivity</string>
+    <string name="title_activity_media_player">MediaPlayerActivity</string>
 </resources>

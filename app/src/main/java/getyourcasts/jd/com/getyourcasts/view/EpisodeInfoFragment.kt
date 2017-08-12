@@ -119,9 +119,9 @@ class EpisodeInfoFragment : Fragment() {
 
 
     private fun subscribeToMediaServiceSubject (episode: Episode) {
-        MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<String,Int>> {
-            override fun onNext(t: Pair<String, Int>) {
-                val episodeId = t.first
+        MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode,Int>> {
+            override fun onNext(t: Pair<Episode, Int>) {
+                val episodeId = t.first.uniqueId
                 val state = t.second
                 if (episode.uniqueId.equals(episodeId)){
                     // check which state we should set the fab

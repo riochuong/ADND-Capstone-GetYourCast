@@ -47,7 +47,8 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 +Contract.PodcastTable.IMG_LOCAL_PATH + " TEXT, "
                 +Contract.PodcastTable.RELEASE_DATE + " TEXT, "
                 +Contract.PodcastTable.DESCRIPTION + " TEXT, "
-                +Contract.PodcastTable.UNIQUE_ID + " TEXT UNIQUE "
+                +Contract.PodcastTable.UNIQUE_ID + " TEXT UNIQUE, "
+                +Contract.PodcastTable.VIBRANT_COLOR + " TEXT "
                 +")";
 
     }
