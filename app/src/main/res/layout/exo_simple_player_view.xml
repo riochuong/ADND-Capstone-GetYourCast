@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/media_player_view_episode_title"
+        android:text="asgdasdgasdgasd"
+        android:layout_margin="@dimen/small_margin"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@color/colorWhite"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+            android:id="@+id/exo_content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/exo_shutter"
+            android:layout_width="@dimen/player_view_img_size"
+            android:layout_height="@dimen/player_view_img_size"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <com.google.android.exoplayer2.ui.PlaybackControlView
+        android:id="@+id/exo_controller"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom">
+
+    </com.google.android.exoplayer2.ui.PlaybackControlView>
+
+</LinearLayout>
+

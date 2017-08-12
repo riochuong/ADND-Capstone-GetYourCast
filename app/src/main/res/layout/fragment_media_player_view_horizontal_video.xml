@@ -1,29 +1,22 @@
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/media_player_view_main_layout"
     tools:context="getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerViewFragment">
-
-        <ImageView
-        android:id="@+id/close_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/ic_close"/>
 
 
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/simple_exo_video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="end|center_horizontal"
+            android:layout_gravity="end|bottom|center_horizontal"
             android:visibility="visible"
             android:layout_margin="@dimen/small_margin"
             app:resize_mode="fit">
         </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
 
 
-</LinearLayout>
+</FrameLayout>

@@ -29,6 +29,7 @@ import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import android.util.Pair
+import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity
 import kotlinx.android.synthetic.main.fragment_episode_info.*
 
 /**
@@ -130,6 +131,7 @@ class EpisodeInfoFragment : Fragment() {
                         MediaPlayBackService.MEDIA_PLAYING -> {
                             fabState = PRESS_TO_PAUSE
                             ep_info_fab.setImageResource(R.mipmap.ic_pause)
+                            // start player activity
                         }
                         MediaPlayBackService.MEDIA_STOPPED -> {
                             fabState = PRESS_TO_PLAY
@@ -274,15 +276,9 @@ class EpisodeInfoFragment : Fragment() {
                     if (mediaService != null && episode != null && episode.localUrl != null){
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
-                        // quick hack for fun
-                        if (episode.type!!.contains("audio")){
-                            mediaService!!.playLocalUrlAudio(episode)
-                        } else{
-
-                        }
-
-
-
+                        // start playing here
+                        mediaService!!.playMediaFile(episode)
+                        context.startActivity(Intent(context, MediaPlayerActivity::class.java))
                     }
 
                 }
@@ -301,6 +297,7 @@ class EpisodeInfoFragment : Fragment() {
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
                         mediaService!!.resumePlayback()
+                        context.startActivity(Intent(context, MediaPlayerActivity::class.java))
                     }
 
                 }

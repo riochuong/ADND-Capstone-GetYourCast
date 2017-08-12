@@ -90,8 +90,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             extractorFactory = buildExtractorFactory();
             mediaSessionConn.setPlayer(exoPlayer, null);
             mediaSessionConn.mediaSession.setActive(true);
-            // start player activity
-            startActivity(new Intent(this, MediaPlayerActivity.class));
         }
     }
 
@@ -191,7 +189,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     /**
      * play an audio file from a local url
      */
-    public void playLocalUrlAudio(Episode episode) {
+    public void playMediaFile(Episode episode) {
         stopPlayback();
         initExoPlayer();
         exoPlayer.addListener(this);

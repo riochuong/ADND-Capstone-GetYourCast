@@ -12,10 +12,14 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.request.target.Target;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import butterknife.BindView;
@@ -37,18 +41,60 @@ import io.reactivex.disposables.Disposable;
 public class MediaPlayerViewFragment extends Fragment {
 
     @BindView(R.id.simple_exo_video_view) SimpleExoPlayerView playerView;
-    ImageView imgView;
     PodcastViewModel viewModel;
+    ImageView exoShutter;
+    AspectRatioFrameLayout videoSurfaceView;
     private Episode currentEpisode;
-    private RelativeLayout mainLayout;
+    private LinearLayout mainLayout;
     private static final String TAG = MediaPlayerViewFragment.class.getSimpleName();
     private Disposable mediaServiceDisposable = null;
+    private String podcastId = null;
+    private boolean isVideo = false;
+    private TextView episodeTitle;
+
+    /* Keys for saving bundle state */
+    private static final String PODCAST_ID_KEY  = "podcast_id_key";
+    private static final String IS_VIDEO_KEY  = "is_video_key";
+    private  static final String CURR_EP_KEY = "curr_ep_key";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(getContext()));
+        // if we need to load some saved data
+        if (savedInstanceState != null){
+            loadInstanceState(savedInstanceState);
+        }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        savePlayerState(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    /**
+     * Save the state of the playback
+     * @param bundle
+     */
+    private void savePlayerState(Bundle bundle){
+        if (currentEpisode != null && podcastId != null){
+            bundle.putString(PODCAST_ID_KEY,podcastId);
+            bundle.putParcelable(CURR_EP_KEY,currentEpisode);
+            bundle.putBoolean(IS_VIDEO_KEY, isVideo);
+        }
+    }
+
+    private void loadInstanceState(Bundle bundle){
+        String podcastId = bundle.getString(PODCAST_ID_KEY, null);
+        if (podcastId != null){
+            this.podcastId = podcastId;
+            currentEpisode = bundle.getParcelable(CURR_EP_KEY);
+            this.isVideo = bundle.getBoolean(IS_VIDEO_KEY);
+        }
+
+    }
+
 
 
     @Nullable
@@ -58,8 +104,11 @@ public class MediaPlayerViewFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_media_player_view, container, false);
         //ButterKnife.bind(this, root);
         playerView = (SimpleExoPlayerView) root.findViewById(R.id.simple_exo_video_view);
-        imgView = (ImageView) root.findViewById(R.id.ep_podcast_img_view);
-        mainLayout = (RelativeLayout) root.findViewById(R.id.media_player_view_main_layout);
+        mainLayout = (LinearLayout) root.findViewById(R.id.media_player_view_main_layout);
+        exoShutter = (ImageView) playerView.findViewById(R.id.exo_shutter);
+        videoSurfaceView = (AspectRatioFrameLayout) playerView.findViewById(R.id.exo_content_frame);
+        episodeTitle = (TextView) playerView.findViewById(R.id.media_player_view_episode_title);
+        episodeTitle.setSelected(true);
         initControllerView();
         return root;
     }
@@ -68,10 +117,6 @@ public class MediaPlayerViewFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
-
-
-
-
 
     private void initMediaServiceSubscribe() {
         MediaPlayBackService.subscribeMediaPlaybackSubject(new Observer<Pair<Episode, Integer>>() {
@@ -90,8 +135,17 @@ public class MediaPlayerViewFragment extends Fragment {
                         if (currentEpisode == null
                                 || (!currentEpisode.getUniqueId().equals(epId))) {
                             currentEpisode = info.first;
+                            podcastId = info.first.getPodcastId();
                             // load album podcast image to the view
-                            loadImgViewForPodcast(info.first.getPodcastId());
+                            if (info.first.getType().contains("audio")){
+                                isVideo = false;
+                            }
+                            else{
+                                isVideo = true;
+                            }
+                            // load image
+                            loadImgViewForPodcast(info.first.getPodcastId(),  isVideo);
+
                         }
                         break;
                     case MediaPlayBackService.MEDIA_PAUSE:
@@ -115,7 +169,9 @@ public class MediaPlayerViewFragment extends Fragment {
     }
 
 
-    private void loadImgViewForPodcast (String podcastId) {
+
+
+    private void loadImgViewForPodcast (String podcastId, boolean isVideo) {
         try {
             viewModel.getPodcastObservable(podcastId)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -129,9 +185,16 @@ public class MediaPlayerViewFragment extends Fragment {
                                 @Override
                                 public void onNext(Podcast podcast) {
                                     try {
-                                        GlideApp.with(MediaPlayerViewFragment.this.getActivity().getApplicationContext())
-                                                .load(podcast.getImgLocalPath()).into(imgView);
-
+                                        if (! isVideo){
+                                            GlideApp.with(MediaPlayerViewFragment.this.getActivity().getApplicationContext())
+                                                    .load(podcast.getImgLocalPath()).into(exoShutter);
+                                            videoSurfaceView.setVisibility(View.GONE);
+                                            exoShutter.setVisibility(View.VISIBLE);
+                                        } else{
+                                            videoSurfaceView.setVisibility(View.VISIBLE);
+                                            exoShutter.setVisibility(View.GONE);
+                                        }
+                                        episodeTitle.setText(currentEpisode.getTitle());
                                         mainLayout.setBackgroundColor(Integer.parseInt(podcast.getVibrantColor()));
                                     } catch (NumberFormatException e) {
                                         e.printStackTrace();
@@ -166,6 +229,10 @@ public class MediaPlayerViewFragment extends Fragment {
         super.onResume();
         bindMediaService();
         initMediaServiceSubscribe();
+        if (currentEpisode != null && podcastId != null){
+            loadImgViewForPodcast(podcastId, isVideo);
+            episodeTitle.setText(currentEpisode.getTitle());
+        }
     }
 
     @Override
