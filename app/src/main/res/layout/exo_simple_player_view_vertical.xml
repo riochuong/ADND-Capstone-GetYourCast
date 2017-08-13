@@ -7,22 +7,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/media_player_view_episode_title"
-        android:text="asgdasdgasdgasd"
-        android:layout_margin="@dimen/small_margin"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:textAppearance="?android:textAppearanceMedium"
-        android:textColor="@color/colorWhite"/>
+
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
             android:id="@+id/exo_content_frame"
@@ -38,15 +27,30 @@
             android:layout_gravity="center_horizontal|center_vertical"
             android:visibility="gone"/>
 
+        <TextView
+            android:id="@+id/media_player_view_episode_title"
+            android:text="asgdasdgasdgasd"
+            android:layout_margin="@dimen/small_margin"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorWhite"/>
+
+        <com.google.android.exoplayer2.ui.PlaybackControlView
+            android:id="@+id/exo_controller"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom">
+
+        </com.google.android.exoplayer2.ui.PlaybackControlView>
+
     </FrameLayout>
 
-    <com.google.android.exoplayer2.ui.PlaybackControlView
-        android:id="@+id/exo_controller"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom">
 
-    </com.google.android.exoplayer2.ui.PlaybackControlView>
 
 </LinearLayout>
 
