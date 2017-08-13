@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -31,11 +32,13 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
-import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -56,6 +59,9 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     private Episode currEpisode = null;
     private MediaPlayBackServiceBinder binder = new MediaPlayBackServiceBinder();
     private DynamicConcatenatingMediaSource dynamicMediaSource = new DynamicConcatenatingMediaSource();
+    private Disposable playListRemoveDisposable;
+
+    private List<Episode> playList ;
 
 
     private static final String TAG = MediaPlayBackService.class.getSimpleName();
@@ -66,7 +72,12 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public static final int MEDIA_PAUSE = 1;
     public static final int MEDIA_STOPPED = 2;
 
+    // state of the playlist
+//    public static final int MEDIA_ADDED_TO_TOP_PLAYLIST = 3;
+//    public static final int MEDIA_ADDED_TO_END_PLAYLIST = 4;
+    public static final int MEDIA_REMOVED_FROM_PLAYLIST = 5;
 
+    /* MEDIA STATE OBJECT */
     private static Subject<Pair<Episode, Integer>> MediaPlaybackSubject = BehaviorSubject.create();
 
     public static void subscribeMediaPlaybackSubject(Observer<Pair<Episode, Integer>> obsvr) {
@@ -86,11 +97,49 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     private void initExoPlayer() {
         if (exoPlayer == null) {
             exoPlayer = ExoPlayerFactory.newSimpleInstance(this, new DefaultTrackSelector());
-            dataSourceFactory = buildDataSource();
-            extractorFactory = buildExtractorFactory();
             mediaSessionConn.setPlayer(exoPlayer, null);
             mediaSessionConn.mediaSession.setActive(true);
         }
+    }
+
+    private void initPlayListRemoveObserver(){
+        subscribeMediaPlaybackSubject(new Observer<Pair<Episode, Integer>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                playListRemoveDisposable = d;
+            }
+
+            @Override
+            public void onNext(Pair<Episode, Integer> info) {
+                    int state = info.second;
+                    switch (state){
+                        case MEDIA_REMOVED_FROM_PLAYLIST:
+                            int index = findIndexFromList(info.first);
+                            if (index >= 0) {removeTrackFromPlayList(index);}
+                            break;
+                    }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    private synchronized int findIndexFromList(Episode ep) {
+        for (int i = 0; i < playList.size() ; i++) {
+            if (playList.get(i).getUniqueId().equals(ep.getUniqueId())){
+                return i;
+            }
+        }
+        Log.e(TAG, "Cannot find episode from playlist");
+        return -1;
     }
 
     private void startServiceAsForeground() {
@@ -141,19 +190,13 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         return mediaSource;
     }
 
-    public void playLocalVideo(Episode episode, SimpleExoPlayerView view) {
-        stopPlayback();
-        initExoPlayer();
-        if (exoPlayer != null && episode.getLocalUrl() != null) {
-            exoPlayer.prepare(buildMediaSourceFromUrl(episode.getLocalUrl()));
-            exoPlayer.setPlayWhenReady(true);
-            view.setPlayer(exoPlayer);
-        }
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mediaSessionConn = buildMediaSession();
+        dataSourceFactory = buildDataSource();
+        extractorFactory = buildExtractorFactory();
+        playList = new ArrayList<>();
+        initPlayListRemoveObserver();
         return START_STICKY;
     }
 
@@ -167,6 +210,11 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         // clean up media session
         if (mediaSessionConn != null) {
             mediaSessionConn.mediaSession.release();
+        }
+
+        if (playListRemoveDisposable != null ){
+            playListRemoveDisposable.dispose();
+            playListRemoveDisposable = null;
         }
         super.onDestroy();
     }
@@ -194,14 +242,16 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         initExoPlayer();
         exoPlayer.addListener(this);
         if (exoPlayer != null && episode.getLocalUrl() != null) {
-            exoPlayer.prepare(buildMediaSourceFromUrl(episode.getLocalUrl()));
-            exoPlayer.setPlayWhenReady(true);
-
             // before stop this player ...send out a cast for other view
             if (currEpisode != null) publishMediaPlaybackSubject(currEpisode, MEDIA_STOPPED);
             currEpisode = episode;
             startServiceAsForeground();
+            // now add track to top of the list
+            addTrackToPlaylist(episode, 0);
+            exoPlayer.prepare(dynamicMediaSource);
+            exoPlayer.setPlayWhenReady(true);
         }
+
     }
 
     public void setPlayerView (SimpleExoPlayerView view) {
@@ -209,11 +259,64 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     }
 
 
-    public void addTrackToPlaylist(Episode episode) {
+    private int findDuplicateIndex(Episode ep) {
+        for (int i = 0; i < playList.size(); i++) {
+            if (playList.get(i).getUniqueId().equals(ep.getUniqueId())){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private synchronized void addTrackToPlaylist(Episode episode, int index) {
+        if (episode.getLocalUrl() != null) {
+            int dupIndex = findDuplicateIndex(episode);
+            if (dupIndex > 0) {
+                Episode removedEp = playList.get(index);
+                dynamicMediaSource.removeMediaSource(dupIndex);
+                playList.remove(dupIndex);
+            }
+
+            MediaSource mediaSource = buildMediaSourceFromUrl(episode.getLocalUrl());
+            dynamicMediaSource.addMediaSource(index, mediaSource);
+            playList.add(index, episode);
+        }
+    }
+
+    /**
+     * add track to the current end of the playlist
+     * @param episode
+     */
+    public void addTrackToEndPlaylist(Episode episode) {
         if (episode.getLocalUrl() != null) {
             MediaSource mediaSource = buildMediaSourceFromUrl(episode.getLocalUrl());
-            dynamicMediaSource.addMediaSource(mediaSource);
+            int lastIndex = playList.size();
+            dynamicMediaSource.addMediaSource(lastIndex, mediaSource);
+            playList.add(episode);
         }
+    }
+
+
+    /**
+     * remove item from playlist
+     * @param index
+     */
+    private synchronized void removeTrackFromPlayList(int index) {
+        dynamicMediaSource.removeMediaSource(index);
+        playList.remove(index);
+    }
+
+    /**
+     * to help synchronize between playlist activity and current playlist
+     * @return
+     */
+    public synchronized List<Episode> getMediaPlaylist() {
+        // make a copy here to avoid mutable outside of this class
+        List<Episode> newList = new ArrayList<>();
+        for (Episode ep: this.playList) {
+            newList.add(new Episode(ep));
+        }
+        return newList;
     }
 
     public void registerPlayerListener(Player.EventListener listener) {

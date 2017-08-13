@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="false">
 
     <android.support.design.widget.CoordinatorLayout
 
@@ -19,6 +20,7 @@
             android:id="@+id/ep_info_app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.NoActionBar"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -55,6 +57,15 @@
                         android:textStyle="bold"/>
 
 
+                    <ImageView
+                        android:id="@+id/add_to_playlist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:src="@mipmap/ic_add_to_play_list"
+                        android:visibility="gone"/>
+
+
                 </LinearLayout>
 
 
@@ -78,6 +89,9 @@
                 android:orientation="vertical"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 >
+
+
+
 
                 <TextView
                     android:layout_width="match_parent"

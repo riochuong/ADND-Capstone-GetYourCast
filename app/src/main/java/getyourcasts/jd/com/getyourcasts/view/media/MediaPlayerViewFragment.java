@@ -196,7 +196,6 @@ public class MediaPlayerViewFragment extends Fragment {
 
 
 
-
     private void loadImgViewForPodcast (String podcastId, boolean isVideo) {
         try {
             viewModel.getPodcastObservable(podcastId)

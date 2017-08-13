@@ -6,13 +6,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="getyourcasts.jd.com.getyourcasts.view.media.PlayListFragment"
-    tools:showIn="@layout/activity_playlist">
+    >
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </android.support.design.widget.AppBarLayout>
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/ep_play_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
     </android.support.v7.widget.RecyclerView>
 
 </android.support.design.widget.CoordinatorLayout>

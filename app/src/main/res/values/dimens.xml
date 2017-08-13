@@ -27,4 +27,6 @@
     <dimen name="pod_img_size">130dp</dimen>
     <dimen name="player_view_img_size">300dp</dimen>
     <dimen name="black_radiu_corner">3dp</dimen>
+    <dimen name="play_icon_size">20dp</dimen>
+    <dimen name="img_playlis_small_size">100dp</dimen>
 </resources>

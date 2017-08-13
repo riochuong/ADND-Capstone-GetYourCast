@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,13 +24,12 @@ import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
+import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
-import android.util.Pair
-import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity
 import kotlinx.android.synthetic.main.fragment_episode_info.*
 
 /**
@@ -80,6 +80,7 @@ class EpisodeInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         startAnim()
         initViews()
+        initAddToPlayListListener()
     }
 
     private fun initViews() {
@@ -188,6 +189,7 @@ class EpisodeInfoFragment : Fragment() {
                             fabState = PRESS_TO_PLAY
                             ep_info_fab.visibility = View.VISIBLE
                             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                            add_to_playlist.visibility  = View.VISIBLE
                         }
                     }
                 }
@@ -206,6 +208,16 @@ class EpisodeInfoFragment : Fragment() {
         PodcastViewModel.subscribeEpisodeSubject(observer)
     }
 
+
+    private fun initAddToPlayListListener (){
+        add_to_playlist.setOnClickListener {
+                // ADD song to play list
+                Log.d(TAG, "ADD TO PLAYLIST !!! ")
+                if (mediaService != null) mediaService!!.addTrackToEndPlaylist(episode)
+                add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
+        }
+    }
+
     /**
      * helper to initialize FAB button
      */
@@ -222,7 +234,7 @@ class EpisodeInfoFragment : Fragment() {
             fabState = PRESS_TO_PLAY
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
-
+            add_to_playlist.visibility  = View.VISIBLE
         } else {
             fabState = PRESS_TO_DOWNLOAD
             ep_info_fab.visibility = View.VISIBLE

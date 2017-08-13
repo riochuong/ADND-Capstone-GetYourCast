@@ -262,4 +262,20 @@ public final class Episode implements Parcelable {
                 0
             );
     }
+
+
+    public Episode (Episode ep) {
+        this.podcastId =  ep.getPodcastId();
+        this.title = ep.getTitle();
+        this.uniqueId = ep.getUniqueId();
+        this.pubDate = ep.getPubDate();
+        this.description = ep.getDescription();
+        this.downloadUrl = ep.getDownloadUrl();
+        this.localUrl = ep.getLocalUrl();
+        this.fileSize = ep.getFileSize();
+        this.type = ep.getType();
+        this.favorite = ep.getFavorite();
+        this.progress = ep.getProgress();
+        this.downloaded = ep.getDownloaded();
+    }
 }

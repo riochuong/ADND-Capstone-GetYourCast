@@ -15,7 +15,7 @@ abstract class SwipeDetector: View.OnTouchListener {
 
 
     companion object {
-        val MIN_DISTANCE = 100
+        val MIN_DISTANCE = 50
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
@@ -24,7 +24,6 @@ abstract class SwipeDetector: View.OnTouchListener {
                 MotionEvent.ACTION_DOWN ->{
                         downX = event.x
                         downY = event.y
-                    return true
                 }
 
                 MotionEvent.ACTION_UP -> {
