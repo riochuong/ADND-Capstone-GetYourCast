@@ -104,6 +104,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
+    // CIRCLE INDICATOR
+    compile 'com.pacioianu.david:ink-page-indicator:1.2.0'
 
 
 }

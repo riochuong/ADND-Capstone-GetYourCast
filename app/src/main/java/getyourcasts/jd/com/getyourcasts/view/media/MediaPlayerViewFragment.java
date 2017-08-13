@@ -57,6 +57,13 @@ public class MediaPlayerViewFragment extends Fragment {
     private static final String IS_VIDEO_KEY  = "is_video_key";
     private  static final String CURR_EP_KEY = "curr_ep_key";
 
+
+    public static MediaPlayerViewFragment newInstance() {
+        MediaPlayerViewFragment fragment = new MediaPlayerViewFragment();
+        return fragment;
+    }
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -29,7 +29,6 @@
 
         <TextView
             android:id="@+id/media_player_view_episode_title"
-            android:text="asgdasdgasdgasd"
             android:layout_margin="@dimen/small_margin"
             android:layout_gravity="center_horizontal|top"
             android:layout_width="match_parent"
