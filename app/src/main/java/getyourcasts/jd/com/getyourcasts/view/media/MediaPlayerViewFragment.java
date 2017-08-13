@@ -4,21 +4,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.request.target.Target;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
@@ -40,6 +39,7 @@ import io.reactivex.disposables.Disposable;
 
 public class MediaPlayerViewFragment extends Fragment {
 
+    private static final int CONTROLLER_TIMEOUT = 1000 ;
     @BindView(R.id.simple_exo_video_view) SimpleExoPlayerView playerView;
     PodcastViewModel viewModel;
     ImageView exoShutter;
@@ -100,18 +100,37 @@ public class MediaPlayerViewFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_media_player_view, container, false);
-        //ButterKnife.bind(this, root);
-        playerView = (SimpleExoPlayerView) root.findViewById(R.id.simple_exo_video_view);
-        mainLayout = (LinearLayout) root.findViewById(R.id.media_player_view_main_layout);
-        exoShutter = (ImageView) playerView.findViewById(R.id.exo_shutter);
+        // check configuration
+        View root = null;
+        int orientation = getCurrentOrientation();
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE && isVideo){
+            Log.d(TAG, "In Landscape mode");
+            root = inflater.inflate(R.layout.fragment_media_player_view_horizontal_video, container, false);
+            playerView = (SimpleExoPlayerView) root.findViewById(R.id.simple_exo_video_view);
+            initControllerView(true);
+        }
+        else{ // IN PORTRAIT MODE && not landscape video
+            root = inflater.inflate(R.layout.fragment_media_player_view_vertical, container, false);
+            playerView = (SimpleExoPlayerView) root.findViewById(R.id.simple_exo_video_view);
+            initControllerView(false);
+        }
+
+        // find common features
         videoSurfaceView = (AspectRatioFrameLayout) playerView.findViewById(R.id.exo_content_frame);
+        mainLayout = (LinearLayout) root.findViewById(R.id.media_player_view_main_layout);
+        // some of the below might be null
+        exoShutter = (ImageView) playerView.findViewById(R.id.exo_shutter);
         episodeTitle = (TextView) playerView.findViewById(R.id.media_player_view_episode_title);
-        episodeTitle.setSelected(true);
-        initControllerView();
+        // set this to enable text marquee
+        if (episodeTitle != null) {episodeTitle.setSelected(true);}
+
         return root;
     }
+
+    private int getCurrentOrientation () {
+        return  getContext().getResources().getConfiguration().orientation;
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -185,16 +204,22 @@ public class MediaPlayerViewFragment extends Fragment {
                                 @Override
                                 public void onNext(Podcast podcast) {
                                     try {
-                                        if (! isVideo){
+                                        if (!isVideo){
                                             GlideApp.with(MediaPlayerViewFragment.this.getActivity().getApplicationContext())
                                                     .load(podcast.getImgLocalPath()).into(exoShutter);
-                                            videoSurfaceView.setVisibility(View.GONE);
-                                            exoShutter.setVisibility(View.VISIBLE);
+                                            if (videoSurfaceView != null && exoShutter != null){
+                                                videoSurfaceView.setVisibility(View.GONE);
+                                                exoShutter.setVisibility(View.VISIBLE);
+                                            }
                                         } else{
                                             videoSurfaceView.setVisibility(View.VISIBLE);
-                                            exoShutter.setVisibility(View.GONE);
+                                            if (exoShutter != null){
+                                                exoShutter.setVisibility(View.GONE);
+                                            }
                                         }
-                                        episodeTitle.setText(currentEpisode.getTitle());
+                                        if (episodeTitle != null){
+                                            episodeTitle.setText(currentEpisode.getTitle());
+                                        }
                                         mainLayout.setBackgroundColor(Integer.parseInt(podcast.getVibrantColor()));
                                     } catch (NumberFormatException e) {
                                         e.printStackTrace();
@@ -217,10 +242,17 @@ public class MediaPlayerViewFragment extends Fragment {
         }
     }
 
-    private void initControllerView(){
+    private void initControllerView(boolean autohide){
         playerView.showController();
-        playerView.setControllerHideOnTouch(false);
-        playerView.setControllerShowTimeoutMs(-1);
+        if (!autohide){
+            playerView.setControllerHideOnTouch(false);
+            playerView.setControllerShowTimeoutMs(-1);
+        }
+        else{
+            playerView.setControllerHideOnTouch(true);
+            playerView.setControllerShowTimeoutMs(CONTROLLER_TIMEOUT);
+        }
+
     }
 
 
@@ -231,7 +263,9 @@ public class MediaPlayerViewFragment extends Fragment {
         initMediaServiceSubscribe();
         if (currentEpisode != null && podcastId != null){
             loadImgViewForPodcast(podcastId, isVideo);
-            episodeTitle.setText(currentEpisode.getTitle());
+            if (episodeTitle != null){
+                episodeTitle.setText(currentEpisode.getTitle());
+            }
         }
     }
 

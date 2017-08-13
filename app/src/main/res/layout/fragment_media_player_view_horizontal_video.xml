@@ -1,4 +1,4 @@
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,8 +15,9 @@
             android:layout_gravity="end|bottom|center_horizontal"
             android:visibility="visible"
             android:layout_margin="@dimen/small_margin"
-            app:resize_mode="fit">
+            app:player_layout_id="@layout/exo_simple_player_view_horizontal"
+            app:resize_mode="fill">
         </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
 
 
-</FrameLayout>
+</LinearLayout>
