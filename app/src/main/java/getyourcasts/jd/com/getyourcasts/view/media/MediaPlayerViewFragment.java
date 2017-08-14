@@ -114,12 +114,10 @@ public class MediaPlayerViewFragment extends Fragment {
             Log.d(TAG, "In Landscape mode");
             root = inflater.inflate(R.layout.fragment_media_player_view_horizontal_video, container, false);
             playerView = (SimpleExoPlayerView) root.findViewById(R.id.simple_exo_video_view);
-            initControllerView(true);
         }
         else{ // IN PORTRAIT MODE && not landscape video
             root = inflater.inflate(R.layout.fragment_media_player_view_vertical, container, false);
             playerView = (SimpleExoPlayerView) root.findViewById(R.id.simple_exo_video_view);
-            initControllerView(false);
         }
 
         // find common features
@@ -160,19 +158,12 @@ public class MediaPlayerViewFragment extends Fragment {
                     case MediaPlayBackService.MEDIA_PLAYING:
                         if (currentEpisode == null
                                 || (!currentEpisode.getUniqueId().equals(epId))) {
-                            currentEpisode = info.first;
-                            podcastId = info.first.getPodcastId();
-                            // load album podcast image to the view
-                            if (info.first.getType().contains("audio")){
-                                isVideo = false;
-                            }
-                            else{
-                                isVideo = true;
-                            }
-                            // load image
-                            loadImgViewForPodcast(info.first.getPodcastId(),  isVideo);
 
+                            reloadCorrectDataForFragment(info);
                         }
+                        break;
+                    case MediaPlayBackService.MEDIA_TRACK_CHANGED:
+                        reloadCorrectDataForFragment(info);
                         break;
                     case MediaPlayBackService.MEDIA_PAUSE:
                     case MediaPlayBackService.MEDIA_STOPPED:
@@ -192,6 +183,23 @@ public class MediaPlayerViewFragment extends Fragment {
 
             }
         });
+    }
+
+    private void reloadCorrectDataForFragment(Pair<Episode, Integer>info) {
+        currentEpisode = info.first;
+        podcastId = info.first.getPodcastId();
+        // load album podcast image to the view
+        if (info.first.getType().contains("audio")){
+            isVideo = false;
+        }
+        else{
+            isVideo = true;
+        }
+        // load image
+        loadImgViewForPodcast(info.first.getPodcastId(),  isVideo);
+        if (mediaService != null){
+            mediaService.setPlayerView(playerView);
+        }
     }
 
 
@@ -217,11 +225,13 @@ public class MediaPlayerViewFragment extends Fragment {
                                                 videoSurfaceView.setVisibility(View.GONE);
                                                 exoShutter.setVisibility(View.VISIBLE);
                                             }
+                                            initControllerView(false);
                                         } else{
                                             videoSurfaceView.setVisibility(View.VISIBLE);
                                             if (exoShutter != null){
                                                 exoShutter.setVisibility(View.GONE);
                                             }
+                                            initControllerView(true);
                                         }
                                         if (episodeTitle != null){
                                             episodeTitle.setText(currentEpisode.getTitle());

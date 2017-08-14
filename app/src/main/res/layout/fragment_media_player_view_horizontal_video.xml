@@ -16,7 +16,7 @@
             android:visibility="visible"
             android:layout_margin="@dimen/small_margin"
             app:player_layout_id="@layout/exo_simple_player_view_horizontal"
-            app:resize_mode="fill">
+            app:resize_mode="fit">
         </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
 
 

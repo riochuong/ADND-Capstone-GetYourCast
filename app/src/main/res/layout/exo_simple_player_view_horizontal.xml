@@ -13,6 +13,26 @@
         android:layout_gravity="center_horizontal|center_vertical"
         android:visibility="visible"/>
 
+    <ImageView
+        android:id="@+id/exo_shutter"
+        android:layout_width="@dimen/player_view_img_size"
+        android:layout_height="@dimen/player_view_img_size"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/media_player_view_episode_title"
+        android:layout_margin="@dimen/small_margin"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@color/colorWhite"/>
+
+
     <com.google.android.exoplayer2.ui.PlaybackControlView
         android:id="@+id/exo_controller"
         android:layout_width="match_parent"
