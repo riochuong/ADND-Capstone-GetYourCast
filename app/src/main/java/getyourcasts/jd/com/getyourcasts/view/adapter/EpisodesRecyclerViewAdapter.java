@@ -245,8 +245,10 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                                               int pos) {
         if (episode.getDownloaded() == 1) {
             vh.state = ButtonStateUtil.PRESS_TO_PLAY;
+            vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
         } else {
             vh.state = ButtonStateUtil.PRESS_TO_DOWNLOAD;
+            vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down);
         }
         // subscribe to media service info to change the icon appropriately
         MediaPlayBackService.subscribeMediaPlaybackSubject(new Observer<android.util.Pair<Episode, Integer>>() {
@@ -277,7 +279,8 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                     }
                 } else{
                     // this episode is not playing or anything reset it to original state
-                    if (vh.state != ButtonStateUtil.PRESS_TO_DOWNLOAD || vh.state != ButtonStateUtil.PRESS_TO_PLAY){
+                    if (vh.state != ButtonStateUtil.PRESS_TO_DOWNLOAD
+                            && vh.state != ButtonStateUtil.PRESS_TO_PLAY){
                         vh.state = ButtonStateUtil.PRESS_TO_PLAY;
                         vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
                     }

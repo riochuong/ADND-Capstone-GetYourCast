@@ -146,7 +146,7 @@ class EpisodeInfoFragment : Fragment() {
                     }
 
                 } else{
-                    if (fabState != PRESS_TO_DOWNLOAD || fabState != PRESS_TO_PLAY) {
+                    if (fabState != PRESS_TO_DOWNLOAD && fabState != PRESS_TO_PLAY) {
                         fabState = PRESS_TO_PLAY
                         ep_info_fab.setImageResource(R.mipmap.ic_play_white)
                     }
