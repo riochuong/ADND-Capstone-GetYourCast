@@ -275,6 +275,13 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
                             break;
                     }
+                } else{
+                    // this episode is not playing or anything reset it to original state
+                    if (vh.state != ButtonStateUtil.PRESS_TO_DOWNLOAD || vh.state != ButtonStateUtil.PRESS_TO_PLAY){
+                        vh.state = ButtonStateUtil.PRESS_TO_PLAY;
+                        vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
+                    }
+
                 }
             }
 
