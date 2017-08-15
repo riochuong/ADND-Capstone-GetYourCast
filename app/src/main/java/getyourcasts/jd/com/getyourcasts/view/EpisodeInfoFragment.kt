@@ -37,7 +37,7 @@ import kotlinx.android.synthetic.main.fragment_episode_info.*
  */
 class EpisodeInfoFragment : Fragment() {
 
-    private lateinit var episode: Episode
+    private lateinit var currInfoEpisode: Episode
     private var bgColor: Int = 0
     private lateinit var imgUrl: String
     private var datePub: TimeUtil.DatePub? = null
@@ -65,12 +65,12 @@ class EpisodeInfoFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        episode = getEpisodeFromIntent()
+        currInfoEpisode = getEpisodeFromIntent()
         bgColor = getBgColorFromIntent()
         imgUrl = getImageUrlFromIntent()
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context))
-        if (episode.pubDate != null) {
-            datePub = TimeUtil.parseDatePub(episode.pubDate!!)
+        if (currInfoEpisode.pubDate != null) {
+            datePub = TimeUtil.parseDatePub(currInfoEpisode.pubDate!!)
         }
 
         return inflater.inflate(R.layout.fragment_episode_info, container, false)
@@ -85,7 +85,7 @@ class EpisodeInfoFragment : Fragment() {
 
     private fun initViews() {
         // load title
-        ep_info_title.text = episode.title
+        ep_info_title.text = currInfoEpisode.title
 
         // load image view
         loadEpisodeImage()
@@ -94,16 +94,16 @@ class EpisodeInfoFragment : Fragment() {
         ep_info_app_bar.setBackgroundColor(bgColor)
 
         // load more infos
-        ep_info_desc.text = episode.description
-        ep_info_release.text = episode.pubDate
+        ep_info_desc.text = currInfoEpisode.description
+        ep_info_release.text = currInfoEpisode.pubDate
 
         // published date might not be available
         if (datePub != null) {
             ep_info_release.text = DATE_PUB_FORMAT.format(datePub!!.month, datePub!!.dayOfMonth, datePub!!.year)
         }
 
-        if (episode.fileSize != null) {
-            ep_info_media_info.text = MEDIA_INFO_FORMAT.format(StorageUtil.convertToMbRep(episode.fileSize!!))
+        if (currInfoEpisode.fileSize != null) {
+            ep_info_media_info.text = MEDIA_INFO_FORMAT.format(StorageUtil.convertToMbRep(currInfoEpisode.fileSize!!))
         }
 
         setFabButtonOnClickListener()
@@ -123,13 +123,14 @@ class EpisodeInfoFragment : Fragment() {
     private fun subscribeToMediaServiceSubject (episode: Episode) {
         MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode,Int>> {
             override fun onNext(t: Pair<Episode, Int>) {
-                val episodeId = t.first.uniqueId
+                val episode = t.first;
                 val state = t.second
-                if (episode.uniqueId.equals(episodeId)){
+                if (episode != null && currInfoEpisode.uniqueId.equals(episode.uniqueId)){
                     // check which state we should set the fab
                     when(state) {
                         // only need to change if this is already playing
                         MediaPlayBackService.MEDIA_PLAYING -> {
+
                             fabState = PRESS_TO_PAUSE
                             ep_info_fab.setImageResource(R.mipmap.ic_pause)
                             // start player activity
@@ -213,7 +214,7 @@ class EpisodeInfoFragment : Fragment() {
         add_to_playlist.setOnClickListener {
                 // ADD song to play list
                 Log.d(TAG, "ADD TO PLAYLIST !!! ")
-                if (mediaService != null) mediaService!!.addTrackToEndPlaylist(episode)
+                if (mediaService != null) mediaService!!.addTrackToEndPlaylist(currInfoEpisode)
                 add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
         }
     }
@@ -230,7 +231,7 @@ class EpisodeInfoFragment : Fragment() {
             ep_info_fab.visibility = View.INVISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
         }
-        else if (episode.downloaded == EpisodeState.DOWNLOADED) {
+        else if (currInfoEpisode.downloaded == EpisodeState.DOWNLOADED) {
             fabState = PRESS_TO_PLAY
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
@@ -266,7 +267,6 @@ class EpisodeInfoFragment : Fragment() {
         // set on click listener
         ep_info_fab.setOnClickListener {
             // check if the ep is donwloading
-
             when (fabState){
                 PRESS_TO_DOWNLOAD ->{
                     // check if episode is already state or not
@@ -285,18 +285,18 @@ class EpisodeInfoFragment : Fragment() {
 
                 PRESS_TO_PLAY -> {
                     // limited to downloaded episode only for now
-                    if (mediaService != null && episode != null && episode.localUrl != null){
+                    if (mediaService != null && currInfoEpisode != null && currInfoEpisode.localUrl != null){
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
                         // start playing here
-                        mediaService!!.playMediaFile(episode)
+                        mediaService!!.playMediaFile(currInfoEpisode)
                         context.startActivity(Intent(context, MediaPlayerActivity::class.java))
                     }
 
                 }
 
                 PRESS_TO_PAUSE -> {
-                    if (mediaService != null && episode != null){
+                    if (mediaService != null && currInfoEpisode != null){
                         fabState = PRESS_TO_UNPAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_play_white)
                         mediaService!!.pausePlayback()
@@ -305,7 +305,7 @@ class EpisodeInfoFragment : Fragment() {
                 }
 
                 PRESS_TO_UNPAUSE -> {
-                    if (mediaService != null && episode != null){
+                    if (mediaService != null && currInfoEpisode != null){
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
                         mediaService!!.resumePlayback()
@@ -326,20 +326,20 @@ class EpisodeInfoFragment : Fragment() {
         if (serviceConnection != null
                 && boundToDownload
                 && downloadService != null
-                && episode.downloadUrl != null
-                && episode.downloadUrl!!.trim().length > 0) {
+                && currInfoEpisode.downloadUrl != null
+                && currInfoEpisode.downloadUrl!!.trim().length > 0) {
 
             // get download path and filename
-            val downloadsPath = StorageUtil.getPathToStoreEp(episode, this.context)
+            val downloadsPath = StorageUtil.getPathToStoreEp(currInfoEpisode, this.context)
 
             // get transaction id for
             transactionId = downloadService!!.requestDownLoad(
-                    episode,
-                    episode.downloadUrl!!,
+                    currInfoEpisode,
+                    currInfoEpisode.downloadUrl!!,
                     downloadsPath!!.first,
                     downloadsPath.second)
         } else {
-            Log.e(TAG, "Download Service is not bound or Download URL is bad ${episode.toString()} ")
+            Log.e(TAG, "Download Service is not bound or Download URL is bad ${currInfoEpisode.toString()} ")
         }
     }
 
@@ -389,8 +389,8 @@ class EpisodeInfoFragment : Fragment() {
         super.onResume()
         bindDownloadService()
         bindMediaService()
-        subscribeToEpisodeSubject(episode)
-        subscribeToMediaServiceSubject(episode)
+        subscribeToEpisodeSubject(currInfoEpisode)
+        subscribeToMediaServiceSubject(currInfoEpisode)
     }
 
     private fun bindDownloadService() {

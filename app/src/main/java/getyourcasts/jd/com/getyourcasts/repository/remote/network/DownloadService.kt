@@ -16,6 +16,7 @@ import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.local.Contract
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener
 import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
@@ -179,6 +180,8 @@ class DownloadService : Service() {
                          filename: String): Long{
         if (fetcher.isValid) {
             val req = Request(url, dirPath, filename)
+            // remove duplicate filename in the db
+            StorageUtil.cleanUpOldFile(episode, this)
             val id = fetcher.enqueue(req)
             listReqIds.put(id,id)
             val fullUrl = "${dirPath}/$filename"
@@ -199,6 +202,8 @@ class DownloadService : Service() {
         return -1
     }
 
+
+
     fun registerListener (listener: FetchListener){
         if (fetcher.isValid){
             fetcher.addFetchListener(listener)
@@ -215,6 +220,8 @@ class DownloadService : Service() {
     }
 
     fun requestStopDownload(transId: Long) {
-
+        if (fetcher.isValid) {
+            fetcher.remove(transId);
+        }
     }
 }

@@ -51,6 +51,7 @@ public class MediaPlayerViewFragment extends Fragment {
     private String podcastId = null;
     private boolean isVideo = false;
     private TextView episodeTitle;
+    TextView emptyView;
 
     /* Keys for saving bundle state */
     private static final String PODCAST_ID_KEY  = "podcast_id_key";
@@ -126,6 +127,7 @@ public class MediaPlayerViewFragment extends Fragment {
         // some of the below might be null
         exoShutter = (ImageView) playerView.findViewById(R.id.exo_shutter);
         episodeTitle = (TextView) playerView.findViewById(R.id.media_player_view_episode_title);
+        emptyView =(TextView) root.findViewById(R.id.media_player_empty_view);
         // set this to enable text marquee
         if (episodeTitle != null) {episodeTitle.setSelected(true);}
 
@@ -151,11 +153,11 @@ public class MediaPlayerViewFragment extends Fragment {
 
             @Override
             public void onNext(Pair<Episode, Integer> info) {
-                String epId = info.first.getUniqueId();
                 Integer state = info.second;
 
                 switch(state){
                     case MediaPlayBackService.MEDIA_PLAYING:
+                        String epId = info.first.getUniqueId();
                         if (currentEpisode == null
                                 || (!currentEpisode.getUniqueId().equals(epId))) {
 
@@ -168,6 +170,9 @@ public class MediaPlayerViewFragment extends Fragment {
                     case MediaPlayBackService.MEDIA_PAUSE:
                     case MediaPlayBackService.MEDIA_STOPPED:
                         break;
+                    case MediaPlayBackService.MEDIA_PLAYLIST_EMPTY:
+                        enablePlayerView(false);
+
 
                 }
 
@@ -185,9 +190,22 @@ public class MediaPlayerViewFragment extends Fragment {
         });
     }
 
+    private void enablePlayerView(boolean enable){
+        if (! enable) {
+            playerView.setVisibility(View.GONE);
+            // show empty view
+            emptyView.setVisibility(View.VISIBLE);
+        } else{
+            playerView.setVisibility(View.VISIBLE);
+            // show empty view
+            emptyView.setVisibility(View.GONE);
+        }
+    }
+
     private void reloadCorrectDataForFragment(Pair<Episode, Integer>info) {
         currentEpisode = info.first;
         podcastId = info.first.getPodcastId();
+        enablePlayerView(true);
         // load album podcast image to the view
         if (info.first.getType().contains("audio")){
             isVideo = false;

@@ -1,8 +1,6 @@
-package getyourcasts.jd.com.getyourcasts.view.media;
+package getyourcasts.jd.com.getyourcasts.view.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +15,9 @@ import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
-import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
+import getyourcasts.jd.com.getyourcasts.view.media.PlayListFragment;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -113,6 +111,10 @@ public class MediaPlaylistRecyclerAdapter extends RecyclerView.Adapter<MediaPlay
                 v -> {
                     MediaPlayBackService.publishMediaPlaybackSubject(ep, MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
                     episodeList.remove(vh.getAdapterPosition());
+                    if (episodeList.size() == 0){
+                        MediaPlayBackService.publishMediaPlaybackSubject(null, MediaPlayBackService
+                                .MEDIA_PLAYLIST_EMPTY);
+                    }
                     notifyItemRemoved(vh.getAdapterPosition());
                 }
         );

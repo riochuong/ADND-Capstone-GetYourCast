@@ -79,6 +79,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 //    public static final int MEDIA_ADDED_TO_TOP_PLAYLIST = 3;
 //    public static final int MEDIA_ADDED_TO_END_PLAYLIST = 4;
     public static final int MEDIA_REMOVED_FROM_PLAYLIST = 5;
+    public static final int MEDIA_PLAYLIST_EMPTY = 6;
 
     /* MEDIA STATE OBJECT */
     private static Subject<Pair<Episode, Integer>> MediaPlaybackSubject = BehaviorSubject.create();
@@ -121,8 +122,26 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                     int state = info.second;
                     switch (state){
                         case MEDIA_REMOVED_FROM_PLAYLIST:
-                            int index = findIndexFromList(info.first);
-                            if (index >= 0) {removeTrackFromPlayList(index);}
+                            Episode currentEp = playList.get(currEpisodePos);
+                            if (currEpisodePos >= 0) {
+                                int index = findIndexFromList(info.first);
+                                if (index >= 0) {removeTrackFromPlayList(index);}
+                                // only remove item above will affect the index
+                                // fix the current pointer of the playlist position
+                                if (index < currEpisodePos) {
+                                    // just need to update curr episode here
+                                    currEpisodePos = findIndexFromList(currentEp);
+                                }
+                                else if (index == currEpisodePos){
+                                    if (!playList.isEmpty()){
+                                        currEpisodePos = (currEpisodePos == (playList.size() - 1)) ? 0 : currEpisodePos;
+                                        playMediaFileAtIndex(currEpisodePos);
+                                    }
+                                    else{
+                                        stopPlayback();
+                                    }
+                                }
+                            }
                             break;
                     }
             }
@@ -137,6 +156,11 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
             }
         });
+    }
+
+    private void updateCurrentEpIndex(int index) {
+
+
     }
 
     private synchronized int findIndexFromList(Episode ep) {
@@ -295,7 +319,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     private synchronized void addTrackToPlaylist(Episode episode, int index) {
         if (episode.getLocalUrl() != null) {
             int dupIndex = findDuplicateIndex(episode);
-            if (dupIndex > 0) {
+            if (dupIndex >= 0) {
                 Episode removedEp = playList.get(index);
                 playList.remove(dupIndex);
             }

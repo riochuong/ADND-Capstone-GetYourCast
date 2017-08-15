@@ -19,6 +19,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.tonyodev.fetch.listener.FetchListener
 import getyourcasts.jd.com.getyourcasts.R
+import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 import getyourcasts.jd.com.getyourcasts.repository.local.Contract
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
@@ -67,6 +68,7 @@ class EpisodeListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         bindDownloadService()
+        bindMediaService()
     }
 
     private fun initViews(){
@@ -172,7 +174,7 @@ class EpisodeListFragment : Fragment() {
     private  var downloadService : DownloadService? = null
 
     // connection to service
-    private val serviceConnection : ServiceConnection = object: ServiceConnection {
+    private val downloadServiceConnection: ServiceConnection = object: ServiceConnection {
 
         override fun onServiceDisconnected(name: ComponentName?) {
             boundToDownload = false
@@ -195,6 +197,12 @@ class EpisodeListFragment : Fragment() {
         return -1
     }
 
+    fun requestStopDownload(id: Long) {
+        if (downloadService != null) {
+
+        }
+    }
+
     fun registerListener(listener: FetchListener){
         if (downloadService != null){
             downloadService!!.registerListener(listener)
@@ -207,20 +215,77 @@ class EpisodeListFragment : Fragment() {
         }
     }
 
+    private fun bindDownloadService(){
+        val intent = Intent(this.context, DownloadService::class.java)
+        this.context.bindService(intent, downloadServiceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    /* ============================ CONNECT TO MEDIA SERVICE  ========================================= */
+    private var boundToMediaService = false
+    private  var mediaService : MediaPlayBackService? = null
+
+    // connection to service
+    private val mediaServiceConnection : ServiceConnection = object: ServiceConnection {
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            boundToMediaService = false
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            boundToMediaService = true
+            mediaService = (service as MediaPlayBackService.MediaPlayBackServiceBinder).getService()
+        }
+
+    }
+
+    private fun bindMediaService(){
+        val intent = Intent(this.context, MediaPlayBackService::class.java)
+        this.context.bindService(intent, mediaServiceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    fun requestToPlaySong (episode: Episode) {
+        if (mediaService != null && boundToMediaService){
+            mediaService!!.playMediaFile(episode)
+        }
+
+    }
+
+    fun requestToPause () {
+        if (mediaService != null && boundToMediaService){
+            mediaService!!.pausePlayback()
+        }
+
+    }
+
+    fun requestToResume () {
+        if (mediaService != null && boundToMediaService){
+            mediaService!!.resumePlayback()
+        }
+
+    }
+
+
+    /*=================================================================================================== */
+
+
 
     override fun onDestroy() {
         if (downloadService != null && boundToDownload){
             boundToDownload = false
-            context.unbindService(serviceConnection)
+            context.unbindService(downloadServiceConnection)
+        }
+
+        if (mediaService != null && boundToMediaService){
+            boundToMediaService = false
+            context.unbindService(mediaServiceConnection)
         }
         super.onDestroy()
         episodeAdapter.cleanUpAllDisposables()
     }
 
-    private fun bindDownloadService(){
-        val intent = Intent(this.context, DownloadService::class.java)
-        this.context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
-    }
+
+
+
 
     private fun startAnim(){
         episode_list_loading_prog_view.show()

@@ -76,6 +76,21 @@ public final class StorageUtil {
         return new Pair(file.getAbsolutePath(), fileName);
     }
 
+    public static boolean cleanUpOldFile(Episode ep, Context ctx) {
+        String root = MEDIA_ROOT;
+        boolean res = false;
+        try {
+            File file = ctx.getDir(root, Context.MODE_PRIVATE);
+            String fileName = ep.getEpisodeUniqueKey();
+            File finalPath = new File(file, fileName);
+            // clean up file to prepare for new download
+            if (file.exists()) res = file.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
 
     public static void startGlideImageDownload(Podcast pod, Context ctx) {
         GlideApp.with(ctx)
