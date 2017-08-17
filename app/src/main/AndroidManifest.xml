@@ -74,6 +74,11 @@
             android:label="@string/title_activity_media_player"
             android:theme="@style/RegularNoActionbar">
         </activity>
+        <activity
+            android:name=".view.BaseActivity"
+            android:label="@string/title_activity_base"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>

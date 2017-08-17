@@ -40,6 +40,7 @@ import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
+import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -74,6 +75,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public static final int MEDIA_PAUSE = 1;
     public static final int MEDIA_STOPPED = 2;
     public static final int MEDIA_TRACK_CHANGED = 3;
+    public static final int MEDIA_UNKNOWN_STATE = 0xFF;
 
     // state of the playlist
 //    public static final int MEDIA_ADDED_TO_TOP_PLAYLIST = 3;
@@ -454,6 +456,8 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
 
     }
+
+
 
 
     public class MediaPlayBackServiceBinder extends Binder {

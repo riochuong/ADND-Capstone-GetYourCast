@@ -27,6 +27,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
+import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_episode_list.*
@@ -34,13 +35,16 @@ import kotlinx.android.synthetic.main.fragment_episode_list.*
 /**
  * A placeholder fragment containing a simple view.
  */
-class EpisodeListFragment : Fragment() {
+class EpisodeListFragment : Fragment(), MediaServiceBoundListener {
+
 
     private lateinit var podcast: Podcast
 
     private lateinit var viewModel: PodcastViewModel
 
     private lateinit var  episodeAdapter: EpisodesRecyclerViewAdapter
+
+    private var  mediaService: MediaPlayBackService? = null
 
 
 
@@ -54,6 +58,12 @@ class EpisodeListFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         podcast = getPodcastFromIntent()!!
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context))
+        // register listener for when media service is bound
+        if (mediaService == null) {
+            (activity as EpisodeListActivity).registerMediaServiceBoundListenter( MediaServiceBoundListener {
+                mediaService = it;
+            });
+        }
         return inflater.inflate(R.layout.fragment_episode_list, container, false)
     }
 
@@ -67,8 +77,13 @@ class EpisodeListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        (activity as EpisodeListActivity).registerMediaServiceBoundListenter(this)
         bindDownloadService()
-        bindMediaService()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaService = null
     }
 
     private fun initViews(){
@@ -220,45 +235,23 @@ class EpisodeListFragment : Fragment() {
         this.context.bindService(intent, downloadServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    /* ============================ CONNECT TO MEDIA SERVICE  ========================================= */
-    private var boundToMediaService = false
-    private  var mediaService : MediaPlayBackService? = null
-
-    // connection to service
-    private val mediaServiceConnection : ServiceConnection = object: ServiceConnection {
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            boundToMediaService = false
-        }
-
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            boundToMediaService = true
-            mediaService = (service as MediaPlayBackService.MediaPlayBackServiceBinder).getService()
-        }
-
-    }
-
-    private fun bindMediaService(){
-        val intent = Intent(this.context, MediaPlayBackService::class.java)
-        this.context.bindService(intent, mediaServiceConnection, Context.BIND_AUTO_CREATE)
-    }
 
     fun requestToPlaySong (episode: Episode) {
-        if (mediaService != null && boundToMediaService){
+        if (mediaService != null){
             mediaService!!.playMediaFile(episode)
         }
 
     }
 
     fun requestToPause () {
-        if (mediaService != null && boundToMediaService){
+        if (mediaService != null){
             mediaService!!.pausePlayback()
         }
 
     }
 
     fun requestToResume () {
-        if (mediaService != null && boundToMediaService){
+        if (mediaService != null){
             mediaService!!.resumePlayback()
         }
 
@@ -274,17 +267,15 @@ class EpisodeListFragment : Fragment() {
             boundToDownload = false
             context.unbindService(downloadServiceConnection)
         }
-
-        if (mediaService != null && boundToMediaService){
-            boundToMediaService = false
-            context.unbindService(mediaServiceConnection)
-        }
         super.onDestroy()
         episodeAdapter.cleanUpAllDisposables()
     }
 
 
-
+    override fun onMediaServiceBound(service: MediaPlayBackService?) {
+        stopAnim()
+        mediaService = service
+    }
 
 
     private fun startAnim(){
