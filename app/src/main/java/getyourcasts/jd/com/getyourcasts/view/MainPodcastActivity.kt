@@ -9,7 +9,7 @@ import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 
 import kotlinx.android.synthetic.main.activity_main_podcast.*
 
-class MainPodcastActivity : AppCompatActivity() {
+class MainPodcastActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

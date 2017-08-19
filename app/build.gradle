@@ -107,5 +107,8 @@ dependencies {
     // CIRCLE INDICATOR
     compile 'com.pacioianu.david:ink-page-indicator:1.2.0'
 
+    // FIREBAS JOB DISPATCHER
+    compile 'com.firebase:firebase-jobdispatcher:0.5.0'
+
 
 }

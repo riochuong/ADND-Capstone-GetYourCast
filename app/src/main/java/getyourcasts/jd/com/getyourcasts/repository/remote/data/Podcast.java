@@ -242,4 +242,22 @@ public final class Podcast implements Parcelable {
                 ""
         );
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Podcast){
+            Podcast other = (Podcast) obj;
+
+            if (this.collectionId.equals(other.collectionId)){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.collectionId.hashCode();
+    }
 }
