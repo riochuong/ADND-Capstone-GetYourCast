@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/tiny_margin"
+    android:id="@+id/update_ep_main_view"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:custom="http://schemas.android.com/tools"
     card_view:cardCornerRadius="@dimen/podcast_item_corner_radius"

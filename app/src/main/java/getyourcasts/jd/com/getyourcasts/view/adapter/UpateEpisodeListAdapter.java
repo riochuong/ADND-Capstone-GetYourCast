@@ -1,6 +1,8 @@
 package getyourcasts.jd.com.getyourcasts.view.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +20,15 @@ import java.util.Map;
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.view.EpisodeInfoActivity;
+import getyourcasts.jd.com.getyourcasts.view.EpisodeListActivity;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
+
+import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.BG_COLOR_KEY;
+import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.EPISODE_KEY;
+import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.IS_DOWNLOADING;
+import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.PODAST_IMG_KEY;
+import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.PODCAST_KEY;
 
 /**
  * Created by chuondao on 8/18/17.
@@ -99,18 +109,25 @@ public class UpateEpisodeListAdapter extends RecyclerView.Adapter<RecyclerView.V
             Podcast pod = podIndexMap.get(position);
             ((UpdatePodViewHolder) holder).podTitle.setText(pod.getCollectionName());
             if (pod.getArtistName() != null) ((UpdatePodViewHolder) holder).artistTitle.setText(pod.getArtistName());
+            GlideApp.with(context)
+                    .load(pod.getImgLocalPath())
+                    .into( ((UpdatePodViewHolder)holder).podImg);
 
         } else {
             // view type episode
             Episode ep = epIndexMap.get(position);
-            Podcast relatedPod = podcastMap.get(ep.getPodcastId());
             // load podcast image to ep item
-            GlideApp.with(context)
-                    .load(relatedPod.getImgLocalPath())
-                    .into( ((UpdateEpViewHolder)holder).podImg);
+            Podcast relatedPodcast = podcastMap.get(ep.getPodcastId());
             UpdateEpViewHolder epViewHolder = (UpdateEpViewHolder) holder;
             epViewHolder.epTitle.setText(ep.getTitle());
             epViewHolder.epPubDate.setText(ep.getPubDate());
+            epViewHolder.mainLayout.setOnClickListener(
+                    view -> {
+                        Intent intent =  new Intent(this.context, EpisodeListActivity.class);
+                        intent.putExtra(PODCAST_KEY,relatedPodcast);
+                        this.context.startActivity(intent);
+                    }
+            );
         }
     }
 
@@ -132,24 +149,29 @@ public class UpateEpisodeListAdapter extends RecyclerView.Adapter<RecyclerView.V
 
 
     class UpdateEpViewHolder extends RecyclerView.ViewHolder {
-        ImageView podImg;
+        ImageView imgView;
         TextView epTitle;
         TextView epPubDate;
+        CardView mainLayout;
         public UpdateEpViewHolder(View itemView) {
             super(itemView);
-            podImg = (ImageView) itemView.findViewById(R.id.ep_img);
+            imgView = (ImageView)itemView.findViewById(R.id.ep_img);
             epTitle = (TextView) itemView.findViewById(R.id.episode_name);
             epPubDate = (TextView) itemView.findViewById(R.id.episode_date);
+            imgView.setVisibility(View.GONE);
+            mainLayout = (CardView) itemView.findViewById(R.id.update_ep_main_view);
         }
     }
 
     class UpdatePodViewHolder extends RecyclerView.ViewHolder {
         TextView podTitle;
+        ImageView podImg;
         TextView artistTitle;
         public UpdatePodViewHolder(View itemView) {
             super(itemView);
             podTitle = (TextView) itemView.findViewById(R.id.pod_update_title_text);
             artistTitle = (TextView) itemView.findViewById(R.id.pod_update_artist_text);
+            podImg = (ImageView) itemView.findViewById(R.id.pod_img);
         }
     }
 }

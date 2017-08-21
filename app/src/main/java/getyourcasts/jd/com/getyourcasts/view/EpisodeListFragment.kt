@@ -138,7 +138,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener {
                             val bitmap = resource.bitmap
                             // this will done in background thread with
                             val palette = Palette.from(bitmap).generate(
-                                    Palette.PaletteAsyncListener {
+                                    {
                                         val vibrantColor = it.getDarkVibrantColor(PALETTE_BG_MASK)
                                         podcast_detail_appbar.setBackgroundColor(vibrantColor)
                                         if (it.darkVibrantSwatch != null){
