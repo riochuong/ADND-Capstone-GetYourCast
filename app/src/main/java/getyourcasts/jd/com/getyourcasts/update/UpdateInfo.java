@@ -8,19 +8,20 @@ import java.util.List;
 import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 
 /**
  * Created by chuondao on 8/17/17.
  */
 
 public class UpdateInfo implements Parcelable {
-    private Map<String, List<Episode>> updateList;
+    private Map<Podcast, List<Episode>> updateList;
 
-    public UpdateInfo(Map<String, List<Episode>> updateList) {
+    UpdateInfo(Map<Podcast, List<Episode>> updateList) {
         this.updateList = updateList;
     }
 
-    public Map<String, List<Episode>> getUpdateList() {
+    public Map<Podcast, List<Episode>> getUpdateList() {
         return updateList;
     }
 
@@ -32,17 +33,17 @@ public class UpdateInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.updateList.size());
-        for (Map.Entry<String, List<Episode>> entry : this.updateList.entrySet()) {
-            dest.writeString(entry.getKey());
+        for (Map.Entry<Podcast, List<Episode>> entry : this.updateList.entrySet()) {
+            dest.writeParcelable(entry.getKey(), flags);
             dest.writeTypedList(entry.getValue());
         }
     }
 
     protected UpdateInfo(Parcel in) {
         int updateListSize = in.readInt();
-        this.updateList = new HashMap<String, List<Episode>>(updateListSize);
+        this.updateList = new HashMap<Podcast, List<Episode>>(updateListSize);
         for (int i = 0; i < updateListSize; i++) {
-            String key = in.readString();
+            Podcast key = in.readParcelable(Podcast.class.getClassLoader());
             List<Episode> value = in.createTypedArrayList(Episode.CREATOR);
             this.updateList.put(key, value);
         }

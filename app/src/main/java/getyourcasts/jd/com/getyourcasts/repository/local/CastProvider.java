@@ -16,6 +16,7 @@ public class CastProvider extends ContentProvider {
     private static final int PODCAST_SPECIFIC = 101;
     private static final int EPISODES_OF_PODCAST = 102;
     private static final int EPISODES_SPECIFIC = 103;
+    private static final int EPISODES_UPDATE = 104;
 
 
     private static final UriMatcher uriMatcher = buildUriMatcher();
@@ -26,8 +27,9 @@ public class CastProvider extends ContentProvider {
         UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(Contract.AUTHORITY, Contract.PATH_PODCAST, PODCAST_ALL);
         matcher.addURI(Contract.AUTHORITY, Contract.PATH_PODCAST_ID, PODCAST_SPECIFIC);
-        matcher.addURI(Contract.AUTHORITY, Contract.PATH_EPISODES_ID, EPISODES_SPECIFIC);
-        matcher.addURI(Contract.AUTHORITY, Contract.PATH_ALL_EPISODES_OF_POCAST, EPISODES_OF_PODCAST);
+        matcher.addURI(Contract.AUTHORITY, Contract.AUTHOR_PATH_EPISODES_ID, EPISODES_SPECIFIC);
+        matcher.addURI(Contract.AUTHORITY, Contract.AUTHOR_PATH_ALL_EPISODES_OF_POCAST, EPISODES_OF_PODCAST);
+        matcher.addURI(Contract.AUTHORITY, Contract.AUTHOR_EPISODES_NEW_UPDATE, EPISODES_UPDATE);
         return matcher;
     }
 
@@ -95,7 +97,7 @@ public class CastProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        Uri returnUri = null;
+        Uri returnUri;
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (uriMatcher.match(uri)) {
 
@@ -109,7 +111,7 @@ public class CastProvider extends ContentProvider {
                 break;
             case EPISODES_SPECIFIC:
                 db.insert(
-                        Contract.PodcastTable.TABLE_NAME,
+                        Contract.EpisodeTable.TABLE_NAME,
                         null,
                         values
                 );
@@ -170,7 +172,17 @@ public class CastProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-
+            case EPISODES_UPDATE:
+                returnCursor = db.query(
+                        Contract.EpisodeTable.TABLE_NAME,
+                        projection,
+                        Contract.EpisodeTable.IS_NEW_UPDATE + " = ?",
+                        new String[]{"1"},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             case EPISODES_OF_PODCAST:
                 String podId = Contract.EpisodeTable.getEpisodeIdFromUri(uri);
                 returnCursor = db.query(

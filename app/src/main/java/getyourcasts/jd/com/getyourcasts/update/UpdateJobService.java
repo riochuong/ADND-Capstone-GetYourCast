@@ -1,5 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.update;
 
+import android.util.Log;
+
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
@@ -25,26 +28,36 @@ import io.reactivex.schedulers.Schedulers;
 public class UpdateJobService extends JobService {
 
     DataSourceRepo dataRepo = DataSourceRepo.getInstance(this);
-
+    Disposable disposable;
+    private static final String TAG = UpdateJobService.class.getSimpleName();
     @Override
     public boolean onStartJob(JobParameters job) {
         createUpdateObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        new Observer<Map<Podcast, List<Episode>>>() {
+                        new Observer<Boolean>() {
                             @Override
                             public void onSubscribe(Disposable d) {
-
+                                disposable = d;
                             }
 
                             @Override
-                            public void onNext(Map<Podcast, List<Episode>> podcastListMap) {
-                                UpdateNotificationHelper.
+                            public void onNext(Boolean isThereUpdate) {
+                                if (isThereUpdate) {
+                                    UpdateNotificationHelper
+                                            .notifyNewUpdateAvailable(UpdateJobService.this);
+                                }
+                                else {
+                                    Log.d(TAG, "No New updates available");
+                                    // FOR DEBUGGING ... REMOVE ITEMS
+                                   dataRepo.deleteEpisodes("-146694578");
+                                   dataRepo.deleteEpisodes("-744845929");
+                                }
                             }
 
                             @Override
                             public void onError(Throwable e) {
-
+                                e.printStackTrace();
                             }
 
                             @Override
@@ -57,20 +70,33 @@ public class UpdateJobService extends JobService {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (disposable != null) {
+            disposable.dispose();
+            disposable = null;
+        }
+    }
+
+    @Override
     public boolean onStopJob(JobParameters job) {
         return false;
     }
 
-    private Observable<Map<Podcast, List<Episode>> > createUpdateObservable() {
+    private Observable<Boolean> createUpdateObservable() {
        return Observable.defer(
                () -> Observable.just(getUpdateEpisodeFromSubscribedPod())
        ).subscribeOn(Schedulers.io());
     }
 
-    private Map<Podcast, List<Episode>> getUpdateEpisodeFromSubscribedPod() {
+    private Boolean getUpdateEpisodeFromSubscribedPod() {
 
         // get all subscribe podcast and episodes
         List<Podcast> podcastList = dataRepo.getAllPodcast();
+        // nothing to query and to be updated
+        if (podcastList.size() == 0){
+            return false;
+        }
         Map<Podcast, List<Episode>> updateFromNet = queryUpdateEpisodeFromNetwork(podcastList);
         Map<Podcast, Map<String,Episode>> currentEps = queryCurrentEpisodeFromDb(podcastList);
         Map<Podcast, List<Episode>> toUpdateEpMap = filterUpdateEpisodeForEachPodcast(
@@ -78,7 +104,7 @@ public class UpdateJobService extends JobService {
                 updateFromNet,
                 podcastList
         );
-        return toUpdateEpMap;
+        return toUpdateEpMap.size() > 0;
     }
 
     /**
@@ -99,6 +125,12 @@ public class UpdateJobService extends JobService {
         }
         return updateEpisodeMap;
 
+    }
+
+    private void clearOldUpdate () {
+        if (dataRepo != null) {
+            dataRepo.clearOldUpdates();
+        }
     }
 
     /**
@@ -135,18 +167,25 @@ public class UpdateJobService extends JobService {
     )
     {
           Map<Podcast, List<Episode>> podcastUpdate = new HashMap<>();
+          // clear old updates
+          clearOldUpdate();
           for (Podcast podcast: podcastList) {
                 List<Episode> toBeUpdateEp = new ArrayList<>();
-                List<Episode> newFetchList = updateEps.get(podcast.getCollectionId());
-                Map<String, Episode> currentMap = currentEps.get(podcast.getCollectionId());
+                List<Episode> newFetchList = updateEps.get(podcast);
+                Map<String, Episode> currentMap = currentEps.get(podcast);
+                Set<String> keys = currentMap.keySet();
                 // check for updated episodes
                 for (Episode ep : newFetchList){
-                     if (!currentMap.containsKey(ep)){
+                    if (! keys.contains(ep.getUniqueId())){
+                         // set the is new update field
+                         ep.setIsNewUpdate(1);
+                         // insert ep to database
+                         dataRepo.insertEpisode(ep);
                          toBeUpdateEp.add(ep);
                      }
                 }
                 // only add to map if we have something
-              if (toBeUpdateEp.size() >0) {
+              if (toBeUpdateEp.size() > 0) {
                     podcastUpdate.put(podcast,toBeUpdateEp);
               }
           }

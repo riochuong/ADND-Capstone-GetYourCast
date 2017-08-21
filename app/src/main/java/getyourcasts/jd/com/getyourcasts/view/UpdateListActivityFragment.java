@@ -14,9 +14,15 @@ import java.util.List;
 import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.R;
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.update.UpdateInfo;
 import getyourcasts.jd.com.getyourcasts.view.adapter.UpateEpisodeListAdapter;
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -25,29 +31,65 @@ public class UpdateListActivityFragment extends Fragment {
 
     RecyclerView listUpdateRecyclerView;
     UpateEpisodeListAdapter adapter;
+    PodcastViewModel viewModel;
+    Disposable d;
 
-    private static final String UPDATE_ITEM_KEY = "update_item_key";
+    static final String UPDATE_ITEM_KEY = "eps_update_key";
     public UpdateListActivityFragment() {
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (d != null) {
+            d.dispose();
+            d = null;
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_update_list, container, false);
+        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this.getContext()));
         listUpdateRecyclerView = (RecyclerView) rootView.findViewById(R.id.update_ep_recyclerview);
-        Map<Podcast, List<Episode>> itemMap = getUpdateFromIntent();
-        if (itemMap != null){
-            adapter = new UpateEpisodeListAdapter(new HashMap<>(), this.getContext());
-        }
+        adapter = new UpateEpisodeListAdapter(new HashMap<>(), this.getContext());
         LinearLayoutManager lm = new LinearLayoutManager(this.getContext());
         lm.setOrientation(LinearLayout.VERTICAL);
         listUpdateRecyclerView.setLayoutManager(lm);
         listUpdateRecyclerView.setAdapter(adapter);
+        // get new update from db
+        getUpdateFromDb();
         return rootView;
     }
 
-    private Map<Podcast, List<Episode>> getUpdateFromIntent(){
-        return this.getActivity().getIntent().getParcelableExtra(UPDATE_ITEM_KEY);
+
+
+    private void getUpdateFromDb(){
+        viewModel.getUpdateListObservable().observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        new Observer<Map<Podcast, List<Episode>>>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+                                    UpdateListActivityFragment.this.d = d;
+                            }
+
+                            @Override
+                            public void onNext(Map<Podcast, List<Episode>> podcastListMap) {
+                                adapter.setEpUpdateMap(podcastListMap);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        }
+                );
     }
 
 

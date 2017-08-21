@@ -13,8 +13,10 @@ public final class Contract {
     static final String PATH_PODCAST = "podcast";
     static final String PATH_PODCAST_ID = "podcast/*";
     static final String PATH_EPISODES = "episode";
-    static final String PATH_ALL_EPISODES_OF_POCAST = "episode/podcast/*";
-    static final String PATH_EPISODES_ID = "episode/id/*";
+    static final String AUTHOR_PATH_ALL_EPISODES_OF_POCAST = "episode/podcast/*";
+    static final String AUTHOR_PATH_EPISODES_ID = "episode/id/*";
+    static final String PATH_EPISODES_NEW_UPDATE = "newupdate";
+    static final String AUTHOR_EPISODES_NEW_UPDATE = "episode/newupdate";
     private static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
     private static final String ID_EP_PATH = "id";
 
@@ -49,6 +51,8 @@ public final class Contract {
                 .build();
         public static final Uri URI_OF_PODCAST = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
                 (PATH_PODCAST).build();
+        public static final Uri URI_OF_NEW_UPDATES = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
+                (PATH_EPISODES_NEW_UPDATE).build();
         public static final String  ID = "_id";
         public static final String PODCAST_ID = "podcast_id";
         public static final String UNIQUE_ID = "unique_id";
@@ -62,6 +66,7 @@ public final class Contract {
         public static final String FETCH_URL = "fetch_url";
         public static final String FILE_SIZE = "file_size";
         public static final String FAVORITE = "favor";
+        public static final String IS_NEW_UPDATE = "is_new_update";
         public static final String MEDIA_TYPE = "media_type";
         public  static final String TABLE_NAME="EpisodeTable";
 

@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
+import getyourcasts.jd.com.getyourcasts.update.UpdateUtilities
 
 import kotlinx.android.synthetic.main.activity_main_podcast.*
 
@@ -16,9 +17,8 @@ class MainPodcastActivity : BaseActivity() {
         setContentView(R.layout.activity_main_podcast)
         // start media player service here
         startService(Intent(this, MediaPlayBackService::class.java))
+        UpdateUtilities.scheduleUpdateTask(this);
     }
-
-
 
 
     override fun onDestroy() {

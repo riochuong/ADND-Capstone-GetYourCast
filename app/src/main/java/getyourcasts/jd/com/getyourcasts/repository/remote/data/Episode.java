@@ -25,6 +25,11 @@ public final class Episode implements Parcelable {
     private int favorite;
     private int progress;
     private int downloaded;
+    private int isNewUpdate;
+
+
+
+
 
     public Episode(String podcastId,
                    String title,
@@ -37,7 +42,8 @@ public final class Episode implements Parcelable {
                    String type,
                    int favorite,
                    int progress,
-                   int downloaded) {
+                   int downloaded,
+                   int isNewUpdate) {
         this.podcastId = podcastId;
         this.title = title;
         this.uniqueId = uniqueId;
@@ -50,6 +56,7 @@ public final class Episode implements Parcelable {
         this.favorite = favorite;
         this.progress = progress;
         this.downloaded = downloaded;
+        this.isNewUpdate = isNewUpdate;
     }
 
     public String getPodcastId() {
@@ -148,54 +155,16 @@ public final class Episode implements Parcelable {
         this.downloaded = downloaded;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.podcastId);
-        dest.writeString(this.title);
-        dest.writeString(this.uniqueId);
-        dest.writeString(this.pubDate);
-        dest.writeString(this.description);
-        dest.writeString(this.downloadUrl);
-        dest.writeString(this.localUrl);
-        dest.writeString(this.fileSize);
-        dest.writeString(this.type);
-        dest.writeInt(this.favorite);
-        dest.writeInt(this.progress);
-        dest.writeInt(this.downloaded);
+    public void setIsNewUpdate(int isNewUpdate) {
+        this.isNewUpdate = isNewUpdate;
     }
 
 
-    protected Episode(Parcel in) {
-        this.podcastId = in.readString();
-        this.title = in.readString();
-        this.uniqueId = in.readString();
-        this.pubDate = in.readString();
-        this.description = in.readString();
-        this.downloadUrl = in.readString();
-        this.localUrl = in.readString();
-        this.fileSize = in.readString();
-        this.type = in.readString();
-        this.favorite = in.readInt();
-        this.progress = in.readInt();
-        this.downloaded = in.readInt();
+    public int getIsNewUpdate() {
+        return isNewUpdate;
     }
 
-    public static final Creator<Episode> CREATOR = new Creator<Episode>() {
-        @Override
-        public Episode createFromParcel(Parcel source) {
-            return new Episode(source);
-        }
 
-        @Override
-        public Episode[] newArray(int size) {
-            return new Episode[size];
-        }
-    };
 
     public String getEpisodeUniqueKey() {
         return (this.podcastId + "_" + this.title).hashCode() + "";
@@ -227,7 +196,8 @@ public final class Episode implements Parcelable {
                     CursorHelper.getStringValue(cursor, Contract.EpisodeTable.MEDIA_TYPE),
                     CursorHelper.getIntValue(cursor, Contract.EpisodeTable.FAVORITE),
                     CursorHelper.getIntValue(cursor, Contract.EpisodeTable.PROGRESS),
-                    CursorHelper.getIntValue(cursor, Contract.EpisodeTable.DOWNLOADED)
+                    CursorHelper.getIntValue(cursor, Contract.EpisodeTable.DOWNLOADED),
+                    CursorHelper.getIntValue(cursor, Contract.EpisodeTable.IS_NEW_UPDATE)
             );
         }
         return null;
@@ -243,6 +213,7 @@ public final class Episode implements Parcelable {
         cv.put(Contract.EpisodeTable.MEDIA_TYPE, this.getType());
         cv.put(Contract.EpisodeTable.DESCRIPTION, this.getDescription());
         cv.put(Contract.EpisodeTable.FETCH_URL, this.getDownloadUrl());
+        cv.put(Contract.EpisodeTable.IS_NEW_UPDATE, this.getIsNewUpdate());
         return cv;
     }
 
@@ -250,7 +221,7 @@ public final class Episode implements Parcelable {
         return new Episode(
                 podcastId,
                 feedItem.getTitle().trim(),
-                (podcastId+"_"+feedItem.getTitle()).hashCode()+"",
+                (podcastId.trim()+"_"+feedItem.getTitle().trim()).hashCode()+"",
                 feedItem.getPubDate(),
                 feedItem.getDescription(),
                 feedItem.getMediaInfo().getUrl(),
@@ -258,6 +229,7 @@ public final class Episode implements Parcelable {
                 feedItem.getMediaInfo().getSize(),
                 feedItem.getMediaInfo().getType(),
                 0, // initilize favorite to NOT
+                0,
                 0,
                 0
             );
@@ -278,4 +250,54 @@ public final class Episode implements Parcelable {
         this.progress = ep.getProgress();
         this.downloaded = ep.getDownloaded();
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.podcastId);
+        dest.writeString(this.title);
+        dest.writeString(this.uniqueId);
+        dest.writeString(this.pubDate);
+        dest.writeString(this.description);
+        dest.writeString(this.downloadUrl);
+        dest.writeString(this.localUrl);
+        dest.writeString(this.fileSize);
+        dest.writeString(this.type);
+        dest.writeInt(this.favorite);
+        dest.writeInt(this.progress);
+        dest.writeInt(this.downloaded);
+        dest.writeInt(this.isNewUpdate);
+    }
+
+    protected Episode(Parcel in) {
+        this.podcastId = in.readString();
+        this.title = in.readString();
+        this.uniqueId = in.readString();
+        this.pubDate = in.readString();
+        this.description = in.readString();
+        this.downloadUrl = in.readString();
+        this.localUrl = in.readString();
+        this.fileSize = in.readString();
+        this.type = in.readString();
+        this.favorite = in.readInt();
+        this.progress = in.readInt();
+        this.downloaded = in.readInt();
+        this.isNewUpdate = in.readInt();
+    }
+
+    public static final Creator<Episode> CREATOR = new Creator<Episode>() {
+        @Override
+        public Episode createFromParcel(Parcel source) {
+            return new Episode(source);
+        }
+
+        @Override
+        public Episode[] newArray(int size) {
+            return new Episode[size];
+        }
+    };
 }

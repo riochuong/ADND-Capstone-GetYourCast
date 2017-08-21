@@ -69,6 +69,7 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 +Contract.EpisodeTable.DESCRIPTION + " TEXT, "
                 +Contract.EpisodeTable.FAVORITE + " TEXT, "
                 +Contract.EpisodeTable.FETCH_URL + " TEXT, "
+                +Contract.EpisodeTable.IS_NEW_UPDATE + " INTEGER, "
                 +Contract.EpisodeTable.DOWNLOADED + " TEXT "
                 +")";
     }

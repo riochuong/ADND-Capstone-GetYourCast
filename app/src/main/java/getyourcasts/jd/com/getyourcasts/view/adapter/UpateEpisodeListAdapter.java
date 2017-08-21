@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -75,6 +76,9 @@ public class UpateEpisodeListAdapter extends RecyclerView.Adapter<RecyclerView.V
         else{
             View podView = LayoutInflater.from(parent.getContext()).inflate(R.layout.episode_playlist_item_layout, parent,
                     false);
+            // hide the remove button
+            ImageView imgBtn = (ImageView) podView.findViewById(R.id.remove_item_img);
+            imgBtn.setVisibility(View.GONE);
             RecyclerView.ViewHolder podVh = new UpdateEpViewHolder(podView);
             return podVh;
         }

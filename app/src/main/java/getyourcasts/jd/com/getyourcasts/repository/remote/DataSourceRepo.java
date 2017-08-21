@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.repository.local.LocalDataRepository;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
@@ -102,6 +103,21 @@ public class DataSourceRepo implements   DataRepository {
 
     @Override
     public Channel fetchEpisodesFromFeedUrl(String feedUrl) {
-        return null;
+        return remoteRepo.fetchEpisodesFromFeedUrl(feedUrl);
+    }
+
+    @Override
+    public void clearOldUpdates() {
+        localRepo.clearOldUpdates();
+    }
+
+    @Override
+    public Map<Podcast, List<Episode>> getNewUpdate() {
+       return localRepo.getNewUpdate();
+    }
+
+    @Override
+    public boolean deleteEpisodes(String epUniqueId) {
+        return localRepo.deleteEpisodes(epUniqueId);
     }
 }

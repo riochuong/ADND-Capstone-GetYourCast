@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
@@ -47,6 +48,12 @@ public interface DataRepository {
     boolean insertEpisodes(@NotNull List<Episode> var1);
 
     Channel fetchEpisodesFromFeedUrl(String feedUrl);
+
+    void clearOldUpdates();
+
+    Map<Podcast, List<Episode>> getNewUpdate();
+
+    boolean deleteEpisodes(String var1);
 }
 
 

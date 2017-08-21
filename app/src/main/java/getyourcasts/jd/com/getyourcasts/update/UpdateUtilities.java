@@ -22,11 +22,11 @@ public class UpdateUtilities  {
 
     private static final String UPDATE_JOB_TAG = "UPDATE_PODCAST_EPS";
 
-    private static final int REMINDER_INTERVALS = 60;//12*60*60; // run every 12 hours
-    private static final int REMINDER_FLEX_TIME = 2*60;//60*60; // run every 12 hours
+    private static final int REMINDER_INTERVALS = 5;//12*60*60; // run every 12 hours
+    private static final int REMINDER_FLEX_TIME = 5*2;//60*60; // run every 12 hours
 
 
-    synchronized  void scheduleUpdateTask (@NonNull  Context context) {
+    public synchronized static void scheduleUpdateTask (@NonNull  Context context) {
         if (initialized) return;
         Driver driver = new GooglePlayDriver(context);
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);

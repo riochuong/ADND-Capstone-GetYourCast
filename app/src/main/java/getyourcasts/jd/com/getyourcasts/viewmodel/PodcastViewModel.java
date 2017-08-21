@@ -3,6 +3,7 @@ package getyourcasts.jd.com.getyourcasts.viewmodel;
 import android.content.ContentValues;
 
 import java.util.List;
+import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.repository.local.Contract;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataRepository;
@@ -209,6 +210,15 @@ public class PodcastViewModel {
                 () ->  Observable.just(
                                 dataRepo.getEpisode(episode.getUniqueId(), episode.getPodcastId())))
                     .subscribeOn(Schedulers.io());
+    }
+
+    public Observable<Map<Podcast,List<Episode>>> getUpdateListObservable (){
+
+        return Observable.defer (
+                () -> Observable.just(
+                        dataRepo.getNewUpdate()
+                )
+        ).subscribeOn(Schedulers.io());
     }
 
 }

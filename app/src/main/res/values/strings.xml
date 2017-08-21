@@ -23,4 +23,5 @@
     <string name="no_songs_to_playlist">No more song to play in playlist.</string>
     <string name="title_activity_base">BaseActivity</string>
     <string name="title_activity_update_list">UpdateListActivity</string>
+    <string name="update_avail_str">New Podcast Updates Available</string>
 </resources>

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
@@ -92,6 +93,24 @@ public class RemoteDataRepository implements DataRepository {
         // return empty list
         return null;
 
+    }
+
+    @Override
+    public void clearOldUpdates() {
+        // NOOP here
+        return;
+    }
+
+    @Override
+    public Map<Podcast, List<Episode>> getNewUpdate() {
+        // NOOP here
+        return null;
+    }
+
+    @Override
+    public boolean deleteEpisodes(String var1) {
+        // NOOP
+        return false;
     }
 
 

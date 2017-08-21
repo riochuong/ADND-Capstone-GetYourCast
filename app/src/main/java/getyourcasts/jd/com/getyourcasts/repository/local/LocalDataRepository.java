@@ -9,15 +9,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataRepository;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
-import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
-import io.reactivex.Observable;
 
 /**
  * Created by chuondao on 8/8/17.
@@ -53,7 +52,7 @@ public class LocalDataRepository implements DataRepository {
 
     @NotNull
     @Override
-    public List getAllPodcast() {
+    public List<Podcast> getAllPodcast() {
         List<Podcast> list = new ArrayList();
         Uri uri = Contract.PodcastTable.URI;
         try {
@@ -125,7 +124,7 @@ public class LocalDataRepository implements DataRepository {
                                     "","",
                                     "","",
                                         "","",0,
-                                    0,0);
+                                    0,0,0);
         Cursor cursor = null;
         try {
             Uri uri = Contract.EpisodeTable.URI_EPISODE_ID.buildUpon().appendPath(episodeUniqueId).build();
@@ -229,5 +228,62 @@ public class LocalDataRepository implements DataRepository {
     @Override
     public Channel fetchEpisodesFromFeedUrl(String feedUrl) {
         return null;
+    }
+
+    @Override
+    public void clearOldUpdates() {
+            Uri uri = Contract.EpisodeTable.URI_OF_NEW_UPDATES;
+            Uri updateEp = Contract.EpisodeTable.URI_EPISODE_ID;
+            Cursor c = this.context.getContentResolver().query(uri,null,null,null,null);
+            ContentValues cv = new ContentValues();
+            // clear out the is new update field
+            cv.put(Contract.EpisodeTable.IS_NEW_UPDATE, 0);
+            if (c != null && c.getCount() > 0){
+                c.moveToFirst();
+                for (int i = 0; i < c.getCount() ; i++) {
+                    c.moveToPosition(i);
+                    Episode ep = Episode.fromCursor(c);
+                    updateEpisode(cv,ep);
+                }
+            }
+    }
+
+    @Override
+    public Map<Podcast, List<Episode>> getNewUpdate() {
+        Map<Podcast, List<Episode>> updateList = new HashMap<>();
+        List<Podcast> podcasts = getAllPodcast();
+        Map<String, Podcast> podcastMap = new HashMap<>();
+        // create list for each podcast
+        for (Podcast p : podcasts){
+            podcastMap.put(p.getCollectionId(),p);
+        }
+        Uri newUpdateUri = Contract.EpisodeTable.URI_OF_NEW_UPDATES;
+        Cursor c  = this.context
+                .getContentResolver().query(newUpdateUri,null,null,null,null);
+        if (c != null && c.getCount() > 0){
+            c.moveToFirst();
+            for (int i = 0; i < c.getCount() ; i++) {
+                c.moveToPosition(i);
+                Episode ep = Episode.fromCursor(c);
+                Podcast parentPod = podcastMap.get(ep.getPodcastId());
+                if (! updateList.containsKey(parentPod)) {
+                    updateList.put(parentPod, new ArrayList<>());
+                }
+                updateList.get(parentPod).add(ep);
+            }
+        }
+        return updateList;
+    }
+
+    @Override
+    public boolean deleteEpisodes(String uniqueId) {
+        int count = 0;
+        try {
+            Uri uri = Contract.EpisodeTable.URI_EPISODE_ID.buildUpon().appendPath(uniqueId).build();
+            count = this.context.getContentResolver().delete(uri, null,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count == 1;
     }
 }
