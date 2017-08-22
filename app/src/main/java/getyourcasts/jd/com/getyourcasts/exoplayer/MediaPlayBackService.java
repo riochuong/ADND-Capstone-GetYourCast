@@ -224,12 +224,17 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public void onCreate() {
+        super.onCreate();
         mediaSessionConn = buildMediaSession();
         dataSourceFactory = buildDataSource();
         extractorFactory = buildExtractorFactory();
         playList = new ArrayList<>();
         initPlayListRemoveObserver();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
 

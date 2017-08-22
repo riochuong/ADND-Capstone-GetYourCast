@@ -29,6 +29,7 @@ import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
 import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_episode_info.*
 
@@ -43,10 +44,10 @@ class EpisodeInfoFragment : Fragment() {
     private var datePub: TimeUtil.DatePub? = null
     private lateinit var viewModel: PodcastViewModel
     private var fabState = PRESS_TO_DOWNLOAD
-    private var downloadListener : FetchListener? = null
+    private var downloadListener: FetchListener? = null
     private var transactionId = -1L
-    private  var mainObserverDisposable : Disposable? = null
-    private var mediaServiceDisposable : Disposable? = null
+    private var mainObserverDisposable: Disposable? = null
+    private var mediaServiceDisposable: Disposable? = null
 
     companion object {
         val DATE_PUB_FORMAT = "%s-%s-%s"
@@ -56,7 +57,7 @@ class EpisodeInfoFragment : Fragment() {
 
         // STATE OF FAB
         const val PRESS_TO_DOWNLOAD = 0
-        const val PRESS_TO_STOP_DOWNLOAD =1
+        const val PRESS_TO_STOP_DOWNLOAD = 1
         const val PRESS_TO_PLAY = 2
         const val PRESS_TO_PAUSE = 3
         const val PRESS_TO_UNPAUSE = 4
@@ -120,15 +121,15 @@ class EpisodeInfoFragment : Fragment() {
     }
 
 
-    private fun subscribeToMediaServiceSubject (episode: Episode) {
-        MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode,Int>> {
+    private fun subscribeToMediaServiceSubject(episode: Episode) {
+        MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode, Int>> {
             override fun onNext(t: Pair<Episode, Int>) {
                 val episode = t.first;
                 val state = t.second
-                if (episode != null && currInfoEpisode.uniqueId.equals(episode.uniqueId)){
+                if (episode != null && currInfoEpisode.uniqueId.equals(episode.uniqueId)) {
                     // check which state we should set the fab
-                    when(state) {
-                        // only need to change if this is already playing
+                    when (state) {
+                    // only need to change if this is already playing
                         MediaPlayBackService.MEDIA_PLAYING -> {
 
                             fabState = PRESS_TO_PAUSE
@@ -145,7 +146,7 @@ class EpisodeInfoFragment : Fragment() {
                         }
                     }
 
-                } else{
+                } else {
                     if (fabState != PRESS_TO_DOWNLOAD && fabState != PRESS_TO_PLAY) {
                         fabState = PRESS_TO_PLAY
                         ep_info_fab.setImageResource(R.mipmap.ic_play_white)
@@ -169,7 +170,7 @@ class EpisodeInfoFragment : Fragment() {
         })
     }
 
-    private fun subscribeToEpisodeSubject (ep: Episode){
+    private fun subscribeToEpisodeSubject(ep: Episode) {
         val observer = object : Observer<EpisodeState> {
 
             override fun onSubscribe(d: Disposable) {
@@ -178,26 +179,39 @@ class EpisodeInfoFragment : Fragment() {
 
             override fun onNext(epState: EpisodeState) {
                 if (epState.uniqueId.equals(ep.getEpisodeUniqueKey())) {
+                    // state changes..update episode
+                    viewModel.getEpisodeObsevable(ep)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    // on Next
+                                    {
+                                        currInfoEpisode = it
+                                        when (epState.state) {
+                                            EpisodeState.DOWNLOADING -> {
+                                                fabState = PRESS_TO_STOP_DOWNLOAD
+                                                ep_info_fab.visibility = View.VISIBLE
+                                                ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
+                                            }
+                                            EpisodeState.FETCHED -> {
+                                                fabState = PRESS_TO_DOWNLOAD
+                                                ep_info_fab.visibility = View.VISIBLE
+                                                ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
+                                                currInfoEpisode.localUrl = null
+                                            }
 
-                    when (epState.state){
-                        EpisodeState.DOWNLOADING -> {
-                            fabState = PRESS_TO_STOP_DOWNLOAD
-                            ep_info_fab.visibility = View.VISIBLE
-                            ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
-                        }
-                        EpisodeState.FETCHED -> {
-                            fabState = PRESS_TO_DOWNLOAD
-                            ep_info_fab.visibility = View.VISIBLE
-                            ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
-                        }
-
-                        EpisodeState.DOWNLOADED -> {
-                            fabState = PRESS_TO_PLAY
-                            ep_info_fab.visibility = View.VISIBLE
-                            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
-                            add_to_playlist.visibility  = View.VISIBLE
-                        }
-                    }
+                                            EpisodeState.DOWNLOADED -> {
+                                                fabState = PRESS_TO_PLAY
+                                                ep_info_fab.visibility = View.VISIBLE
+                                                ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                                                add_to_playlist.visibility = View.VISIBLE
+                                            }
+                                        }
+                                    },
+                                    // on ERROR
+                                    {
+                                        it.printStackTrace()
+                                    }
+                            )
                 }
             }
 
@@ -215,39 +229,37 @@ class EpisodeInfoFragment : Fragment() {
     }
 
 
-    private fun initAddToPlayListListener (){
+    private fun initAddToPlayListListener() {
         add_to_playlist.setOnClickListener {
-                // ADD song to play list
-                Log.d(TAG, "ADD TO PLAYLIST !!! ")
-                if (mediaService != null) mediaService!!.addTrackToEndPlaylist(currInfoEpisode)
-                add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
+            // ADD song to play list
+            Log.d(TAG, "ADD TO PLAYLIST !!! ")
+            if (mediaService != null) mediaService!!.addTrackToEndPlaylist(currInfoEpisode)
+            add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
         }
     }
 
     /**
      * helper to initialize FAB button
      */
-    private fun adjustFabState(){
+    private fun adjustFabState() {
         // change fab color to red always
         changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
 
-        if (getIsDownloadingFromIntent()){
+        if (getIsDownloadingFromIntent()) {
             fabState = PRESS_TO_STOP_DOWNLOAD
             ep_info_fab.visibility = View.INVISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
-        }
-        else if (currInfoEpisode.downloaded == EpisodeState.DOWNLOADED) {
+        } else if (currInfoEpisode.downloaded == EpisodeState.DOWNLOADED) {
             fabState = PRESS_TO_PLAY
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
-            add_to_playlist.visibility  = View.VISIBLE
+            add_to_playlist.visibility = View.VISIBLE
         } else {
             fabState = PRESS_TO_DOWNLOAD
             ep_info_fab.visibility = View.VISIBLE
             ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
         }
     }
-
 
 
     // start loading animation
@@ -272,17 +284,17 @@ class EpisodeInfoFragment : Fragment() {
         // set on click listener
         ep_info_fab.setOnClickListener {
             // check if the ep is donwloading
-            when (fabState){
-                PRESS_TO_DOWNLOAD ->{
+            when (fabState) {
+                PRESS_TO_DOWNLOAD -> {
                     // check if episode is already state or not
                     // bind download service
                     ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
                     fabState = PRESS_TO_STOP_DOWNLOAD
-                    startDownloadEpisode ()
+                    startDownloadEpisode()
 
                 }
 
-                PRESS_TO_STOP_DOWNLOAD ->{
+                PRESS_TO_STOP_DOWNLOAD -> {
                     // TODO : need to implement stop download
                     fabState = PRESS_TO_DOWNLOAD
                     ep_info_fab.setImageResource(R.mipmap.ic_todownload)
@@ -290,7 +302,7 @@ class EpisodeInfoFragment : Fragment() {
 
                 PRESS_TO_PLAY -> {
                     // limited to downloaded episode only for now
-                    if (mediaService != null && currInfoEpisode != null && currInfoEpisode.localUrl != null){
+                    if (mediaService != null && currInfoEpisode != null && currInfoEpisode.localUrl != null) {
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
                         // start playing here
@@ -301,7 +313,7 @@ class EpisodeInfoFragment : Fragment() {
                 }
 
                 PRESS_TO_PAUSE -> {
-                    if (mediaService != null && currInfoEpisode != null){
+                    if (mediaService != null && currInfoEpisode != null) {
                         fabState = PRESS_TO_UNPAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_play_white)
                         mediaService!!.pausePlayback()
@@ -310,7 +322,7 @@ class EpisodeInfoFragment : Fragment() {
                 }
 
                 PRESS_TO_UNPAUSE -> {
-                    if (mediaService != null && currInfoEpisode != null){
+                    if (mediaService != null && currInfoEpisode != null) {
                         fabState = PRESS_TO_PAUSE
                         ep_info_fab.setImageResource(R.mipmap.ic_pause)
                         mediaService!!.resumePlayback()
@@ -327,7 +339,7 @@ class EpisodeInfoFragment : Fragment() {
 
     }
 
-    private fun startDownloadEpisode (){
+    private fun startDownloadEpisode() {
         if (serviceConnection != null
                 && boundToDownload
                 && downloadService != null
@@ -373,16 +385,16 @@ class EpisodeInfoFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         if (this.downloadListener != null
-                && downloadService != null){
+                && downloadService != null) {
             downloadService!!.unregisterListener(this.downloadListener!!)
         }
         // destroy main observer
-        if (mainObserverDisposable != null){
+        if (mainObserverDisposable != null) {
             mainObserverDisposable!!.dispose()
             mainObserverDisposable = null
         }
 
-        if (mediaServiceDisposable != null ){
+        if (mediaServiceDisposable != null) {
             mediaServiceDisposable!!.dispose()
             mediaServiceDisposable = null
         }
@@ -466,7 +478,7 @@ class EpisodeInfoFragment : Fragment() {
     }
 
     private fun getIsDownloadingFromIntent(): Boolean {
-        val data = activity.intent.getBooleanExtra(EpisodesRecyclerViewAdapter.IS_DOWNLOADING,false)
+        val data = activity.intent.getBooleanExtra(EpisodesRecyclerViewAdapter.IS_DOWNLOADING, false)
         return data
     }
 

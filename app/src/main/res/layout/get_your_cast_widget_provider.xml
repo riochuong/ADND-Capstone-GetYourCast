@@ -8,8 +8,8 @@
 
         <ImageView
             android:id="@+id/widget_img"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="@dimen/widget_img_size"
+            android:layout_height="@dimen/widget_img_size"/>
 
         <ImageButton
             android:id="@+id/widget_prev_btn"
