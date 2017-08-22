@@ -24,4 +24,7 @@
     <string name="title_activity_base">BaseActivity</string>
     <string name="title_activity_update_list">UpdateListActivity</string>
     <string name="update_avail_str">New Podcast Updates Available</string>
+    <string name="update_str">New Episodes</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 </resources>
