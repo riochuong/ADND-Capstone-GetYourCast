@@ -8,6 +8,8 @@
 
         <ImageView
             android:id="@+id/widget_img"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_margin="@dimen/super_tiny_margin"
             android:layout_width="@dimen/widget_img_size"
             android:layout_height="@dimen/widget_img_size"/>
 
