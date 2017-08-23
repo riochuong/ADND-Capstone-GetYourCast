@@ -347,7 +347,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         if (episode.getLocalUrl() != null) {
             int dupIndex = findDuplicateIndex(episode);
             if (dupIndex >= 0) {
-                Episode removedEp = playList.get(index);
                 playList.remove(dupIndex);
             }
             playList.add(index, episode);
@@ -388,11 +387,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         return newList;
     }
 
-    public void registerPlayerListener(Player.EventListener listener) {
-        if (exoPlayer != null) {
-            exoPlayer.addListener(listener);
-        }
-    }
 
     public void stopPlayback() {
         if (exoPlayer != null) {
@@ -452,14 +446,35 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                     break;
                 case Player.STATE_ENDED:
                     // now pick and play next song !!!
-                    int nextIndex = (currEpisodePos == playList.size() - 1) ? 0 : currEpisodePos + 1;
-                    playMediaFileAtIndex(nextIndex);
+                    playMediaFileAtIndex(getNextMediaFile());
                     break;
                 case Player.STATE_IDLE:
                     publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_STOPPED);
 
             }
         }
+    }
+
+    /**
+     * return the next song index
+     * @return
+     */
+    private int getNextMediaFile () {
+        if (playList.size() == 0){
+            return -1;
+        }
+        return (currEpisodePos == playList.size() - 1) ? 0 : currEpisodePos + 1;
+    }
+
+    /**
+     * return the previous song index
+     * @return
+     */
+    private int getPrevMediaFile() {
+        if (playList.size() == 0){
+            return -1;
+        }
+        return (currEpisodePos == 0) ? playList.size() -1 : currEpisodePos - 1;
     }
 
     @Override
