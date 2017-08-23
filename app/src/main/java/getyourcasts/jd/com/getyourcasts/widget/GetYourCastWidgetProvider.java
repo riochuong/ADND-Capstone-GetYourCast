@@ -14,16 +14,52 @@ import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService;
  * Implementation of App Widget functionality.
  */
 public class GetYourCastWidgetProvider extends AppWidgetProvider {
+    private static final String WIDGET_ACTION_PROVIDER  = "widget_action_provider";
+    private static int currentState = MediaPlayBackService.WIDGET_ACTION_PAUSE;
+    private static final int WIDGET_REQ_CODE = 24;
+    public static final String WIDGET_MEDIA_ACTION_KEY =  "widget_media_action_key";
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+    void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
         // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.get_your_cast_widget_provider);
-        Intent intent = new Intent(context, MediaPlayBackService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(context,0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        RemoteViews views = new RemoteViews(context.getPackageName(),
+                                                        R.layout.get_your_cast_widget_provider);
+        Intent broadcastBack = new Intent(context, GetYourCastWidgetProvider.class);
+        broadcastBack.setAction(WIDGET_ACTION_PROVIDER);
+
+        views.setOnClickPendingIntent(R.id.widget_play_pause_btn,
+                PendingIntent.getBroadcast(context, WIDGET_REQ_CODE,
+                                                broadcastBack, PendingIntent.FLAG_UPDATE_CURRENT));
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (action!= null && action.equals(WIDGET_ACTION_PROVIDER)){
+            Intent mediaAction = getIntentForPlayBtnNextState(context);
+            context.startService(mediaAction);
+        }
+        super.onReceive(context, intent);
+    }
+
+    private Intent getIntentForPlayBtnNextState(Context context){
+        Intent intent = new Intent(context, MediaPlayBackService.class);
+        switch (currentState) {
+            case MediaPlayBackService.WIDGET_ACTION_PAUSE:
+                currentState = MediaPlayBackService.WIDGET_ACTION_PLAY;
+                intent.putExtra(WIDGET_MEDIA_ACTION_KEY, MediaPlayBackService.WIDGET_ACTION_PLAY);
+                break;
+            case MediaPlayBackService.WIDGET_ACTION_PLAY:
+                currentState = MediaPlayBackService.WIDGET_ACTION_PAUSE;
+                intent.putExtra(WIDGET_MEDIA_ACTION_KEY, MediaPlayBackService.WIDGET_ACTION_PAUSE);
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+        return intent;
     }
 
     @Override

@@ -41,6 +41,7 @@ import java.util.Map;
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
+import getyourcasts.jd.com.getyourcasts.widget.GetYourCastWidgetProvider;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -76,6 +77,12 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public static final int MEDIA_STOPPED = 2;
     public static final int MEDIA_TRACK_CHANGED = 3;
     public static final int MEDIA_UNKNOWN_STATE = 0xFF;
+
+    // widget ACTION
+    public static final int WIDGET_ACTION_PLAY  = 389;
+    public static final int WIDGET_ACTION_PAUSE = 390;
+    public static final int WIDGET_ACTION_NEXT = 391;
+    public static final int WIDGET_ACTION_PREV = 392;
 
     // state of the playlist
 //    public static final int MEDIA_ADDED_TO_TOP_PLAYLIST = 3;
@@ -235,6 +242,19 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null ){
+            int action = intent.getIntExtra(GetYourCastWidgetProvider.WIDGET_MEDIA_ACTION_KEY, 0xFF);
+            switch (action) {
+                case WIDGET_ACTION_PAUSE:
+                    pausePlayback();
+                    break;
+                case WIDGET_ACTION_PLAY:
+                    resumePlayback();
+                    break;
+            }
+
+        }
+
         return START_STICKY;
     }
 
