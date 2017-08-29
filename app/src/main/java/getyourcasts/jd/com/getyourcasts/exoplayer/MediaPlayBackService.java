@@ -251,6 +251,12 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                 case WIDGET_ACTION_PLAY:
                     resumePlayback();
                     break;
+                case WIDGET_ACTION_NEXT:
+                    playMediaFileAtIndex(getNextMediaFile());
+                    break;
+                case WIDGET_ACTION_PREV:
+                    playMediaFileAtIndex(getPrevMediaFile());
+                    break;
             }
 
         }
@@ -359,8 +365,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
      */
     public void addTrackToEndPlaylist(Episode episode) {
         if (episode.getLocalUrl() != null) {
-            MediaSource mediaSource = buildMediaSourceFromUrl(episode.getLocalUrl());
-            int lastIndex = playList.size();
             playList.add(episode);
         }
     }

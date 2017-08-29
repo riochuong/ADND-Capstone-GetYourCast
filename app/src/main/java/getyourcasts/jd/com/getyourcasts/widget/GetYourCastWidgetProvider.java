@@ -34,6 +34,8 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
     private static final int WIDGET_EMPTY_PLAYLIST = 3;
 
     private static final String WIDGET_PLAY_PAUSE_ACTION_PROVIDER = "widget_play_pause_action_provider";
+    private static final String WIDGET_NEXT_ACTION_PROVIDER = "widget_next_action_provider";
+    private static final String WIDGET_PREVIOUS_ACTION_PROVIDER = "widget_prev_action_provider";
     private static int widgetCurrState = WIDGET_PRESS_TO_PLAY;
     private static String widgetImgSrc = null;
     private static final int WIDGET_REQ_CODE = 24;
@@ -49,13 +51,26 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(),
                                                         R.layout.get_your_cast_widget_provider);
+        // set up play/pause onclick listener
         Intent broadcastBack = new Intent(context, GetYourCastWidgetProvider.class);
         broadcastBack.setAction(WIDGET_PLAY_PAUSE_ACTION_PROVIDER);
-
         views.setOnClickPendingIntent(R.id.widget_play_pause_btn,
                 PendingIntent.getBroadcast(context, WIDGET_REQ_CODE,
                                                 broadcastBack, PendingIntent.FLAG_UPDATE_CURRENT));
         updatePlayPauseBtn(views);
+
+        // setup prev/next on click listener
+        Intent broadcastNext = new Intent(context, GetYourCastWidgetProvider.class);
+        broadcastNext.setAction(WIDGET_NEXT_ACTION_PROVIDER);
+        Intent broadcastPrev = new Intent(context, GetYourCastWidgetProvider.class);
+        broadcastPrev.setAction(WIDGET_PREVIOUS_ACTION_PROVIDER);
+        views.setOnClickPendingIntent(R.id.widget_next_btn,
+                PendingIntent.getBroadcast(context, WIDGET_REQ_CODE,
+                        broadcastNext, PendingIntent.FLAG_UPDATE_CURRENT));
+        views.setOnClickPendingIntent(R.id.widget_prev_btn,
+                PendingIntent.getBroadcast(context, WIDGET_REQ_CODE,
+                        broadcastPrev, PendingIntent.FLAG_UPDATE_CURRENT));
+
         // use glide to load image resource into imageview
         if (widgetImgSrc != null && changeImg){
              GlideApp.with(context)
@@ -86,14 +101,34 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
          }
     }
 
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (action!= null && action.equals(WIDGET_PLAY_PAUSE_ACTION_PROVIDER)){
             Intent mediaAction = getIntentForPlayBtnNextState(context);
             context.startService(mediaAction);
+        } else if (action != null && action.equals(WIDGET_NEXT_ACTION_PROVIDER)) {
+            Intent actionNext = getNextIntentBtn(context);
+            context.startService(actionNext);
+        }  else if (action != null && action.equals(WIDGET_PREVIOUS_ACTION_PROVIDER)) {
+            Intent actionPrev = getPreviousIntentBtn(context);
+            context.startService(actionPrev);
         }
         super.onReceive(context, intent);
+    }
+
+    private Intent getNextIntentBtn ( Context context) {
+        Intent intent = new Intent(context, MediaPlayBackService.class);
+        intent.putExtra(WIDGET_MEDIA_ACTION_KEY, MediaPlayBackService.WIDGET_ACTION_NEXT);
+        return intent;
+    }
+
+    private Intent getPreviousIntentBtn ( Context context) {
+        Intent intent = new Intent(context, MediaPlayBackService.class);
+        intent.putExtra(WIDGET_MEDIA_ACTION_KEY, MediaPlayBackService.WIDGET_ACTION_PREV);
+        return intent;
     }
 
     private Intent getIntentForPlayBtnNextState(Context context){
