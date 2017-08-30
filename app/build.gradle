@@ -1,4 +1,10 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 apply plugin: 'kotlin-android'
 
@@ -43,10 +49,12 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+        classpath 'io.fabric.tools:gradle:1.+'
 
     }
 }
@@ -120,6 +128,9 @@ dependencies {
 
     // FIREBASE ANALYTICS
     compile 'com.google.firebase:firebase-core:11.2.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true;
+    }
 
 
 
