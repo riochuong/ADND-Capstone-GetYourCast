@@ -17,7 +17,7 @@ class MainPodcastActivity : BaseActivity() {
         setContentView(R.layout.activity_main_podcast)
         // start media player service here
         startService(Intent(this, MediaPlayBackService::class.java))
-        UpdateUtilities.scheduleUpdateTask(this);
+        UpdateUtilities.scheduleUpdateTask(this)
     }
 
 

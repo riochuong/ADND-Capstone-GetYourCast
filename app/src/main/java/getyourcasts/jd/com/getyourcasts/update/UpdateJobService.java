@@ -1,9 +1,11 @@
 package getyourcasts.jd.com.getyourcasts.update;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +31,9 @@ public class UpdateJobService extends JobService {
 
     DataSourceRepo dataRepo = DataSourceRepo.getInstance(this);
     Disposable disposable;
+    private FirebaseAnalytics mFirebaseAnalytics;
+    private static final String FIREBASE_UPDATE_AVAILABLE  = "update_avail";
+    private static final String FIREBASE_UPDATE_SIZE_KEY  = "update_size";
     private static final String TAG = UpdateJobService.class.getSimpleName();
     @Override
     public boolean onStartJob(JobParameters job) {
@@ -46,6 +51,7 @@ public class UpdateJobService extends JobService {
                                 if (isThereUpdate) {
                                     UpdateNotificationHelper
                                             .notifyNewUpdateAvailable(UpdateJobService.this);
+
                                 }
                                 else {
                                     Log.d(TAG, "No New updates available");
@@ -104,6 +110,11 @@ public class UpdateJobService extends JobService {
                 updateFromNet,
                 podcastList
         );
+        // ADD Firebase log here  LOG here
+        Bundle fBundle = new Bundle();
+        fBundle.putString(FIREBASE_UPDATE_SIZE_KEY, toUpdateEpMap.size()+"");
+        mFirebaseAnalytics.logEvent(FIREBASE_UPDATE_AVAILABLE,fBundle);
+
         return toUpdateEpMap.size() > 0;
     }
 

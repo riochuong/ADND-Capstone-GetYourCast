@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "72420011030",
+    "firebase_url": "https://getyourcast-4973e.firebaseio.com",
+    "project_id": "getyourcast-4973e",
+    "storage_bucket": "getyourcast-4973e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72420011030:android:af22b04111f6ab43",
+        "android_client_info": {
+          "package_name": "getyourcasts.jd.com.getyourcasts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72420011030-encvfq8tl67n79pnra8q34ibpe7l2ts8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfws-qAawR2maGzteuv6GRFEsP_KDPgz0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
