@@ -1,6 +1,8 @@
 package getyourcasts.jd.com.getyourcasts.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +23,14 @@ public final class TimeUtil {
     private static final String datePatternStr = "^(.*),\\s*([0-9][0-9])\\s*([A-Z]*[a-z]*)\\s*([0-9]*)";
 
     private static final Pattern datePattern = Pattern.compile(datePatternStr);
+
+    private static final String EPISODE_DATE_FORMAT  = "EEE,dd MMM yyyy";
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(TimeUtil.EPISODE_DATE_FORMAT, Locale.US);
+
+    public static SimpleDateFormat getEpisodeSimpleDateFormat() {
+        return dateFormat;
+    }
 
     public static DatePub parseDatePub(String raw) {
         Matcher matcher = datePattern.matcher(raw);

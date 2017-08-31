@@ -35,6 +35,13 @@ public class UpdateJobService extends JobService {
     private static final String FIREBASE_UPDATE_AVAILABLE  = "update_avail";
     private static final String FIREBASE_UPDATE_SIZE_KEY  = "update_size";
     private static final String TAG = UpdateJobService.class.getSimpleName();
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+    }
+
     @Override
     public boolean onStartJob(JobParameters job) {
         createUpdateObservable()

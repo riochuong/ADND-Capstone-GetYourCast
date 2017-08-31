@@ -4,15 +4,20 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import getyourcasts.jd.com.getyourcasts.repository.local.Contract;
 import getyourcasts.jd.com.getyourcasts.repository.local.CursorHelper;
+import getyourcasts.jd.com.getyourcasts.util.TimeUtil;
 
 /**
  * Created by chuondao on 8/9/17.
  */
 
-public final class Episode implements Parcelable {
+public final class Episode implements Parcelable, Comparable<Episode> {
     private String podcastId;
     private String title;
     private String uniqueId;
@@ -300,4 +305,19 @@ public final class Episode implements Parcelable {
             return new Episode[size];
         }
     };
+
+    @Override
+    public int compareTo(@NonNull Episode o) {
+
+        try {
+            SimpleDateFormat epDateFormat = TimeUtil.getEpisodeSimpleDateFormat();
+            return (-1) * epDateFormat.parse(this.pubDate).compareTo(epDateFormat.parse(o.getPubDate()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // if some format is bad then put them together dont have to sort
+        return 0;
+
+    }
 }

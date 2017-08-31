@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,8 @@ public class LocalDataRepository implements DataRepository {
             Uri uri = Contract.EpisodeTable.URI_OF_PODCAST.buildUpon().appendPath(podcastId).build();
             Cursor cursor = this.context.getContentResolver().query(uri,
                     null,null,null,null);
-            return convertToEpisodeList(cursor);
+            list = convertToEpisodeList(cursor);
+            Collections.sort(list);
         } catch (Exception e) {
             e.printStackTrace();
         }
