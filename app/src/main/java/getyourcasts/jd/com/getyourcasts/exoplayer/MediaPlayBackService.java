@@ -40,11 +40,14 @@ import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
 import getyourcasts.jd.com.getyourcasts.widget.GetYourCastWidgetProvider;
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 
@@ -66,6 +69,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     /*Simple fields for playlist management*/
     private List<Episode> playList ;
     private int currEpisodePos = -1;
+    private boolean initialized = false;
 
 
     private static final String TAG = MediaPlayBackService.class.getSimpleName();
@@ -212,8 +216,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_STOP
         );
         mediaSession.setPlaybackState(stateBuilder.build());
-        MediaSessionConnector mediaSessionConn = new MediaSessionConnector(mediaSession);
-        return mediaSessionConn;
+        return new MediaSessionConnector(mediaSession);
     }
 
 
@@ -238,7 +241,42 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null ){
+
+        if (!initialized) {
+            // load playlist from file
+            Observable.just(StorageUtil.loadMediaPlayList(this))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            new Observer<List<Episode>>() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
+                                }
+
+                                @Override
+                                public void onNext(List<Episode> episodeList) {
+                                    initialized = true;
+                                    playList = episodeList;
+                                    if (playList.size() > 0){
+                                        // simply set the current index to 0
+                                        currEpisodePos = 0;
+                                        prepareMediaFile(playList.get(0));
+                                    }
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    e.printStackTrace();
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                }
+                            }
+                    );
+        }
+
+        if (intent != null && initialized){
             int action = intent.getIntExtra(GetYourCastWidgetProvider.WIDGET_MEDIA_ACTION_KEY, 0xFF);
             switch (action) {
                 case WIDGET_ACTION_PAUSE:
@@ -260,6 +298,47 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         return START_STICKY;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        saveMediaPlaylist();
+        return super.onUnbind(intent);
+    }
+
+    private void saveMediaPlaylist() {
+        Observable.just(
+                StorageUtil.saveMediaPlayList(this,playList)
+        ).subscribeOn(Schedulers.io())
+         .subscribe(
+                 new Observer<Boolean>() {
+                     @Override
+                     public void onSubscribe(Disposable d) {
+
+                     }
+
+                     @Override
+                     public void onNext(Boolean result) {
+                            if (result){
+                                Log.d(TAG,"Successfully save media playlist as GSON");
+                            }
+                            else{
+                                Log.e(TAG, "Failed to save media playlist");
+                            }
+                     }
+
+                     @Override
+                     public void onError(Throwable e) {
+
+                     }
+
+                     @Override
+                     public void onComplete() {
+
+                     }
+                 }
+         );
+    }
+
+
 
     @Override
     public void onDestroy() {
@@ -272,7 +351,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             mediaSessionConn.mediaSession.release();
         }
 
-        if (playListRemoveDisposable != null ){
+        if (playListRemoveDisposable != null ) {
             playListRemoveDisposable.dispose();
             playListRemoveDisposable = null;
         }
@@ -294,10 +373,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /*====================== SERVICE APP FUNTIONS EXPOSED TO CLIENTS ============ */
 
-    /**
-     * play an audio file from a local url
-     */
-    public synchronized void playMediaFile(Episode episode) {
+    private synchronized void  prepareMediaFile(Episode episode) {
         stopPlayback();
         initExoPlayer();
         exoPlayer.addListener(this);
@@ -307,10 +383,17 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             if (currEpisodePos >= 0) publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_STOPPED);
             startServiceAsForeground();
             exoPlayer.prepare(buildMediaSourceFromUrl(episode.getLocalUrl()));
-            exoPlayer.setPlayWhenReady(true);
-
         }
+    }
 
+    /**
+     * play an audio file from a local url
+     */
+    public synchronized void playMediaFile(Episode episode) {
+        prepareMediaFile(episode);
+        if (episode != null) {
+            exoPlayer.setPlayWhenReady(true);
+        }
     }
 
     /**
@@ -352,6 +435,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                 playList.remove(dupIndex);
             }
             playList.add(index, episode);
+            saveMediaPlaylist();
         }
     }
 
@@ -362,6 +446,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public synchronized void addTrackToEndPlaylist(Episode episode) {
         if (episode.getLocalUrl() != null) {
             playList.add(episode);
+            saveMediaPlaylist();
         }
     }
 
@@ -372,6 +457,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
      */
     private synchronized void removeTrackFromPlayList(int index) {
         playList.remove(index);
+        saveMediaPlaylist();
     }
 
     /**
