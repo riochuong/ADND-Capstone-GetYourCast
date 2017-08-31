@@ -48,7 +48,7 @@ public class PlayListFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (mediaService != null){
+        if (mediaService != null && boundToMediaService){
             getContext().unbindService(mediaServiceConnection);
             mediaService = null;
         }

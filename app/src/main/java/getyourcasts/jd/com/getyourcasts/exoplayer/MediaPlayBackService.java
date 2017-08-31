@@ -167,10 +167,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         });
     }
 
-    private void updateCurrentEpIndex(int index) {
-
-
-    }
 
     private synchronized int findIndexFromList(Episode ep) {
         for (int i = 0; i < playList.size() ; i++) {
@@ -363,7 +359,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
      * add track to the current end of the playlist
      * @param episode
      */
-    public void addTrackToEndPlaylist(Episode episode) {
+    public synchronized void addTrackToEndPlaylist(Episode episode) {
         if (episode.getLocalUrl() != null) {
             playList.add(episode);
         }
@@ -392,7 +388,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     }
 
 
-    public void stopPlayback() {
+    public synchronized void stopPlayback() {
         if (exoPlayer != null) {
             exoPlayer.release();
             exoPlayer.removeListener(this);
@@ -404,16 +400,23 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     }
 
-    public void pausePlayback() {
+    public synchronized void pausePlayback() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(false);
         }
     }
 
-    public void resumePlayback() {
+    public synchronized void resumePlayback() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(true);
         }
+    }
+
+    public boolean isEpisodeInPlayList(String episodeKey) {
+       for (Episode ep : playList) {
+           if (ep.getUniqueId().equals(episodeKey)) {return true;}
+       }
+       return false;
     }
 
 

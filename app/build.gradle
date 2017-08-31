@@ -128,13 +128,13 @@ dependencies {
 
     // FIREBASE ANALYTICS
     compile 'com.google.firebase:firebase-core:11.2.0'
+
+    // CRASHLYTICS
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
 
-
-
-
-
+    // GSON to support saving playlist
+    compile 'com.google.code.gson:gson:2.8.1'
 }
 apply plugin: 'com.google.gms.google-services'

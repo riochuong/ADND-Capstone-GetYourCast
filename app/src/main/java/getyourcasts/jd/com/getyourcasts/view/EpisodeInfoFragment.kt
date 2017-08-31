@@ -81,7 +81,6 @@ class EpisodeInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         startAnim()
         initViews()
-        initAddToPlayListListener()
     }
 
     private fun initViews() {
@@ -143,6 +142,11 @@ class EpisodeInfoFragment : Fragment() {
                         MediaPlayBackService.MEDIA_PAUSE -> {
                             fabState = PRESS_TO_UNPAUSE
                             ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                        }
+                        // if episode removed from playlist we can allow it to be added back
+                        MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST -> {
+                            // need to update the list icon
+                            add_to_playlist.setImageResource(R.mipmap.ic_add_to_play_list)
                         }
                     }
 
@@ -230,11 +234,21 @@ class EpisodeInfoFragment : Fragment() {
 
 
     private fun initAddToPlayListListener() {
+        // first initialize add to playlist icon
+        // if already in the list then we should not show the add icon
+        if (mediaService != null && mediaService!!.isEpisodeInPlayList(currInfoEpisode.uniqueId)){
+            add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
+        } else {
+            add_to_playlist.setImageResource(R.mipmap.ic_add_to_play_list)
+        }
+
         add_to_playlist.setOnClickListener {
             // ADD song to play list
             Log.d(TAG, "ADD TO PLAYLIST !!! ")
-            if (mediaService != null) mediaService!!.addTrackToEndPlaylist(currInfoEpisode)
-            add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
+            if (mediaService != null && !mediaService!!.isEpisodeInPlayList(currInfoEpisode.uniqueId)) {
+                mediaService!!.addTrackToEndPlaylist (currInfoEpisode)
+                add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
+            }
         }
     }
 
@@ -408,6 +422,9 @@ class EpisodeInfoFragment : Fragment() {
         bindMediaService()
         subscribeToEpisodeSubject(currInfoEpisode)
         subscribeToMediaServiceSubject(currInfoEpisode)
+        if (mediaService != null) {
+            initAddToPlayListListener()
+        }
     }
 
     private fun bindDownloadService() {
@@ -452,6 +469,7 @@ class EpisodeInfoFragment : Fragment() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             boundToMediaService = true
             mediaService = (service as MediaPlayBackService.MediaPlayBackServiceBinder).getService()
+            initAddToPlayListListener()
         }
 
     }
