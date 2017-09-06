@@ -113,6 +113,12 @@ public class RemoteDataRepository implements DataRepository {
         return false;
     }
 
+    @Override
+    public boolean deletePodcast(String podcastId) {
+        // MOOP
+        return false;
+    }
+
 
     @Override
     public Podcast getPodcast(@NotNull String var1) {

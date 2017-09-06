@@ -9,10 +9,9 @@ import android.os.IBinder
 import android.support.v4.app.Fragment
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.PopupMenu
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
@@ -35,7 +34,8 @@ import kotlinx.android.synthetic.main.fragment_episode_list.*
 /**
  * A placeholder fragment containing a simple view.
  */
-class EpisodeListFragment : Fragment(), MediaServiceBoundListener {
+class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnMenuItemClickListener {
+
 
 
     private lateinit var podcast: Podcast
@@ -62,9 +62,32 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener {
         if (mediaService == null) {
             (activity as EpisodeListActivity).registerMediaServiceBoundListenter( MediaServiceBoundListener {
                 mediaService = it;
-            });
+            })
         }
         return inflater.inflate(R.layout.fragment_episode_list, container, false)
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.action_unsubscribe) {
+            Log.d(TAG, "Unsubscribe from Podcast ${podcast.collectionName}")
+            //TODO : Add unsubscribe features here
+            viewModel.getUnsubscribeObservable(podcast.collectionId)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            // on next here
+                            {
+                                if (it){
+                                    // close activity
+                                    EpisodeListFragment@this.activity.finish()
+                                }
+                            },
+                            {
+                                it.printStackTrace()
+                            }
+                    )
+            return true
+        }
+        return false
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
@@ -73,6 +96,15 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener {
         // now load image
         initViews()
         bindDownloadService()
+        // set menu options for unsubscribed
+        show_menu_btn.setOnClickListener {
+            val popup = PopupMenu(this.context, it)
+
+            // This activity implements OnMenuItemClickListener
+            popup.setOnMenuItemClickListener(this)
+            popup.inflate(R.menu.menu_episode_list_details)
+            popup.show()
+        }
     }
 
     override fun onResume() {

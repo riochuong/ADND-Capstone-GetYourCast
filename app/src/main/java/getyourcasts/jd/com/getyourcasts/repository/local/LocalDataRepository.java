@@ -4,10 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 
 public class LocalDataRepository implements DataRepository {
 
+    private static final String TAG = LocalDataRepository.class.getSimpleName() ;
     private Context context;
 
     public LocalDataRepository(Context ctx) {
@@ -91,7 +94,7 @@ public class LocalDataRepository implements DataRepository {
 
     @NotNull
     @Override
-    public List getAllEpisodesOfPodcast(@NotNull String podcastId) {
+    public List<Episode> getAllEpisodesOfPodcast(@NotNull String podcastId) {
         List<Episode> list = new ArrayList<>();
         try {
             Uri uri = Contract.EpisodeTable.URI_OF_PODCAST.buildUpon().appendPath(podcastId).build();
@@ -282,6 +285,50 @@ public class LocalDataRepository implements DataRepository {
         int count = 0;
         try {
             Uri uri = Contract.EpisodeTable.URI_EPISODE_ID.buildUpon().appendPath(uniqueId).build();
+            count = this.context.getContentResolver().delete(uri, null,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count == 1;
+    }
+    // delete image file
+    private void removePodcastImageFile(Podcast pod) {
+        String imgUrl = pod.getImgLocalPath();
+        if (imgUrl != null) {
+            File imgFile = new File(imgUrl);
+            if (imgFile.exists()) {
+                imgFile.delete();
+            }
+        }
+    }
+
+    @Override
+    public boolean deletePodcast(String podcastId) {
+        int count = 0;
+        boolean res = false;
+        try {
+            Uri uri = Contract.PodcastTable.URI_ID.buildUpon().appendPath(podcastId.trim()).build();
+            Podcast podcast = getPodcast(podcastId);
+            // remove image file
+            removePodcastImageFile(podcast);
+            List<Episode> episodes = getAllEpisodesOfPodcast(podcastId);
+            // remove all downloaded episode file
+            for (Episode ep : episodes){
+                String localUrl = ep.getLocalUrl();
+                if (localUrl!= null && !localUrl.trim().equals("") ){
+                    File file = new File(ep.getLocalUrl());
+                    // delete the file
+                    if (file.exists()){
+                        res = file.delete();
+                        if (res){
+                            Log.d(TAG,"Successfully remove episode data file");
+                        }
+                    }
+                }
+                // remove episode from db
+                deleteEpisodes(ep.getUniqueId());
+            }
+            // eventually removed podcast from the database table
             count = this.context.getContentResolver().delete(uri, null,null);
         } catch (Exception e) {
             e.printStackTrace();

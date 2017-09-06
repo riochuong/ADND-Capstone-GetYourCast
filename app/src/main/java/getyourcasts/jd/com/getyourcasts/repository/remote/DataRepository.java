@@ -54,6 +54,8 @@ public interface DataRepository {
     Map<Podcast, List<Episode>> getNewUpdate();
 
     boolean deleteEpisodes(String var1);
+
+    boolean deletePodcast(String podcastId);
 }
 
 

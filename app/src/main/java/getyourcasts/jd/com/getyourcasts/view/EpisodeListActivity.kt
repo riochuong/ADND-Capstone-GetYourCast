@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.OrientationEventListener
 import android.view.View
 import getyourcasts.jd.com.getyourcasts.R
@@ -23,5 +24,4 @@ class EpisodeListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_episode_list)
     }
-
 }

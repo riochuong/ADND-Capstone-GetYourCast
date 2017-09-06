@@ -120,4 +120,9 @@ public class DataSourceRepo implements   DataRepository {
     public boolean deleteEpisodes(String epUniqueId) {
         return localRepo.deleteEpisodes(epUniqueId);
     }
+
+    @Override
+    public boolean deletePodcast(String podcastId) {
+        return localRepo.deletePodcast(podcastId);
+    }
 }

@@ -26,6 +26,13 @@
                 android:orientation="vertical"
                 android:layout_margin="@dimen/small_margin"
                 app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">
+                <ImageButton
+                    android:id="@+id/show_menu_btn"
+                    android:src="@mipmap/ic_menu"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@null"
+                    android:layout_height="wrap_content"/>
 
                 <android.support.v7.widget.CardView
                     android:layout_width="@dimen/episode_podcast_img_size"

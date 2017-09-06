@@ -107,9 +107,11 @@ class MainPodcastFragment : Fragment() {
                     }
 
                     override fun onNext(t: PodcastState) {
-                        if (t.state == PodcastState.SUBSCRIBED) {
+                        when (t.state) {
                             // need to update the list
-                            updateDataToAdapter()
+                            PodcastState.SUBSCRIBED, PodcastState.UNSUBSCRIBED -> {
+                                updateDataToAdapter()
+                            }
                         }
                     }
 

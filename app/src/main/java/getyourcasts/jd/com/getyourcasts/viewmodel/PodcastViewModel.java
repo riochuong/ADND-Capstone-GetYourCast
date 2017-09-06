@@ -95,6 +95,11 @@ public class PodcastViewModel {
                 .subscribeOn(Schedulers.io());
     }
 
+    public Observable<Boolean> getUnsubscribeObservable(String podId) {
+        return Observable.defer(() -> Observable.just(unSubscribePodcast(podId)))
+                .subscribeOn(Schedulers.io());
+    }
+
     //
     public Observable<Boolean> getSubscribeObservable(Podcast pod, Channel channel) {
         return Observable.defer(() -> Observable.just(subscribePodcast(pod, channel)))
@@ -121,6 +126,17 @@ public class PodcastViewModel {
         // update with behavior object .. otherwise nothing to update
         if (res) updatePodcastSubject(new PodcastState(pod.getCollectionId(), PodcastState.SUBSCRIBED));
 
+        return res;
+    }
+
+    private boolean unSubscribePodcast (String podcastId) {
+        boolean res;
+        // remove entry from PODCAST_TABLE
+        res = dataRepo.deletePodcast(podcastId);
+        // notify others activity about unsubscribed event
+        if (res){
+            updatePodcastSubject(new PodcastState(podcastId.trim(), PodcastState.UNSUBSCRIBED));
+        }
         return res;
     }
 

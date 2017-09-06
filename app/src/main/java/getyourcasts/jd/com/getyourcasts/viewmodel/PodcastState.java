@@ -15,7 +15,7 @@ public class PodcastState{
         this.state = state;
     }
 
-    public static int NOT_SUBSCRIBED = 0;
+    public static int UNSUBSCRIBED = 0;
     public static int SUBSCRIBED = 1;
 
     public String getUniqueId() {
