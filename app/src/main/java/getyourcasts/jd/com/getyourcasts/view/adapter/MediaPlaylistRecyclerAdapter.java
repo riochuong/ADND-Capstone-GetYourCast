@@ -1,6 +1,7 @@
 package getyourcasts.jd.com.getyourcasts.view.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+
+import static getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST;
 
 /**
  * Created by chuondao on 8/12/17.
@@ -106,10 +109,12 @@ public class MediaPlaylistRecyclerAdapter extends RecyclerView.Adapter<MediaPlay
         setItemRemoveListener(holder, ep);
     }
 
+
+
     private void setItemRemoveListener(PlaylistItemViewHolder vh, Episode ep) {
         vh.itemRemove.setOnClickListener(
                 v -> {
-                    MediaPlayBackService.publishMediaPlaybackSubject(ep, MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
+                    MediaPlayBackService.publishMediaPlaybackSubject(ep, MEDIA_REMOVED_FROM_PLAYLIST);
                     episodeList.remove(vh.getAdapterPosition());
                     if (episodeList.size() == 0){
                         MediaPlayBackService.publishMediaPlaybackSubject(null, MediaPlayBackService

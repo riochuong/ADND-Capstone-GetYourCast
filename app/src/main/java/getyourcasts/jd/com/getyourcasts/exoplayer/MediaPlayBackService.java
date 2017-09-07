@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState;
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import getyourcasts.jd.com.getyourcasts.widget.GetYourCastWidgetProvider;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -243,6 +246,43 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (!initialized) {
+            // subscribe to Podcast to remove episode of unsubscribed one
+            PodcastViewModel.subscribePodcastSubject(
+                    new Observer<PodcastState>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(PodcastState podcastState) {
+                                switch (podcastState.getState()){
+                                    case PodcastState.UNSUBSCRIBED:
+                                        // check if current episode is belong to this unsubscribed one
+                                        for (Iterator<Episode> iter = playList.iterator(); iter.hasNext();){
+                                            Episode ep = iter.next();
+                                            if (ep.getPodcastId().equals(podcastState.getUniqueId())) {
+                                                MediaPlayBackService.publishMediaPlaybackSubject(ep,
+                                                        MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
+                                            }
+                                        }
+                                        saveMediaPlaylist();
+                                        break;
+
+                                }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    }
+            );
             // load playlist from file
             Observable.just(StorageUtil.loadMediaPlayList(this))
                     .subscribeOn(Schedulers.io())

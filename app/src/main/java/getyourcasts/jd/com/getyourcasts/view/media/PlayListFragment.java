@@ -11,14 +11,19 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService;
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.view.adapter.MediaPlaylistRecyclerAdapter;
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+
+import static getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST;
 
 /**
  * Created by chuondao on 8/11/17.
@@ -79,6 +84,37 @@ public class PlayListFragment extends Fragment {
         this.getContext().bindService(intent, mediaServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
+    private void subscribeToMediaPlayBackService(){
+        MediaPlayBackService.subscribeMediaPlaybackSubject(new Observer<Pair<Episode, Integer>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mediaServiceDisposable= d;
+            }
+
+            @Override
+            public void onNext(Pair<Episode, Integer> info) {
+                int state = info.second;
+                switch (state) {
+                    case MEDIA_REMOVED_FROM_PLAYLIST:
+                        if (mediaService != null){
+                            adapter.setEpisodeList(mediaService.getMediaPlaylist());
+                        }
+                        break;
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                    e.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
     /* ============================ CONNECT TO MEDIA SERVICE ========================================= */
     private boolean boundToMediaService = false;
     private MediaPlayBackService mediaService = null;
@@ -93,6 +129,7 @@ public class PlayListFragment extends Fragment {
                     // initialize the adapter playlist
                     // after this they should be in sync
                     adapter.setEpisodeList(mediaService.getMediaPlaylist());
+                    subscribeToMediaPlayBackService();
                 }
 
                 @Override
