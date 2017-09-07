@@ -227,7 +227,7 @@ class DownloadService : Service() {
 
     fun requestStopDownload(transId: Long) {
         if (fetcher.isValid) {
-            fetcher.remove(transId);
+            fetcher.remove(transId)
         }
     }
 }

@@ -156,6 +156,8 @@ public class MediaPlayerViewFragment extends Fragment {
                 Integer state = info.second;
 
                 switch(state){
+                    case MediaPlayBackService.MEDIA_STOPPED:
+                    case MediaPlayBackService.MEDIA_PAUSE:
                     case MediaPlayBackService.MEDIA_PLAYING:
                         String epId = info.first.getUniqueId();
                         if (currentEpisode == null
@@ -167,13 +169,9 @@ public class MediaPlayerViewFragment extends Fragment {
                     case MediaPlayBackService.MEDIA_TRACK_CHANGED:
                         reloadCorrectDataForFragment(info);
                         break;
-                    case MediaPlayBackService.MEDIA_PAUSE:
-                    case MediaPlayBackService.MEDIA_STOPPED:
-                        break;
                     case MediaPlayBackService.MEDIA_PLAYLIST_EMPTY:
                         enablePlayerView(false);
-
-
+                        break;
                 }
 
             }

@@ -48,7 +48,6 @@ public class PlaybackControlsFragment extends Fragment  {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        BaseActivity baseActivity = (BaseActivity) getActivity();
     }
 
     public RelativeLayout getMainLayout () {
