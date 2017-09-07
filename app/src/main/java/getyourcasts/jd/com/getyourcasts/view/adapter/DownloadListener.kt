@@ -25,7 +25,7 @@ abstract class EpisodeDownloadListener(val transactionId: Long) : FetchListener 
                 Fetch.STATUS_DONE ->{
                     this.onComplete()
                 }
-                Fetch.STATUS_REMOVED -> {
+                Fetch.STATUS_PAUSED ->{
                     this.onStop()
                 }
             }

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.view.EpisodeListActivity
 import getyourcasts.jd.com.getyourcasts.view.MainPodcastFragment
 import getyourcasts.jd.com.getyourcasts.view.PodcastDetailsActivity
 import getyourcasts.jd.com.getyourcasts.view.PodcastDetailsFragment
@@ -16,6 +17,7 @@ import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
+import kotlinx.android.synthetic.main.content_main_podcast.*
 import java.util.*
 
 /**
@@ -55,7 +57,7 @@ class PodcastMainViewAdapter(var podcastList: MutableList<Podcast>, val fragment
     private fun setImgViewOnClick(vh : PodcastViewHolder, podcast: Podcast){
         vh.imgView.setOnClickListener {
             view ->
-                val intent = Intent(fragment.context, PodcastDetailsActivity::class.java)
+                val intent = Intent(fragment.context, EpisodeListActivity::class.java)
                 intent.putExtra(PodcastDetailsFragment.PODCAST_KEY, podcast)
                 fragment.context.startActivity(intent)
         }

@@ -47,6 +47,8 @@ class DownloadService : Service() {
         fetcher = Fetch.newInstance(this)
         fetcher.setConcurrentDownloadsLimit(CONCC_LIMIT)
         listReqIds  = HashMap<Long,Long>()
+        // remove all request from fetch when first start !!
+        fetcher.removeRequests()
     }
 
 
@@ -102,7 +104,7 @@ class DownloadService : Service() {
         registerListener(
                 object: EpisodeDownloadListener(transId) {
                     override fun onStop() {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                        TODO("not implemented")
                     }
 
                     override fun onProgressUpdate(progress: Int) {
@@ -120,6 +122,8 @@ class DownloadService : Service() {
                         // notify manager
                         notiBuilder.setContentText(getString(R.string.download_complete))
                         notifyManager.notify(notiId, notiBuilder.build())
+                        // remove request to avoid not able to download it again
+                        fetcher.removeRequest(transId)
                         // update the DB
                         val cvUpdate = ContentValues()
                         cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, fullUrl)
@@ -143,6 +147,8 @@ class DownloadService : Service() {
                     }
 
                     override fun onError() {
+                        // failed to download remove everything even partial file
+                        fetcher.remove(transId)
                         Log.e(TAG, "Failed to request download ${ep.downloadUrl}")
                         val cvUpdate = ContentValues()
                         cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, "")
