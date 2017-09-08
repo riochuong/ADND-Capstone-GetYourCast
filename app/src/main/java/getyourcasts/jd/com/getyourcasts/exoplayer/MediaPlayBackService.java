@@ -92,7 +92,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public static final int WIDGET_ACTION_PREV = 392;
 
     // state of the playlist
-//    public static final int MEDIA_ADDED_TO_TOP_PLAYLIST = 3;
+    public static final int MEDIA_ADDED_TO_PLAYLIST = 3;
 //    public static final int MEDIA_ADDED_TO_END_PLAYLIST = 4;
     public static final int MEDIA_REMOVED_FROM_PLAYLIST = 5;
     public static final int MEDIA_PLAYLIST_EMPTY = 6;
@@ -476,6 +476,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             }
             playList.add(index, episode);
             saveMediaPlaylist();
+            publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_ADDED_TO_PLAYLIST);
         }
     }
 
@@ -487,6 +488,9 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         if (episode.getLocalUrl() != null) {
             playList.add(episode);
             saveMediaPlaylist();
+            // initialize current episode if need to
+            if (currEpisodePos < 0) {currEpisodePos = 0;}
+            publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_ADDED_TO_PLAYLIST);
         }
     }
 

@@ -214,6 +214,7 @@ public class BaseActivity extends AppCompatActivity {
 
                             break;
                         case MediaPlayBackService.MEDIA_PAUSE:
+                        case MediaPlayBackService.MEDIA_ADDED_TO_PLAYLIST:
                         case MediaPlayBackService.MEDIA_STOPPED:
                             if (actionBtnState != MediaPlayBackService.MEDIA_PAUSE){
                                 actionBtnState = MediaPlayBackService.MEDIA_PAUSE;
