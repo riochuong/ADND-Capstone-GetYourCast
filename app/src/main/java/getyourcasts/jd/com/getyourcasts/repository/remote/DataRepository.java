@@ -56,6 +56,8 @@ public interface DataRepository {
     boolean deleteEpisodes(String var1);
 
     boolean deletePodcast(String podcastId);
+
+    List<Episode> getDownloadedEpisodes();
 }
 
 

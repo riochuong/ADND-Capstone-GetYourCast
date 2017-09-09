@@ -43,4 +43,5 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="widget_min_height">40dp</dimen>
     <dimen name="widget_img_size">60dp</dimen>
     <dimen name="super_tiny_margin">2dp</dimen>
+    <dimen name="drawer_header_height">150dp</dimen>
 </resources>

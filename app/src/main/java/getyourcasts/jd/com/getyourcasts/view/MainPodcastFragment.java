@@ -2,14 +2,18 @@ package getyourcasts.jd.com.getyourcasts.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -37,6 +41,8 @@ public class MainPodcastFragment extends Fragment {
     private static final String TAG = MainPodcastFragment.class.getSimpleName();
     RecyclerView subscribed_podcast_recyclerview;
     ImageView search_podcast_btn;
+    NavigationView nv_drawer;
+    DrawerLayout drawerLayout;
 
     @Nullable
     @Override
@@ -47,8 +53,30 @@ public class MainPodcastFragment extends Fragment {
         subscribed_podcast_recyclerview =
                 (RecyclerView) root.findViewById(R.id.subscribed_podcast_recyclerview);
         search_podcast_btn = (ImageView) root.findViewById(R.id.search_podcast_btn);
+        nv_drawer = (NavigationView) root.findViewById(R.id.navigation_pane);
+        drawerLayout = (DrawerLayout) root.findViewById(R.id.drawer_layout);
+        if (nv_drawer != null) {setupDrawerListener();}
         return root;
     }
+
+    private void setupDrawerListener() {
+        nv_drawer.setNavigationItemSelectedListener(
+                item -> {
+                    switch (item.getItemId()){
+                        case R.id.drawer_playlist:
+                            break;
+                        case R.id.drawer_search:
+                            break;
+                        case R.id.drawer_downloads:
+                            break;
+                    }
+                    item.setChecked(true);
+                    drawerLayout.closeDrawers();
+                    return true;
+                }
+        );
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {

@@ -119,6 +119,12 @@ public class RemoteDataRepository implements DataRepository {
         return false;
     }
 
+    @Override
+    public List<Episode> getDownloadedEpisodes() {
+        // NO-OP
+        return null;
+    }
+
 
     @Override
     public Podcast getPodcast(@NotNull String var1) {

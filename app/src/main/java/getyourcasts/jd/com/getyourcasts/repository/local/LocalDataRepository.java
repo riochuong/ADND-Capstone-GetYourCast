@@ -335,4 +335,11 @@ public class LocalDataRepository implements DataRepository {
         }
         return count == 1;
     }
+
+    @Override
+    public List<Episode> getDownloadedEpisodes() {
+        return null;
+    }
+
+
 }
