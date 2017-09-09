@@ -28,4 +28,7 @@
     <string name="update_str">New Episodes</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="drawer_download_str">Downloads</string>
+    <string name="drawer_playlist_str">Playlist</string>
+    <string name="drawer_find_new_podcast_str">Find New Podcast</string>
 </resources>
