@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/drawer_downloads"
+            android:title="@string/drawer_download_str" />
+        <item
+            android:id="@+id/drawer_playlist"
+            android:title="@string/drawer_playlist_str" />
+        <item
+            android:id="@+id/drawer_search"
+            android:title="@string/drawer_find_new_podcast_str" />
+    </group>
+</menu>
+    <!--android:icon="@drawable/ic_one"-->
