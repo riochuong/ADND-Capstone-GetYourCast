@@ -82,7 +82,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public static final int MEDIA_PLAYING = 0;
     public static final int MEDIA_PAUSE = 1;
     public static final int MEDIA_STOPPED = 2;
-    public static final int MEDIA_TRACK_CHANGED = 3;
+    public static final int MEDIA_TRACK_CHANGED = 4;
     public static final int MEDIA_UNKNOWN_STATE = 0xFF;
 
     // widget ACTION
@@ -489,7 +489,10 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             playList.add(episode);
             saveMediaPlaylist();
             // initialize current episode if need to
-            if (currEpisodePos < 0) {currEpisodePos = 0;}
+            if (currEpisodePos < 0) {
+                currEpisodePos = 0;
+                prepareMediaFile(playList.get(0));
+            }
             publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_ADDED_TO_PLAYLIST);
         }
     }

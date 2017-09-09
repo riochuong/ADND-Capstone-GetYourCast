@@ -36,6 +36,7 @@ public class BaseActivity extends AppCompatActivity {
     PlaybackControlViewHolder controlViewHolder;
     PodcastViewModel viewModel;
     List<MediaServiceBoundListener> mediaBoundListeners = new ArrayList<>();
+    Episode currEpisode = null;
 
 
     public PlaybackControlViewHolder getControlViewHolder() {
@@ -200,7 +201,9 @@ public class BaseActivity extends AppCompatActivity {
 
                 @Override
                 public void onNext(Pair<Episode, Integer> info) {
+
                     switch(info.second) {
+                        case MediaPlayBackService.MEDIA_TRACK_CHANGED:
                         case MediaPlayBackService.MEDIA_PLAYING:
                             if (actionBtnState != MediaPlayBackService.MEDIA_PLAYING){
                                 actionBtnState = MediaPlayBackService.MEDIA_PLAYING;
@@ -210,8 +213,10 @@ public class BaseActivity extends AppCompatActivity {
                                     BaseActivity.this.showPlaybackControls();
                                 }
 
+                            } else if (currEpisode == null ||
+                                    ! currEpisode.getUniqueId().equals(info.first.getUniqueId())) {
+                                setControlPlaybackInfo(info.first,actionBtnState);
                             }
-
                             break;
                         case MediaPlayBackService.MEDIA_PAUSE:
                         case MediaPlayBackService.MEDIA_ADDED_TO_PLAYLIST:
