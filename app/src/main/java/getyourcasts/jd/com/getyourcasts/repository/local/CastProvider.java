@@ -17,7 +17,7 @@ public class CastProvider extends ContentProvider {
     private static final int EPISODES_OF_PODCAST = 102;
     private static final int EPISODES_SPECIFIC = 103;
     private static final int EPISODES_UPDATE = 104;
-
+    private static final int EPISODES_OF_DOWNLOADED= 105;
 
     private static final UriMatcher uriMatcher = buildUriMatcher();
 
@@ -30,6 +30,7 @@ public class CastProvider extends ContentProvider {
         matcher.addURI(Contract.AUTHORITY, Contract.AUTHOR_PATH_EPISODES_ID, EPISODES_SPECIFIC);
         matcher.addURI(Contract.AUTHORITY, Contract.AUTHOR_PATH_ALL_EPISODES_OF_POCAST, EPISODES_OF_PODCAST);
         matcher.addURI(Contract.AUTHORITY, Contract.AUTHOR_EPISODES_NEW_UPDATE, EPISODES_UPDATE);
+        matcher.addURI(Contract.AUTHORITY, Contract.AUTHOR_PATH_ALL_EPISODES_DOWNLOADED, EPISODES_OF_DOWNLOADED);
         return matcher;
     }
 
@@ -195,7 +196,17 @@ public class CastProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-
+            case EPISODES_OF_DOWNLOADED:
+                returnCursor = db.query(
+                        Contract.EpisodeTable.TABLE_NAME,
+                        projection,
+                        Contract.EpisodeTable.DOWNLOADED + " = ?",
+                        new String[]{1+""},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown URI:" + uri);
         }

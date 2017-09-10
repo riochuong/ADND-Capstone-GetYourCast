@@ -238,7 +238,6 @@ public class LocalDataRepository implements DataRepository {
     @Override
     public void clearOldUpdates() {
             Uri uri = Contract.EpisodeTable.URI_OF_NEW_UPDATES;
-            Uri updateEp = Contract.EpisodeTable.URI_EPISODE_ID;
             Cursor c = this.context.getContentResolver().query(uri,null,null,null,null);
             ContentValues cv = new ContentValues();
             // clear out the is new update field
@@ -338,7 +337,11 @@ public class LocalDataRepository implements DataRepository {
 
     @Override
     public List<Episode> getDownloadedEpisodes() {
-        return null;
+        Uri uri = Contract.EpisodeTable.URI_OF_DOWNLOADED;
+        // query db for downloaded episodes
+        Cursor c  = this.context
+                .getContentResolver().query(uri,null,null,null,null);
+        return convertToEpisodeList(c);
     }
 
 

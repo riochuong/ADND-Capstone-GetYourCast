@@ -68,6 +68,7 @@ public class MainPodcastFragment extends Fragment {
                         case R.id.drawer_search:
                             break;
                         case R.id.drawer_downloads:
+                            getContext().startActivity(new Intent(this.getContext(), DownloadsActivity.class));
                             break;
                     }
                     item.setChecked(true);

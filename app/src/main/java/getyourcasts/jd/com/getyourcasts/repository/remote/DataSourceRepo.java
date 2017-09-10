@@ -125,4 +125,9 @@ public class DataSourceRepo implements   DataRepository {
     public boolean deletePodcast(String podcastId) {
         return localRepo.deletePodcast(podcastId);
     }
+
+    @Override
+    public List<Episode> getDownloadedEpisodes() {
+        return localRepo.getDownloadedEpisodes();
+    }
 }

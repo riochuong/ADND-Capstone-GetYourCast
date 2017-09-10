@@ -14,8 +14,10 @@ public final class Contract {
     static final String PATH_PODCAST_ID = "podcast/*";
     static final String PATH_EPISODES = "episode";
     static final String AUTHOR_PATH_ALL_EPISODES_OF_POCAST = "episode/podcast/*";
+    static final String AUTHOR_PATH_ALL_EPISODES_DOWNLOADED = "episode/downloaded";
     static final String AUTHOR_PATH_EPISODES_ID = "episode/id/*";
     static final String PATH_EPISODES_NEW_UPDATE = "newupdate";
+    static final String PATH_EPISODES_DOWNLOADED = "downloaded";
     static final String AUTHOR_EPISODES_NEW_UPDATE = "episode/newupdate";
     private static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
     private static final String ID_EP_PATH = "id";
@@ -47,13 +49,15 @@ public final class Contract {
 
 
     public static final class EpisodeTable implements BaseColumns {
-        public static final Uri URI_EPISODE_ID = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath(ID_EP_PATH)
+        static final Uri URI_EPISODE_ID = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath(ID_EP_PATH)
                 .build();
-        public static final Uri URI_OF_PODCAST = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
+        static final Uri URI_OF_PODCAST = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
                 (PATH_PODCAST).build();
-        public static final Uri URI_OF_NEW_UPDATES = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
+        static final Uri URI_OF_NEW_UPDATES = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
                 (PATH_EPISODES_NEW_UPDATE).build();
-        public static final String  ID = "_id";
+        static final Uri URI_OF_DOWNLOADED = BASE_URI.buildUpon().appendPath(PATH_EPISODES).appendPath
+                (PATH_EPISODES_DOWNLOADED).build();
+        static final String  ID = "_id";
         public static final String PODCAST_ID = "podcast_id";
         public static final String UNIQUE_ID = "unique_id";
         public static final String EPISODE_NAME = "episode_name";

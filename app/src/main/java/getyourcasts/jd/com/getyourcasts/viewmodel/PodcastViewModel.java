@@ -237,4 +237,12 @@ public class PodcastViewModel {
         ).subscribeOn(Schedulers.io());
     }
 
+    public Observable<List<Episode>> getDownloadedEpisodes() {
+        return Observable.defer (
+                () -> Observable.just (
+                        dataRepo.getDownloadedEpisodes()
+                )
+        ).subscribeOn(Schedulers.io());
+    }
+
 }
