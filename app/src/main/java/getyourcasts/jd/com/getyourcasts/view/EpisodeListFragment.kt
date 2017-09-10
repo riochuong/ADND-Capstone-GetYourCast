@@ -61,7 +61,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
         // register listener for when media service is bound
         if (mediaService == null) {
             (activity as EpisodeListActivity).registerMediaServiceBoundListenter( MediaServiceBoundListener {
-                mediaService = it;
+                mediaService = it
             })
         }
         return inflater.inflate(R.layout.fragment_episode_list, container, false)
