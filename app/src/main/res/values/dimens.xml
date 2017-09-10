@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="podcast_item_corner_radius">5dp</dimen>
     <dimen name="card_elevation">5dp</dimen>
@@ -46,4 +46,5 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="drawer_header_height">150dp</dimen>
     <dimen name="remove_ic_size">30dp</dimen>
     <dimen name="download_image_size">60dp</dimen>
+    <dimen name="design_navigation_icon_size" tools:override="true">40dp</dimen>
 </resources>

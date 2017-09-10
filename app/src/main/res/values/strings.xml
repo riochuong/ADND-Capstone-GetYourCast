@@ -33,4 +33,5 @@
     <string name="drawer_find_new_podcast_str">Find New Podcast</string>
     <string name="title_activity_downloads">DownloadsActivity</string>
     <string name="downloaded_eps_str">Downloaded Episodes</string>
+    <string name="all_podcast_str">ALL PODCASTS</string>
 </resources>

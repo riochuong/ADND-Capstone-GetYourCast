@@ -130,7 +130,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
                         // On next
                         {
                             // now we can update adapter
-                            if (it.size > 0){
+                            if (it.size > 0) {
                                 episodeAdapter.episodeList = it.toMutableList()
                                 episodeAdapter.notifyDataSetChanged()
                                 // now show the image

@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +46,7 @@ public class MainPodcastFragment extends Fragment {
     ImageView search_podcast_btn;
     NavigationView nv_drawer;
     DrawerLayout drawerLayout;
+    ImageView show_nv_pane_btn;
 
     @Nullable
     @Override
@@ -57,6 +59,8 @@ public class MainPodcastFragment extends Fragment {
         search_podcast_btn = (ImageView) root.findViewById(R.id.search_podcast_btn);
         nv_drawer = (NavigationView) root.findViewById(R.id.navigation_pane);
         drawerLayout = (DrawerLayout) root.findViewById(R.id.drawer_layout);
+        show_nv_pane_btn = (ImageView) root.findViewById(R.id.show_nv_pane_btn);
+
         if (nv_drawer != null) {setupDrawerListener();}
         return root;
     }
@@ -64,6 +68,7 @@ public class MainPodcastFragment extends Fragment {
     private void setupDrawerListener() {
         nv_drawer.setNavigationItemSelectedListener(
                 item -> {
+                    item.setChecked(false);
                     switch (item.getItemId()){
                         case R.id.drawer_playlist:
                             getContext().startActivity(new Intent(this.getContext(), MediaPlayerActivity.class));
@@ -75,9 +80,8 @@ public class MainPodcastFragment extends Fragment {
                             getContext().startActivity(new Intent(this.getContext(), DownloadsActivity.class));
                             break;
                     }
-                    item.setChecked(false);
                     drawerLayout.closeDrawers();
-                    return true;
+                    return false;
                 }
         );
     }
@@ -90,6 +94,16 @@ public class MainPodcastFragment extends Fragment {
         updateDataToAdapter();
         setSearchButtonOnClickListener();
         subscribeToPodcastSubject();
+        setOnClickListenerForShowingNvPane();
+
+    }
+
+    private void setOnClickListenerForShowingNvPane() {
+        show_nv_pane_btn.setOnClickListener(
+                view -> {
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+        );
     }
 
 
