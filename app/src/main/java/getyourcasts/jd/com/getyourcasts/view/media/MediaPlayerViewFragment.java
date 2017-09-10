@@ -166,6 +166,7 @@ public class MediaPlayerViewFragment extends Fragment {
                             reloadCorrectDataForFragment(info);
                         }
                         break;
+                    case MediaPlayBackService.MEDIA_ADDED_TO_PLAYLIST:
                     case MediaPlayBackService.MEDIA_TRACK_CHANGED:
                         reloadCorrectDataForFragment(info);
                         break;

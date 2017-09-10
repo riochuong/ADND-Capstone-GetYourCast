@@ -25,6 +25,8 @@ import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastMainViewAdapter;
+import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity;
+import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerViewFragment;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
@@ -64,8 +66,10 @@ public class MainPodcastFragment extends Fragment {
                 item -> {
                     switch (item.getItemId()){
                         case R.id.drawer_playlist:
+                            getContext().startActivity(new Intent(this.getContext(), MediaPlayerActivity.class));
                             break;
                         case R.id.drawer_search:
+                            getContext().startActivity(new Intent(this.getContext(), SearchNewPodcastActivity.class));
                             break;
                         case R.id.drawer_downloads:
                             getContext().startActivity(new Intent(this.getContext(), DownloadsActivity.class));
