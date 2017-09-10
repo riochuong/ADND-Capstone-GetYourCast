@@ -20,6 +20,7 @@ public class EpisodeState{
     public static final int FETCHED = 0;
     public static final int DOWNLOADING = 2;
     public static final int DOWNLOADED = 1;
+    public static final int DELETED = 1;
 
     public String getUniqueId() {
         return uniqueId;

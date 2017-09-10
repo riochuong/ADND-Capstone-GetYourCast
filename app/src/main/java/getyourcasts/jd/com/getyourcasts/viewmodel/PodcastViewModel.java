@@ -2,6 +2,7 @@ package getyourcasts.jd.com.getyourcasts.viewmodel;
 
 import android.content.ContentValues;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -140,16 +141,6 @@ public class PodcastViewModel {
         return res;
     }
 
-    //
-//    /*delete podcast and its episode */
-//    private fun unSubscribePodcast(pod: Podcast){
-//        //1. remove podcast from table and its image
-//
-//        //2. remove all episode and state files
-//
-//    }
-//
-//
     private Boolean subscribePodcast(Podcast pod) {
         // fetch rss feed
         Channel channelInfo = dataRepo.downloadFeed(pod.getFeedUrl());
@@ -166,14 +157,32 @@ public class PodcastViewModel {
                 .subscribeOn(Schedulers.io());
     }
 
-    //
-//
-//
+    /**
+     * return an observable for removing downloaded episode file from local storage
+     * and also change the database entry.
+     * @param ep
+     * @return
+     */
+    public Observable<Boolean> deleteDownloadedEpisode(Episode ep) {
+        return Observable.defer(
+                () -> Observable.just(removeDownloadedEpisode(ep))
+                .subscribeOn(Schedulers.io()));
+    }
+
+    private boolean removeDownloadedEpisode(Episode ep) {
+        // remove downloaded file
+        ContentValues cv = new ContentValues();
+        cv.put(Contract.EpisodeTable.DOWNLOADED, 0+"");
+        cv.put(Contract.EpisodeTable.LOCAL_URL, "");
+        File file = new File (ep.getLocalUrl());
+        if (file.exists()) {file.delete();}
+        return dataRepo.updateEpisode(cv,ep);
+    }
+
     public Observable<Channel> getChannelFeedObservable(String feedUrl) {
         return Observable.defer(() -> Observable.just(dataRepo.downloadFeed(feedUrl)))
                 .subscribeOn(Schedulers.computation());
     }
-//
 
     public Observable<Podcast> getPodcastObservable(String podcastId) {
         return Observable.defer(

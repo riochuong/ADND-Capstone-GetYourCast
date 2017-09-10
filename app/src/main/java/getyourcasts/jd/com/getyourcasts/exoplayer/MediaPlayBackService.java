@@ -43,6 +43,7 @@ import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
+import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import getyourcasts.jd.com.getyourcasts.widget.GetYourCastWidgetProvider;
@@ -246,6 +247,40 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (!initialized) {
+            // subscribe to EpisodeState
+            PodcastViewModel.subscribeEpisodeSubject(new Observer<EpisodeState>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+
+                }
+
+                @Override
+                public void onNext(EpisodeState episodeState) {
+                        switch(episodeState.getState()){
+                            case EpisodeState.DELETED:
+                                for (Episode ep : playList) {
+                                    if (ep.getUniqueId().equals(episodeState.getUniqueId())) {
+                                        MediaPlayBackService.publishMediaPlaybackSubject(ep,
+                                                MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
+                                        saveMediaPlaylist();
+                                        break;
+                                    }
+                                }
+                        }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+
+                @Override
+                public void onComplete() {
+
+                }
+            });
+
+
             // subscribe to Podcast to remove episode of unsubscribed one
             PodcastViewModel.subscribePodcastSubject(
                     new Observer<PodcastState>() {
@@ -259,8 +294,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                                 switch (podcastState.getState()){
                                     case PodcastState.UNSUBSCRIBED:
                                         // check if current episode is belong to this unsubscribed one
-                                        for (Iterator<Episode> iter = playList.iterator(); iter.hasNext();){
-                                            Episode ep = iter.next();
+                                        for (Episode ep : playList) {
                                             if (ep.getPodcastId().equals(podcastState.getUniqueId())) {
                                                 MediaPlayBackService.publishMediaPlaybackSubject(ep,
                                                         MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);

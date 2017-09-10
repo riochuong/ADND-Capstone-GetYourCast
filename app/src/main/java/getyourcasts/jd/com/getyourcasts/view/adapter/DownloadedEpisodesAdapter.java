@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +17,11 @@ import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.view.DownloadsFragment;
 import getyourcasts.jd.com.getyourcasts.view.EpisodeInfoActivity;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
+import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -34,9 +37,11 @@ public class DownloadedEpisodesAdapter extends RecyclerView.Adapter<DownloadedEp
     DownloadsFragment fragment;
     PodcastViewModel viewModel;
 
-    public static final  String EPISODE_KEY = "episode";
-    public static final String BG_COLOR_KEY = "bg_color";
-    public static final String PODAST_IMG_KEY = "podcast_img";
+    private static final String TAG = DownloadedEpisodesAdapter.class.getSimpleName();
+
+    private static final  String EPISODE_KEY = "episode";
+    private static final String BG_COLOR_KEY = "bg_color";
+    private static final String PODAST_IMG_KEY = "podcast_img";
 
     public DownloadedEpisodesAdapter(List<Episode> episodeList, DownloadsFragment fragment) {
         this.episodeList = episodeList;
@@ -65,9 +70,34 @@ public class DownloadedEpisodesAdapter extends RecyclerView.Adapter<DownloadedEp
                     view -> {
                          episodeList.remove(holder.getAdapterPosition());
                          notifyItemRemoved(holder.getAdapterPosition());
+                         viewModel.deleteDownloadedEpisode(ep)
+                                 .observeOn(AndroidSchedulers.mainThread())
+                                 .subscribe(new Observer<Boolean>() {
+                                     @Override
+                                     public void onSubscribe(Disposable d) {
+
+                                     }
+
+                                     @Override
+                                     public void onNext(Boolean res) {
+                                         PodcastViewModel.updateEpisodeSubject(new EpisodeState(ep.getUniqueId(),
+                                                 EpisodeState.DELETED,0));
+                                        Log.d(TAG,"Successfully remove downloaded episode "+ep.getTitle());
+                                     }
+
+                                     @Override
+                                     public void onError(Throwable e) {
+                                            e.printStackTrace();
+                                     }
+
+                                     @Override
+                                     public void onComplete() {
+
+                                     }
+                                 });
                     }
             );
-
+            // get podcast from db to load image
             viewModel.getPodcastObservable(ep.getPodcastId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

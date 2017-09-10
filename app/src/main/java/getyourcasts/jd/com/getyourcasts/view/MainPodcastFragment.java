@@ -71,7 +71,7 @@ public class MainPodcastFragment extends Fragment {
                             getContext().startActivity(new Intent(this.getContext(), DownloadsActivity.class));
                             break;
                     }
-                    item.setChecked(true);
+                    item.setChecked(false);
                     drawerLayout.closeDrawers();
                     return true;
                 }
