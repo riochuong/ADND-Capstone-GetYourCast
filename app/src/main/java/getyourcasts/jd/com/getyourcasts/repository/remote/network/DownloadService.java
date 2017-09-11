@@ -23,6 +23,7 @@ import getyourcasts.jd.com.getyourcasts.repository.local.Contract;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
+import getyourcasts.jd.com.getyourcasts.view.ErrorDialogActivity;
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener;
 import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
@@ -234,6 +235,15 @@ public class DownloadService extends Service {
                           String url,
                           String dirPath ,
                           String filename ){
+        if (! NetworkHelper.isConnectedToNetwork(this)) {
+            PodcastViewModel.updateEpisodeSubject(
+                    new EpisodeState(episode.getUniqueId(), EpisodeState.FETCHED, -1));
+            Intent errorDialog = new Intent(this, ErrorDialogActivity.class);
+            errorDialog.putExtra(ErrorDialogActivity.MESSAGE_KEY, this.getString(R.string.network_connection_error));
+            this.startActivity(errorDialog);
+            return -1L;
+        }
+
         if (fetcher.isValid()) {
             Request req = new Request(url, dirPath, filename);
             // remove duplicate filename in the db

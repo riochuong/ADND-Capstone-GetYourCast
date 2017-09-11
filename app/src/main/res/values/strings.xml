@@ -35,4 +35,6 @@
     <string name="downloaded_eps_str">Downloaded Episodes</string>
     <string name="all_podcast_str">ALL PODCASTS</string>
     <string name="download_cancelled">Download Cancelled</string>
+    <string name="ok_string">OK</string>
+    <string name="network_connection_error">No Network Connection !!</string>
 </resources>

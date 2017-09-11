@@ -12,6 +12,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -83,12 +84,11 @@ public class PodcastViewModel {
 
 
     public Observable<List<Podcast>> getPodcastSearchObservable(String term) {
+
         return Observable.defer(() -> Observable.just(dataRepo.searchPodcast(term)))
                 .flatMapIterable(podcasts -> podcasts)
                 .filter(podcast -> podcast.getTrackCount() > 0)
                 .toList().toObservable().subscribeOn(Schedulers.io());
-
-
     }
 
     public Observable<Boolean> getSubscribeObservable(Podcast pod) {

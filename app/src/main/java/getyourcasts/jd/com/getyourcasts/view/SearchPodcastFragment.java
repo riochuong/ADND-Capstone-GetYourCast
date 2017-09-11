@@ -1,6 +1,8 @@
 package getyourcasts.jd.com.getyourcasts.view;
 
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,6 +25,7 @@ import java.util.Observable;
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper;
 import getyourcasts.jd.com.getyourcasts.view.adapter.SearchPodcastRecyclerViewAdapter;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
@@ -61,43 +64,47 @@ public class SearchPodcastFragment extends Fragment {
         recyclerView.setAdapter(searchAdapter);
 
         // SEARCH SUMISSION
-        search_term_text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    // search for podcast here
-                    startLoadingAnim();
-                    String searchTerm = search_term_text.getText().toString();
-                    io.reactivex.Observable<List<Podcast>> searchObsrv = searchViewModel.getPodcastSearchObservable(searchTerm);
-                    searchObsrv.observeOn(AndroidSchedulers.mainThread()).subscribe(
-                            // OnNext
-                            new Observer<List<Podcast>>() {
-                                @Override
-                                public void onSubscribe(Disposable d) {
-
-                                }
-
-                                @Override
-                                public void onNext(List<Podcast> podcastList) {
-                                    updatePodcastList(podcastList);
-                                    stopLoadingAnim();
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    e.printStackTrace();
-                                }
-
-                                @Override
-                                public void onComplete() {
-
-                                }
-                            }
-                    );
-                    return true;
+        search_term_text.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (! NetworkHelper.isConnectedToNetwork(getContext())){
+                    Intent showerror = new Intent(getContext(), ErrorDialogActivity.class);
+                    showerror.putExtra(ErrorDialogActivity.MESSAGE_KEY, getContext().getString(R.string
+                            .network_connection_error));
+                    getContext().startActivity(showerror);
+                    return false;
                 }
-                return false;
+                // search for podcast here
+                startLoadingAnim();
+                String searchTerm = search_term_text.getText().toString();
+                io.reactivex.Observable<List<Podcast>> searchObsrv = searchViewModel.getPodcastSearchObservable(searchTerm);
+                searchObsrv.observeOn(AndroidSchedulers.mainThread()).subscribe(
+                        // OnNext
+                        new Observer<List<Podcast>>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onNext(List<Podcast> podcastList) {
+                                updatePodcastList(podcastList);
+                                stopLoadingAnim();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        }
+                );
+                return true;
             }
+            return false;
         });
     }
 

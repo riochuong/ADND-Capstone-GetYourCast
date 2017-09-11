@@ -1,10 +1,16 @@
 package getyourcasts.jd.com.getyourcasts.repository.remote.network;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 
 import java.net.URL;
 
+import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedResponse;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.ItuneResponse;
 import okhttp3.OkHttpClient;
@@ -98,4 +104,16 @@ public class NetworkHelper {
         }
         return null;
     }
+
+    public static boolean isConnectedToNetwork(Context ctx) {
+        ConnectivityManager cm =
+                (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = null;
+        if (cm != null) {
+            networkInfo = cm.getActiveNetworkInfo();
+        }
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+
 }

@@ -33,7 +33,7 @@ public class RemoteDataRepository implements DataRepository {
     /**
      * getter for data instance
      */
-    public static RemoteDataRepository getDataInstance() {
+    static RemoteDataRepository getDataInstance() {
         if (instance == null) {
             instance =  new RemoteDataRepository();
         }
