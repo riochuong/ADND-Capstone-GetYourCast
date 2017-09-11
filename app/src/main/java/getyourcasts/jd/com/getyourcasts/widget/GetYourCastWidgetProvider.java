@@ -73,7 +73,7 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
 
         // use glide to load image resource into imageview
         if (widgetImgSrc != null && changeImg){
-             GlideApp.with(context)
+            GlideApp.with(context)
                      .asBitmap()
                     .load(widgetImgSrc)
                      .into(new SimpleTarget<Bitmap>() {

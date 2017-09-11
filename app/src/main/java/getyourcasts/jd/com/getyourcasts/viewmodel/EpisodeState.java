@@ -1,7 +1,5 @@
 package getyourcasts.jd.com.getyourcasts.viewmodel;
 
-import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
-
 /**
  * Created by chuondao on 8/10/17.
  */

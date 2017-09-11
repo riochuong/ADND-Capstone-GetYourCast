@@ -22,6 +22,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
+import getyourcasts.jd.com.getyourcasts.view.glide.GlideAppModule;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
 import getyourcasts.jd.com.getyourcasts.view.media.PlaybackControlsFragment;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;

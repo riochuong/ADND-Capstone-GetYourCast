@@ -7,11 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,14 +17,9 @@ import java.util.Map;
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
-import getyourcasts.jd.com.getyourcasts.view.EpisodeInfoActivity;
 import getyourcasts.jd.com.getyourcasts.view.EpisodeListActivity;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
 
-import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.BG_COLOR_KEY;
-import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.EPISODE_KEY;
-import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.IS_DOWNLOADING;
-import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.PODAST_IMG_KEY;
 import static getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.PODCAST_KEY;
 
 /**

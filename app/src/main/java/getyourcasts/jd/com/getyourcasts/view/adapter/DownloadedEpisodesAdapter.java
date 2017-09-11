@@ -1,6 +1,5 @@
 package getyourcasts.jd.com.getyourcasts.view.adapter;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +16,6 @@ import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
-import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.view.DownloadsFragment;
 import getyourcasts.jd.com.getyourcasts.view.EpisodeInfoActivity;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
