@@ -360,10 +360,10 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                     resumePlayback();
                     break;
                 case WIDGET_ACTION_NEXT:
-                    playMediaFileAtIndex(getNextMediaFile());
+                    playNextSongInPlaylist();
                     break;
                 case WIDGET_ACTION_PREV:
-                    playMediaFileAtIndex(getPrevMediaFile());
+                    playPreviousSongInPlaylist();
                     break;
             }
 
@@ -565,6 +565,14 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             mediaSessionConn.mediaSession.setActive(false);
         }
 
+    }
+
+    public synchronized void playNextSongInPlaylist() {
+        playMediaFileAtIndex(getNextMediaFile());
+    }
+
+    public synchronized void playPreviousSongInPlaylist() {
+        playMediaFileAtIndex(getPrevMediaFile());
     }
 
     public synchronized void pausePlayback() {

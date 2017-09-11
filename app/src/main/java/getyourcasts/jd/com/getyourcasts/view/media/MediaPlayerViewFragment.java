@@ -14,11 +14,13 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import butterknife.BindView;
@@ -52,6 +54,10 @@ public class MediaPlayerViewFragment extends Fragment {
     private boolean isVideo = false;
     private TextView episodeTitle;
     TextView emptyView;
+    ImageView close_icon;
+    PlaybackControlView controlView;
+    ImageButton mediaNextBtn;
+    ImageButton mediaPrevBtn;
 
     /* Keys for saving bundle state */
     private static final String PODCAST_ID_KEY  = "podcast_id_key";
@@ -119,6 +125,15 @@ public class MediaPlayerViewFragment extends Fragment {
         else{ // IN PORTRAIT MODE && not landscape video
             root = inflater.inflate(R.layout.fragment_media_player_view_vertical, container, false);
             playerView = (SimpleExoPlayerView) root.findViewById(R.id.simple_exo_video_view);
+            close_icon = (ImageView) root.findViewById(R.id.close_icon);
+            // set X icon to go back to previous screen
+            if (close_icon != null) {
+                close_icon.setOnClickListener(
+                        view -> {
+                            getActivity().onBackPressed();
+                        }
+                );
+            }
         }
 
         // find common features
@@ -128,6 +143,9 @@ public class MediaPlayerViewFragment extends Fragment {
         exoShutter = (ImageView) playerView.findViewById(R.id.exo_shutter);
         episodeTitle = (TextView) playerView.findViewById(R.id.media_player_view_episode_title);
         emptyView =(TextView) root.findViewById(R.id.media_player_empty_view);
+        controlView = (PlaybackControlView) playerView.findViewById(R.id.exo_controller);
+        mediaNextBtn = (ImageButton) controlView.findViewById(R.id.playback_exo_next);
+        mediaPrevBtn = (ImageButton) controlView.findViewById(R.id.playback_exo_prev);
         // set this to enable text marquee
         if (episodeTitle != null) {episodeTitle.setSelected(true);}
 
@@ -142,6 +160,22 @@ public class MediaPlayerViewFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // set on click listener for the custom next / prev btn
+        mediaNextBtn.setOnClickListener(
+                nextView -> {
+                     if (mediaService != null && boundToMediaService){
+                         mediaService.playNextSongInPlaylist();
+                     }
+                }
+        );
+
+        mediaPrevBtn.setOnClickListener(
+                prevView ->{
+                        if(mediaService != null && boundToMediaService){
+                            mediaService.playPreviousSongInPlaylist();
+                        }
+                }
+        );
     }
 
     private void initMediaServiceSubscribe() {
