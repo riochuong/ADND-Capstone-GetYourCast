@@ -19,6 +19,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
+import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -64,6 +65,11 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
         broadcastNext.setAction(WIDGET_NEXT_ACTION_PROVIDER);
         Intent broadcastPrev = new Intent(context, GetYourCastWidgetProvider.class);
         broadcastPrev.setAction(WIDGET_PREVIOUS_ACTION_PROVIDER);
+        views.setOnClickPendingIntent(R.id.widget_img,
+                PendingIntent.getActivity(context,WIDGET_REQ_CODE,
+                        new Intent(context, MediaPlayerActivity.class)
+                        ,PendingIntent.FLAG_CANCEL_CURRENT));
+
         views.setOnClickPendingIntent(R.id.widget_next_btn,
                 PendingIntent.getBroadcast(context, WIDGET_REQ_CODE,
                         broadcastNext, PendingIntent.FLAG_UPDATE_CURRENT));
