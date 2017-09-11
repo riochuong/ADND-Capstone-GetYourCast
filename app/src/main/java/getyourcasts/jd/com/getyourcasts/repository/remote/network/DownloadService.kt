@@ -104,7 +104,13 @@ class DownloadService : Service() {
         registerListener(
                 object: EpisodeDownloadListener(transId) {
                     override fun onStop() {
-                        TODO("not implemented")
+                        PodcastViewModel.updateEpisodeSubject(
+                                EpisodeState(ep.uniqueId,
+                                                EpisodeState.FETCHED,
+                                                transId))
+                        notiBuilder.setProgress(0,0,false)
+                        notiBuilder.setContentText(getString(R.string.download_cancelled))
+                        notifyManager.notify(notiId, notiBuilder.build())
                     }
 
                     override fun onProgressUpdate(progress: Int) {
@@ -112,8 +118,8 @@ class DownloadService : Service() {
                         notifyManager.notify(notiId, notiBuilder.build())
                         PodcastViewModel.updateEpisodeSubject(
                                 EpisodeState(ep.uniqueId,
-                                                              EpisodeState.DOWNLOADING,
-                                                              transId.toLong()))
+                                            EpisodeState.DOWNLOADING,
+                                            transId))
                     }
 
                     override fun onComplete() {
@@ -199,8 +205,7 @@ class DownloadService : Service() {
 
             // notify other views to change status
             PodcastViewModel.updateEpisodeSubject(
-                    EpisodeState(episode.uniqueId, EpisodeState.DOWNLOADING, id
-                            .toLong()))
+                    EpisodeState(episode.uniqueId, EpisodeState.DOWNLOADING, id))
 
             return id
         }
@@ -227,7 +232,8 @@ class DownloadService : Service() {
 
     fun requestStopDownload(transId: Long) {
         if (fetcher.isValid) {
-            fetcher.remove(transId)
+            fetcher.pause(transId)
+            fetcher.removeRequest(transId)
         }
     }
 }

@@ -2,6 +2,7 @@ package getyourcasts.jd.com.getyourcasts.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Pair;
 import android.util.Log;
 
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -27,7 +28,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import kotlin.Pair;
+
 
 /**
  * Created by chuondao on 8/9/17.

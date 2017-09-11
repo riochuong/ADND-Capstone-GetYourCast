@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.lzyzsd.circleprogress.CircleProgress;
-import com.tonyodev.fetch.Fetch;
-import com.tonyodev.fetch.listener.FetchListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +35,6 @@ import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import kotlin.Pair;
 
 /**
  * Created by chuondao on 8/14/17.
@@ -54,6 +52,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     public static final String TAG = EpisodesRecyclerViewAdapter.class.getSimpleName();
     public static final String PODCAST_KEY = "podcast_key";
     public static final String IS_DOWNLOADING = "item_key";
+    public static final String DL_TRANS_ID = "dl_trans_id";
     public static final String BG_COLOR_KEY = "bg_color";
     public static final String PODAST_IMG_KEY = "podcast_img";
     public static final  String EPISODE_KEY = "episode";
@@ -155,6 +154,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                     intent.putExtra(EPISODE_KEY, ep);
                     intent.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
                     intent.putExtra(IS_DOWNLOADING, downloadItemMaps.containsKey(ep.getEpisodeUniqueKey()));
+                    intent.putExtra(DL_TRANS_ID, vh.transId);
                     ctx.startActivity(intent);
                 });
 
@@ -173,7 +173,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                 if (epState.getUniqueId().equals(ep.getEpisodeUniqueKey())) {
                     Pair<String, String> paths = StorageUtil.getPathToStoreEp(ep, fragment.getActivity()
                             .getApplicationContext());
-                    String fullUrl = paths.getFirst()+"/"+paths.getSecond();
+                    String fullUrl = paths.first+"/"+paths.second;
 
                     switch(epState.getState()) {
                         case EpisodeState.DOWNLOADING:
@@ -194,6 +194,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                         case EpisodeState.FETCHED:
                             if (downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
                                 EpisodesRecyclerViewAdapter.this.updateItemData(ep, itemPos);
+                                downloadItemMaps.remove(ep.getEpisodeUniqueKey());
                             }
                             break;
 
@@ -353,7 +354,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         Pair <String, String> pathItems = StorageUtil.getPathToStoreEp(episode, fragment.getActivity().getApplicationContext());
         // TODO :detect duplicate here to avoid crash
         if (url != null) {
-            long transactionId = fragment.requestDownload(episode, url, pathItems.getFirst(), pathItems.getSecond());
+            long transactionId = fragment.requestDownload(episode, url, pathItems.first, pathItems.second);
             vh.transId = transactionId;
             if (transactionId < 0) {
                 // TODO : Show some error here
