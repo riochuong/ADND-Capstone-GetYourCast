@@ -25,6 +25,7 @@ import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper;
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector;
@@ -139,6 +140,10 @@ public class PodcastDetailsFragment  extends Fragment{
         // enable subscribe button
         subscribe_button.setOnClickListener(
                 viewItem -> {
+                    if (!NetworkHelper.isConnectedToNetwork(getContext())){
+                        NetworkHelper.showNetworkErrorDialog(getContext());
+                        return;
+                    }
                     if (!subscribed){
                         // no suscription yet need to subscribed
                         // download image icon

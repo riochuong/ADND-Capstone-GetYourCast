@@ -238,9 +238,7 @@ public class DownloadService extends Service {
         if (! NetworkHelper.isConnectedToNetwork(this)) {
             PodcastViewModel.updateEpisodeSubject(
                     new EpisodeState(episode.getUniqueId(), EpisodeState.FETCHED, -1));
-            Intent errorDialog = new Intent(this, ErrorDialogActivity.class);
-            errorDialog.putExtra(ErrorDialogActivity.MESSAGE_KEY, this.getString(R.string.network_connection_error));
-            this.startActivity(errorDialog);
+            NetworkHelper.showNetworkErrorDialog(this);
             return -1L;
         }
 

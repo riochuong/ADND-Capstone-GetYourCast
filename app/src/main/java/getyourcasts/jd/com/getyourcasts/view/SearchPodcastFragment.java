@@ -67,10 +67,7 @@ public class SearchPodcastFragment extends Fragment {
         search_term_text.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 if (! NetworkHelper.isConnectedToNetwork(getContext())){
-                    Intent showerror = new Intent(getContext(), ErrorDialogActivity.class);
-                    showerror.putExtra(ErrorDialogActivity.MESSAGE_KEY, getContext().getString(R.string
-                            .network_connection_error));
-                    getContext().startActivity(showerror);
+                    NetworkHelper.showNetworkErrorDialog(getContext());
                     return false;
                 }
                 // search for podcast here

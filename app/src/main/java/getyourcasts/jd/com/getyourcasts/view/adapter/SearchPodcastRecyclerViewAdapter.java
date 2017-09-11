@@ -16,6 +16,7 @@ import java.util.List;
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper;
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 import getyourcasts.jd.com.getyourcasts.view.PodcastDetailsActivity;
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment;
@@ -166,6 +167,10 @@ public class SearchPodcastRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
         // set onclick listener for download image locally and insert podcast to db
         podcastVh.downloadedView.setOnClickListener(
                 view ->{
+                    if (! NetworkHelper.isConnectedToNetwork(SearchPodcastRecyclerViewAdapter.this.ctx)) {
+                        NetworkHelper.showNetworkErrorDialog(ctx);
+                        return;
+                    }
                     viewModel.getSubscribeObservable(podcast)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Observer<Boolean>() {

@@ -2,6 +2,7 @@ package getyourcasts.jd.com.getyourcasts.repository.remote.network;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -13,6 +14,7 @@ import java.net.URL;
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.FeedResponse;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.ItuneResponse;
+import getyourcasts.jd.com.getyourcasts.view.ErrorDialogActivity;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -115,5 +117,10 @@ public class NetworkHelper {
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
-
+    public static void showNetworkErrorDialog(Context ctx) {
+        Intent showerror = new Intent(ctx, ErrorDialogActivity.class);
+        showerror.putExtra(ErrorDialogActivity.MESSAGE_KEY, ctx.getString(R.string
+                .network_connection_error));
+        ctx.startActivity(showerror);
+    }
 }
