@@ -60,40 +60,46 @@ public class DownloadedEpisodesAdapter extends RecyclerView.Adapter<DownloadedEp
     }
 
     @Override
-    public void onBindViewHolder(DownloadedEpViewHolder holder, int position) {
-            Episode ep = episodeList.get(position);
+    public void onBindViewHolder(final DownloadedEpViewHolder holder, int position) {
+            final Episode ep = episodeList.get(position);
             holder.epTitle.setText(ep.getTitle());
             // remove item from list
             holder.removeImg.setOnClickListener(
-                    view -> {
-                         episodeList.remove(holder.getAdapterPosition());
-                         notifyItemRemoved(holder.getAdapterPosition());
-                         viewModel.deleteDownloadedEpisode(ep)
-                                 .observeOn(AndroidSchedulers.mainThread())
-                                 .subscribe(new Observer<Boolean>() {
-                                     @Override
-                                     public void onSubscribe(Disposable d) {
 
-                                     }
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            episodeList.remove(holder.getAdapterPosition());
+                            notifyItemRemoved(holder.getAdapterPosition());
+                            viewModel.deleteDownloadedEpisode(ep)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new Observer<Boolean>() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
 
-                                     @Override
-                                     public void onNext(Boolean res) {
-                                         PodcastViewModel.updateEpisodeSubject(new EpisodeState(ep.getUniqueId(),
-                                                 EpisodeState.DELETED,0));
-                                        Log.d(TAG,"Successfully remove downloaded episode "+ep.getTitle());
-                                     }
+                                        }
 
-                                     @Override
-                                     public void onError(Throwable e) {
+                                        @Override
+                                        public void onNext(Boolean res) {
+                                            PodcastViewModel.updateEpisodeSubject(new EpisodeState(ep.getUniqueId(),
+                                                    EpisodeState.DELETED, 0));
+                                            Log.d(TAG, "Successfully remove downloaded episode " + ep.getTitle());
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
                                             e.printStackTrace();
-                                     }
+                                        }
 
-                                     @Override
-                                     public void onComplete() {
+                                        @Override
+                                        public void onComplete() {
 
-                                     }
-                                 });
+                                        }
+                                    });
+                        }
                     }
+
+
             );
             // get podcast from db to load image
             viewModel.getPodcastObservable(ep.getPodcastId())
@@ -106,22 +112,28 @@ public class DownloadedEpisodesAdapter extends RecyclerView.Adapter<DownloadedEp
                             }
 
                             @Override
-                            public void onNext(Podcast podcast) {
+                            public void onNext(final Podcast podcast) {
                                 // now load image to imgview
                                 GlideApp.with(DownloadedEpisodesAdapter.this.fragment.getContext())
                                         .load(podcast.getImgLocalPath())
                                         .into(holder.podImg);
                                 holder.mainLayout.setOnClickListener(
-                                        view -> {
-                                            // start episode info details layout.
-                                            Intent startEpInfo = new Intent(fragment.getContext(),
-                                                    EpisodeInfoActivity.class);
-                                            startEpInfo.putExtra(EPISODE_KEY, ep);
-                                            startEpInfo.putExtra(BG_COLOR_KEY, Integer.parseInt(podcast
-                                                    .getVibrantColor()));
-                                            startEpInfo.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
-                                            fragment.getContext().startActivity(startEpInfo);
+
+                                        new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                // start episode info details layout.
+                                                Intent startEpInfo = new Intent(fragment.getContext(),
+                                                        EpisodeInfoActivity.class);
+                                                startEpInfo.putExtra(EPISODE_KEY, ep);
+                                                startEpInfo.putExtra(BG_COLOR_KEY, Integer.parseInt(podcast
+                                                        .getVibrantColor()));
+                                                startEpInfo.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
+                                                fragment.getContext().startActivity(startEpInfo);
+                                            }
                                         }
+
+
                                 );
                             }
 

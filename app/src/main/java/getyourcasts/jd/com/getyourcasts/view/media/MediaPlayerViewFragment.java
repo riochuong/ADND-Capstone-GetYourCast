@@ -129,8 +129,11 @@ public class MediaPlayerViewFragment extends Fragment {
             // set X icon to go back to previous screen
             if (close_icon != null) {
                 close_icon.setOnClickListener(
-                        view -> {
-                            getActivity().onBackPressed();
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                getActivity().onBackPressed();
+                            }
                         }
                 );
             }
@@ -162,18 +165,26 @@ public class MediaPlayerViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         // set on click listener for the custom next / prev btn
         mediaNextBtn.setOnClickListener(
-                nextView -> {
-                     if (mediaService != null && boundToMediaService){
-                         mediaService.playNextSongInPlaylist();
-                     }
+
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mediaService != null && boundToMediaService) {
+                            mediaService.playNextSongInPlaylist();
+                        }
+                    }
                 }
         );
 
         mediaPrevBtn.setOnClickListener(
-                prevView ->{
-                        if(mediaService != null && boundToMediaService){
+
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mediaService != null && boundToMediaService) {
                             mediaService.playPreviousSongInPlaylist();
                         }
+                    }
                 }
         );
     }
@@ -255,7 +266,7 @@ public class MediaPlayerViewFragment extends Fragment {
 
 
 
-    private void loadImgViewForPodcast (String podcastId, boolean isVideo) {
+    private void loadImgViewForPodcast (String podcastId, final boolean isVideo) {
         try {
             viewModel.getPodcastObservable(podcastId)
                     .observeOn(AndroidSchedulers.mainThread())

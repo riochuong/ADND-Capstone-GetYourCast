@@ -64,9 +64,9 @@ public class SearchPodcastRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Podcast podcast = podcastList.get(position);
-        PodcastItemViewHolder podcastVh = (PodcastItemViewHolder) holder;
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+        final Podcast podcast = podcastList.get(position);
+        final PodcastItemViewHolder podcastVh = (PodcastItemViewHolder) holder;
         podcastVh.author.setText(podcast.getArtistName());
         podcastVh.title.setText(podcast.getCollectionName());
         // need glide to load the image here
@@ -213,7 +213,7 @@ public class SearchPodcastRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
         return podcastList.size();
     }
 
-    private void subscribeToPodcastUpdate(String podcastId , int pos) {
+    private void subscribeToPodcastUpdate(final String podcastId , final int pos) {
         PodcastViewModel.subscribePodcastSubject(
                 new Observer<PodcastState>() {
                     @Override

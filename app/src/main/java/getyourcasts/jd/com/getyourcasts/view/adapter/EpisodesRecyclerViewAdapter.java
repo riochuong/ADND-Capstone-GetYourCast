@@ -142,26 +142,30 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     }
 
 
-    private void setOnClickListenerForEpisodeInfo(EpisodeItemViewHolder vh,
-                                                  Episode ep,
+    private void setOnClickListenerForEpisodeInfo(final EpisodeItemViewHolder vh,
+                                                  final Episode ep,
                                                  int itemPos
     ) {
         subscribeToEpisodeSyncSubject(ep, vh, itemPos);
         vh.mainLayout.setOnClickListener(
-                v -> {
-                    Intent intent = new Intent(ctx, EpisodeInfoActivity.class);
-                    intent.putExtra(BG_COLOR_KEY, bgColor);
-                    intent.putExtra(EPISODE_KEY, ep);
-                    intent.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
-                    intent.putExtra(IS_DOWNLOADING, downloadItemMaps.containsKey(ep.getEpisodeUniqueKey()));
-                    intent.putExtra(DL_TRANS_ID, vh.transId);
-                    ctx.startActivity(intent);
+
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(ctx, EpisodeInfoActivity.class);
+                        intent.putExtra(BG_COLOR_KEY, bgColor);
+                        intent.putExtra(EPISODE_KEY, ep);
+                        intent.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
+                        intent.putExtra(IS_DOWNLOADING, downloadItemMaps.containsKey(ep.getEpisodeUniqueKey()));
+                        intent.putExtra(DL_TRANS_ID, vh.transId);
+                        ctx.startActivity(intent);
+                    }
                 });
 
     }
 
 
-    private void subscribeToEpisodeSyncSubject(Episode ep, EpisodeItemViewHolder vh, int itemPos) {
+    private void subscribeToEpisodeSyncSubject(final Episode ep, final EpisodeItemViewHolder vh, final int itemPos) {
         PodcastViewModel.subscribeEpisodeSubject(new Observer<EpisodeState>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -241,9 +245,9 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     /**
      * Set viewholder logic for pressing download button or play
      */
-    private void setViewHolderOnClickListener(EpisodeItemViewHolder vh,
-                                              Episode episode,
-                                              int pos) {
+    private void setViewHolderOnClickListener(final EpisodeItemViewHolder vh,
+                                              final Episode episode,
+                                              final int pos) {
         if (episode.getDownloaded() == 1) {
             vh.state = ButtonStateUtil.PRESS_TO_PLAY;
             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
@@ -301,42 +305,46 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         });
 
         vh.downPlayImg.setOnClickListener(
-                v -> {
-                    switch (vh.state) {
-                        case ButtonStateUtil.PRESS_TO_DOWNLOAD:
-                            // check if episode is already state or not
-                            // bind download service
-                            vh.state = ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD;
-                            startDownloadEpisodeFile(episode, vh, pos);
-                            break;
 
-                        case ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD:
-                            if (vh.transId != -1){
-                                fragment.requestStopDownload(vh.transId);
-                                hideProgressView(vh);
-                            }
-                            vh.state = ButtonStateUtil.PRESS_TO_DOWNLOAD;
-                            break;
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        switch (vh.state) {
+                            case ButtonStateUtil.PRESS_TO_DOWNLOAD:
+                                // check if episode is already state or not
+                                // bind download service
+                                vh.state = ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD;
+                                startDownloadEpisodeFile(episode, vh, pos);
+                                break;
 
-                        case ButtonStateUtil.PRESS_TO_PLAY:
-                            // limited to downloaded episode only for now
-                            vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
-                            this.fragment.requestToPlaySong(episode);
-                            vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
-                            break;
+                            case ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD:
+                                if (vh.transId != -1) {
+                                    fragment.requestStopDownload(vh.transId);
+                                    hideProgressView(vh);
+                                }
+                                vh.state = ButtonStateUtil.PRESS_TO_DOWNLOAD;
+                                break;
 
-                        case ButtonStateUtil.PRESS_TO_PAUSE:
-                           vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE;
-                           vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
-                           this.fragment.requestToPause();
-                           break;
+                            case ButtonStateUtil.PRESS_TO_PLAY:
+                                // limited to downloaded episode only for now
+                                vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
+                                EpisodesRecyclerViewAdapter.this.fragment.requestToPlaySong(episode);
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
+                                break;
 
-                        case ButtonStateUtil.PRESS_TO_UNPAUSE:
-                            vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
-                            vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
-                            this.fragment.requestToResume();
-                            break;
+                            case ButtonStateUtil.PRESS_TO_PAUSE:
+                                vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE;
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
+                                EpisodesRecyclerViewAdapter.this.fragment.requestToPause();
+                                break;
 
+                            case ButtonStateUtil.PRESS_TO_UNPAUSE:
+                                vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
+                                EpisodesRecyclerViewAdapter.this.fragment.requestToResume();
+                                break;
+
+                        }
                     }
                 }
         );
@@ -365,8 +373,8 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
 
 
     private EpisodeDownloadListener getListenerForDownload(Long transactionId,
-                                                           EpisodeItemViewHolder vh,
-                                                           Episode episode
+                                                           final EpisodeItemViewHolder vh,
+                                                           final Episode episode
     )
 
     {
@@ -401,7 +409,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
 
 
 
-    private void updateItemData(Episode ep, int pos) {
+    private void updateItemData(Episode ep,  final int pos) {
         viewModel.getEpisodeObsevable(ep)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Episode>() {
