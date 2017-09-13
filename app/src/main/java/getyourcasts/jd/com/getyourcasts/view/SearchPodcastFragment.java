@@ -2,6 +2,7 @@ package getyourcasts.jd.com.getyourcasts.view;
 
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -73,9 +74,11 @@ public class SearchPodcastFragment extends Fragment {
         setupRecyclerView();
         // restored search adapter instances
         if (savedInstanceState != null ){
-            Podcast [] savedPodcastArr = (Podcast[]) savedInstanceState.getParcelableArray(SEARCH_RESULT_LIST);
-            if (savedPodcastArr != null){
-                updatePodcastList(Arrays.asList(savedPodcastArr));
+            Parcelable[] savedPodcastArr = savedInstanceState.getParcelableArray(SEARCH_RESULT_LIST);
+            if (savedPodcastArr != null && savedPodcastArr.length > 0){
+                Podcast[] podcastArr = new Podcast[savedPodcastArr.length];
+                System.arraycopy(savedPodcastArr, 0, podcastArr, 0, savedPodcastArr.length);
+                updatePodcastList(Arrays.asList(podcastArr));
             }
         }
         recyclerView.setAdapter(searchAdapter);

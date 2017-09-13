@@ -123,6 +123,77 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
             Intent actionPrev = getPreviousIntentBtn(context);
             context.startService(actionPrev);
         }
+        // update viewmodel and disposable if need to
+        if (viewModel == null){
+            viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context));
+        }
+
+        if (disposable == null){
+            MediaPlayBackService.subscribeMediaPlaybackSubject(
+                    new Observer<Pair<Episode, Integer>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            disposable = d;
+                        }
+
+                        @Override
+                        public void onNext(Pair<Episode, Integer> info) {
+                            int state = info.second;
+                            Episode ep = info.first;
+                            switch(state) {
+                                case MediaPlayBackService.MEDIA_PLAYING:
+                                    widgetCurrState = WIDGET_PRESS_TO_PAUSE;
+                                    if (widgetImgSrc == null) {
+                                        updateImgRes(context, ep);
+                                    } else{
+                                        forceUpdateAppWidgets(context, false);
+                                    }
+                                    break;
+                                case MediaPlayBackService.MEDIA_TRACK_CHANGED:
+                                    widgetCurrState = WIDGET_PRESS_TO_PAUSE;
+                                    updateImgRes(context, ep);
+                                    break;
+                                case MediaPlayBackService.MEDIA_PAUSE:
+                                    widgetCurrState = WIDGET_PRESS_TO_PLAY;
+                                    if (widgetImgSrc == null) {
+                                        updateImgRes(context, ep);
+                                    } else{
+                                        forceUpdateAppWidgets(context, false);
+                                    }
+                                    break;
+                                case MediaPlayBackService.MEDIA_STOPPED:
+                                    widgetCurrState = WIDGET_PRESS_TO_PLAY;
+                                    widgetImgSrc = null;
+                                    forceUpdateAppWidgets(context, false);
+                                    break;
+                                case MediaPlayBackService.MEDIA_PLAYLIST_EMPTY:
+                                    widgetCurrState = WIDGET_PRESS_TO_PLAY;
+                                    widgetImgSrc = null;
+                                    // show error dialog to let user know play list is empty
+                                    Intent showEmptyErrIntent = new Intent(context, ErrorDialogActivity.class);
+                                    showEmptyErrIntent.putExtra(ErrorDialogActivity.MESSAGE_KEY,
+                                            context.getString(R.string.error_empty_playlist));
+                                    context.startActivity(showEmptyErrIntent);
+                                    forceUpdateAppWidgets(context, false);
+                                    break;
+
+                            }
+
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    }
+            );
+        }
         super.onReceive(context, intent);
     }
 
@@ -154,6 +225,11 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
             default:
                 throw new UnsupportedOperationException();
         }
+
+
+        // reregister if podcast model and observable is gone
+        // Enter relevant functionality for when the first widget is created
+
         return intent;
     }
 
@@ -166,76 +242,11 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
     }
 
     @Override
-    public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
-        if (viewModel == null){
-            viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context));
-        }
-
-        MediaPlayBackService.subscribeMediaPlaybackSubject(
-                new Observer<Pair<Episode, Integer>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        disposable = d;
-                    }
-
-                    @Override
-                    public void onNext(Pair<Episode, Integer> info) {
-                        int state = info.second;
-                        Episode ep = info.first;
-                        switch(state) {
-                            case MediaPlayBackService.MEDIA_PLAYING:
-                                widgetCurrState = WIDGET_PRESS_TO_PAUSE;
-                                if (widgetImgSrc == null) {
-                                    updateImgRes(context, ep);
-                                } else{
-                                    forceUpdateAppWidgets(context, false);
-                                }
-                                break;
-                            case MediaPlayBackService.MEDIA_TRACK_CHANGED:
-                                widgetCurrState = WIDGET_PRESS_TO_PAUSE;
-                                updateImgRes(context, ep);
-                                break;
-                            case MediaPlayBackService.MEDIA_PAUSE:
-                                widgetCurrState = WIDGET_PRESS_TO_PLAY;
-                                if (widgetImgSrc == null) {
-                                    updateImgRes(context, ep);
-                                } else{
-                                    forceUpdateAppWidgets(context, false);
-                                }
-                                break;
-                            case MediaPlayBackService.MEDIA_STOPPED:
-                                widgetCurrState = WIDGET_PRESS_TO_PLAY;
-                                widgetImgSrc = null;
-                                forceUpdateAppWidgets(context, false);
-                                break;
-                            case MediaPlayBackService.MEDIA_PLAYLIST_EMPTY:
-                                widgetCurrState = WIDGET_PRESS_TO_PLAY;
-                                // show error dialog to let user know play list is empty
-                                Intent showEmptyErrIntent = new Intent(context, ErrorDialogActivity.class);
-                                showEmptyErrIntent.putExtra(ErrorDialogActivity.MESSAGE_KEY,
-                                        context.getString(R.string.error_empty_playlist));
-                                context.startActivity(showEmptyErrIntent);
-                                forceUpdateAppWidgets(context, false);
-                                break;
-
-                        }
-
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                }
-        );
+    public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
+        super.onRestored(context, oldWidgetIds, newWidgetIds);
     }
+
+
 
     private void forceUpdateAppWidgets (Context context, boolean changeImg) {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -243,6 +254,81 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
                 new ComponentName(context, GetYourCastWidgetProvider.class));
         for (int id : ids) {
             updateAppWidget(context, appWidgetManager, id, changeImg);
+        }
+    }
+
+    @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+        if (viewModel == null){
+            viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(context));
+        }
+
+        if (disposable == null){
+            MediaPlayBackService.subscribeMediaPlaybackSubject(
+                    new Observer<Pair<Episode, Integer>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            disposable = d;
+                        }
+
+                        @Override
+                        public void onNext(Pair<Episode, Integer> info) {
+                            int state = info.second;
+                            Episode ep = info.first;
+                            switch(state) {
+                                case MediaPlayBackService.MEDIA_PLAYING:
+                                    widgetCurrState = WIDGET_PRESS_TO_PAUSE;
+                                    if (widgetImgSrc == null) {
+                                        updateImgRes(context, ep);
+                                    } else{
+                                        forceUpdateAppWidgets(context, false);
+                                    }
+                                    break;
+                                case MediaPlayBackService.MEDIA_TRACK_CHANGED:
+                                    widgetCurrState = WIDGET_PRESS_TO_PAUSE;
+                                    updateImgRes(context, ep);
+                                    break;
+                                case MediaPlayBackService.MEDIA_PAUSE:
+                                    widgetCurrState = WIDGET_PRESS_TO_PLAY;
+                                    if (widgetImgSrc == null) {
+                                        updateImgRes(context, ep);
+                                    } else{
+                                        forceUpdateAppWidgets(context, false);
+                                    }
+                                    break;
+                                case MediaPlayBackService.MEDIA_STOPPED:
+                                    widgetCurrState = WIDGET_PRESS_TO_PLAY;
+                                    widgetImgSrc = null;
+                                    forceUpdateAppWidgets(context, false);
+                                    break;
+                                case MediaPlayBackService.MEDIA_PLAYLIST_EMPTY:
+                                    widgetCurrState = WIDGET_PRESS_TO_PLAY;
+                                    widgetImgSrc = null;
+                                    // show error dialog to let user know play list is empty
+                                    Intent showEmptyErrIntent = new Intent(context, ErrorDialogActivity.class);
+                                    showEmptyErrIntent.putExtra(ErrorDialogActivity.MESSAGE_KEY,
+                                            context.getString(R.string.error_empty_playlist));
+                                    context.startActivity(showEmptyErrIntent);
+                                    forceUpdateAppWidgets(context, false);
+                                    break;
+
+                            }
+
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    }
+            );
         }
     }
 
@@ -277,13 +363,13 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
     }
 
     @Override
-    public void onDisabled(Context context) {
+    public void onDeleted(Context context, int[] appWidgetIds) {
         // Enter relevant functionality for when the last widget is disabled
         if (disposable != null ){
             disposable.dispose();
             disposable = null;
         }
-
+        super.onDeleted(context, appWidgetIds);
     }
 }
 
