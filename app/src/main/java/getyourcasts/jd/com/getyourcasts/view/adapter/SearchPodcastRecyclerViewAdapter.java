@@ -39,6 +39,8 @@ public class SearchPodcastRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
     private static final  String ITEM_POS_KEY = "item_pos_key";
     private static final  int REQUEST_CODE = 1;
 
+
+
     List<Podcast> podcastList;
     SearchPodcastFragment fragment;
     private PodcastViewModel viewModel;
@@ -47,7 +49,7 @@ public class SearchPodcastRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
 
 
 
-    public SearchPodcastRecyclerViewAdapter(List<Podcast> podcastList, SearchPodcastFragment fragment) {
+    public SearchPodcastRecyclerViewAdapter(ArrayList<Podcast> podcastList, SearchPodcastFragment fragment) {
         this.podcastList = podcastList;
         this.fragment = fragment;
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(fragment.getContext()));
@@ -206,6 +208,10 @@ public class SearchPodcastRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
                             });
         });
 
+    }
+
+    public List<Podcast> getPodcastList() {
+        return podcastList;
     }
 
     @Override

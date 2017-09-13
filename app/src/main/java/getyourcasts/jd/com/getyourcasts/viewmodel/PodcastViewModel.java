@@ -84,7 +84,6 @@ public class PodcastViewModel {
 
 
     public Observable<List<Podcast>> getPodcastSearchObservable(String term) {
-
         return Observable.defer(() -> Observable.just(dataRepo.searchPodcast(term)))
                 .flatMapIterable(podcasts -> podcasts)
                 .filter(podcast -> podcast.getTrackCount() > 0)

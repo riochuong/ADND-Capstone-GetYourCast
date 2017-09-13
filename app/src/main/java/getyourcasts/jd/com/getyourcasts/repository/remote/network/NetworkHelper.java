@@ -67,7 +67,6 @@ public class NetworkHelper {
      * generate call for Itunes API service
      */
     public Call<ItuneResponse> searchPodcast(String term)
-
     {
         return ituneApi.searchPodcast(PODCAST_TERM, term);
     }

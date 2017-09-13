@@ -11,9 +11,6 @@ import getyourcasts.jd.com.getyourcasts.R;
  */
 
 public class SearchNewPodcastActivity  extends AppCompatActivity {
-
-    private static final String TAG = "GET_YOUR_CASTS";
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,14 +1,11 @@
 package getyourcasts.jd.com.getyourcasts.view;
 
 
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +16,9 @@ import android.widget.TextView;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Observable;
 
@@ -44,6 +44,8 @@ public class SearchPodcastFragment extends Fragment {
     TextView search_empty_view;
     AVLoadingIndicatorView searching_prog_view;
 
+    private static final String SEARCH_RESULT_LIST = "search_list_key";
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -52,7 +54,16 @@ public class SearchPodcastFragment extends Fragment {
         search_term_text = (EditText) root.findViewById(R.id.search_term_text);
         search_empty_view = (TextView) root.findViewById(R.id.search_empty_view);
         searching_prog_view = (AVLoadingIndicatorView) root.findViewById(R.id.searching_prog_view);
+        searchAdapter = new SearchPodcastRecyclerViewAdapter(new ArrayList<>(), this);
         return root;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Podcast[] savedPodcastArr = new Podcast[searchAdapter.getPodcastList().size()];
+        searchAdapter.getPodcastList().toArray(savedPodcastArr);
+        outState.putParcelableArray(SEARCH_RESULT_LIST,savedPodcastArr);
     }
 
     @Override
@@ -60,7 +71,13 @@ public class SearchPodcastFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         searchViewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this.getContext()));
         setupRecyclerView();
-        searchAdapter = new SearchPodcastRecyclerViewAdapter(new ArrayList<>(), this);
+        // restored search adapter instances
+        if (savedInstanceState != null ){
+            Podcast [] savedPodcastArr = (Podcast[]) savedInstanceState.getParcelableArray(SEARCH_RESULT_LIST);
+            if (savedPodcastArr != null){
+                updatePodcastList(Arrays.asList(savedPodcastArr));
+            }
+        }
         recyclerView.setAdapter(searchAdapter);
 
         // SEARCH SUMISSION

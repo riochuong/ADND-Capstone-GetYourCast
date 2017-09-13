@@ -37,4 +37,7 @@
     <string name="download_cancelled">Download Cancelled</string>
     <string name="ok_string">OK</string>
     <string name="network_connection_error">No Network Connection !!</string>
+    <string name="show_menu_btn_content">Show Menu Button</string>
+    <string name="display_episode_podcast_img_content">Show Podcast Image</string>
+    <string name="press_button_to_prev_content">Press Button To Close Search Screen</string>
 </resources>
