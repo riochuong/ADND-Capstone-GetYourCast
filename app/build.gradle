@@ -136,6 +136,8 @@ dependencies {
         transitive = true;
     }
 
+    compile 'com.google.firebase:firebase-crash:11.2.0'
+
     // GSON to support saving playlist
     compile 'com.google.code.gson:gson:2.8.1'
 }

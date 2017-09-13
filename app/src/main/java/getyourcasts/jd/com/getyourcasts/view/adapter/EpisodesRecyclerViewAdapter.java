@@ -74,7 +74,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         this.fragment = fragment;
         this.podcast = podcast;
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(fragment.getActivity().getApplicationContext()));
-        ctx = fragment.getActivity().getApplicationContext();
+        ctx = fragment.getActivity();
         // quick hack to get bgColor
         bgColor =
                 ((ColorDrawable) ((fragment.getView().findViewById(R.id.podcast_detail_appbar)).getBackground()))
