@@ -21,6 +21,7 @@
         <ImageView
             android:id="@+id/ep_img"
             android:layout_gravity="center_vertical"
+            android:contentDescription="@string/display_episode_podcast_img_content"
             android:layout_margin="@dimen/tiny_margin"
             android:layout_width="0dp"
             android:layout_weight=".3"
@@ -62,6 +63,7 @@
 
             <ImageView
                 android:id="@+id/remove_item_img"
+                android:contentDescription="@string/btn_remove_item_from_playlist"
                 android:src="@mipmap/ic_playlist_remove"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"

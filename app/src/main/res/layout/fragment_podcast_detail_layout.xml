@@ -35,6 +35,7 @@
                     android:layout_width="@dimen/podcast_detail_img_size"
                     android:layout_height="@dimen/podcast_detail_img_size"
                     android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/display_episode_podcast_img_content"
                     android:layout_margin="@dimen/small_margin"/>
 
                 <LinearLayout

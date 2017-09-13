@@ -11,6 +11,7 @@
         android:layout_width="@dimen/playback_controls_albumart_size"
         android:layout_height="@dimen/playback_controls_albumart_size"
         android:scaleType="centerCrop"
+        android:contentDescription="@string/display_episode_podcast_img_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"/>
     <LinearLayout
@@ -56,6 +57,7 @@
     </LinearLayout>
     <ImageButton
         android:id="@+id/play_pause"
+        android:contentDescription="@string/btn_play_pause"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

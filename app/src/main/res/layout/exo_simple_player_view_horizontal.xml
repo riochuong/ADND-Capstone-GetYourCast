@@ -16,6 +16,7 @@
     <ImageView
         android:id="@+id/exo_shutter"
         android:layout_width="@dimen/player_view_img_size"
+        android:contentDescription="@string/media_player_shutter_img"
         android:layout_height="@dimen/player_view_img_size"
         android:layout_gravity="center_horizontal|center_vertical"
         android:visibility="gone"/>

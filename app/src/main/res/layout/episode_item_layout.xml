@@ -66,6 +66,7 @@
 
         <ImageView
             android:id="@+id/episode_down_play_img"
+            android:contentDescription="@string/btn_down_or_play_str"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"

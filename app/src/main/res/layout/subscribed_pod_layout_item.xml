@@ -13,6 +13,7 @@
 
         <ImageView
             android:id="@+id/subscribed_pod_img"
+            android:contentDescription="@string/subscribed_pod_img_str"
             android:layout_width="@dimen/pod_img_size"
             android:layout_height="@dimen/pod_img_size"/>
 

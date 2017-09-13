@@ -40,4 +40,20 @@
     <string name="show_menu_btn_content">Show Menu Button</string>
     <string name="display_episode_podcast_img_content">Show Podcast Image</string>
     <string name="press_button_to_prev_content">Press Button To Close Search Screen</string>
+    <string name="btn_add_to_play_list">Add this Episode to current playlist !</string>
+    <string name="show_nv_pane_str">Show Navigation Pane from the left !</string>
+    <string name="btn_search_podcast_str">Search for Podcast Button</string>
+    <string name="btn_close_media_player_str">Close Media Player Activity</string>
+    <string name="widget_podcast_img">Widget Podcast Image</string>
+    <string name="widget_prev_button">Play previous episode in playlist</string>
+    <string name="widget_next_button">Play next episode in the list !</string>
+    <string name="btn_play_pause">Play or Pause Button</string>
+    <string name="subscribed_pod_img_str">Subscribed Podcast Image</string>
+    <string name="btn_remove_episode">Delete Downloaded Episode</string>
+    <string name="btn_down_or_play_str">Download Or Play Button !</string>
+    <string name="btn_remove_item_from_playlist">Remove this Episode from playlist</string>
+    <string name="widget_play_pause_btn">Play or Pause Episode Button</string>
+    <string name="widget_play_btn">Play current episode</string>
+    <string name="widget_pause_btn">Pause Current Episode</string>
+    <string name="media_player_shutter_img">Media Player Shutter Image</string>
 </resources>

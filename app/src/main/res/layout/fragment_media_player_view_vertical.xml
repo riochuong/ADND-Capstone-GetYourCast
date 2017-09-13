@@ -12,6 +12,7 @@
         android:id="@+id/close_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/btn_close_media_player_str"
         android:src="@mipmap/ic_close"/>
 
 

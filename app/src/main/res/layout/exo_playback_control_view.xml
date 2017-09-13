@@ -43,6 +43,7 @@
 
         <ImageButton
             android:id="@+id/playback_exo_prev"
+            android:contentDescription="@string/widget_prev_button"
             android:src="@mipmap/ic_media_skip_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -51,11 +52,13 @@
         <ImageButton
             android:id="@+id/exo_play"
             android:src="@mipmap/ic_media_play"
+            android:contentDescription="@string/widget_play_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <ImageButton
             android:id="@+id/exo_pause"
+            android:contentDescription="@string/widget_pause_btn"
             android:src="@mipmap/ic_media_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -63,6 +66,7 @@
 
         <ImageButton
             android:id="@+id/playback_exo_next"
+            android:contentDescription="@string/widget_next_button"
             android:src="@mipmap/ic_media_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

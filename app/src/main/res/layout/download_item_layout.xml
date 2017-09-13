@@ -24,6 +24,7 @@
 
         <ImageView
             android:id="@+id/download_remove_img"
+            android:contentDescription="@string/btn_remove_episode"
             android:src="@mipmap/ic_remove"
             android:layout_width="@dimen/remove_ic_size"
             android:layout_margin="@dimen/tiny_margin"
