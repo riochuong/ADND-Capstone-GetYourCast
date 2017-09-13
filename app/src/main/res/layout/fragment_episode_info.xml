@@ -200,6 +200,7 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/ep_info_fab"
+            android:contentDescription="@string/btn_ep_fab_str"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/small_margin"

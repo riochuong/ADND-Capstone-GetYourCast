@@ -58,4 +58,6 @@
     <string name="media_player_shutter_img">Media Player Shutter Image</string>
     <string name="error_empty_playlist">Playlist is Empty !</string>
     <string name="episode_str">Episodes</string>
+    <string name="btn_ep_fab_str">Download or Play Episode Action button</string>
+    <string name="btn_subscribe_str">Subscribe to Podcast Button</string>
 </resources>

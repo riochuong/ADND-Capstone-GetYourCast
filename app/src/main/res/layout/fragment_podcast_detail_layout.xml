@@ -141,6 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/small_margin"
             android:layout_marginStart="@dimen/small_margin"
+            android:contentDescription="@string/btn_subscribe_str"
             android:scaleType="fitXY"
             app:backgroundTint="@color/fab_subscribed_color"
             app:borderWidth="0dp"
