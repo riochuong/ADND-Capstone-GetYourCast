@@ -40,7 +40,6 @@ import io.reactivex.disposables.Disposable;
  * A placeholder fragment containing a simple view.
  */
 public class MainPodcastFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Podcast>> {
-    private PodcastViewModel viewModel;
     private PodcastMainViewAdapter adapter;
     private static final String TAG = MainPodcastFragment.class.getSimpleName();
     RecyclerView subscribed_podcast_recyclerview;
@@ -55,7 +54,6 @@ public class MainPodcastFragment extends Fragment implements LoaderManager.Loade
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(getContext()));
         adapter = new PodcastMainViewAdapter(new ArrayList<>(), this);
         View root = inflater.inflate(R.layout.fragment_main_podcast, container, false);
         subscribed_podcast_recyclerview =

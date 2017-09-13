@@ -78,11 +78,6 @@ public class PodcastViewModel {
     }
 
 
-
-
-    /* class to deliver sync state between different item related to epidsode */
-
-
     public Observable<List<Podcast>> getPodcastSearchObservable(String term) {
         return Observable.defer(() -> Observable.just(dataRepo.searchPodcast(term)))
                 .flatMapIterable(podcasts -> podcasts)
@@ -149,13 +144,6 @@ public class PodcastViewModel {
         return false;
     }
 
-    //
-    public Observable<List<Episode>> getAllEpisodesOfPodcastObservable(String podcastId) {
-        return Observable.defer(
-                () -> Observable.just(dataRepo.getAllEpisodesOfPodcast(podcastId)))
-                .subscribeOn(Schedulers.io());
-    }
-
     /**
      * return an observable for removing downloaded episode file from local storage
      * and also change the database entry.
@@ -198,19 +186,7 @@ public class PodcastViewModel {
                 }
         ).subscribeOn(Schedulers.io());
     }
-//
-//
-    public Observable<List<Podcast>>  getAllSubscribedPodcastObservable(){
-        return Observable.defer(() ->
-            Observable.just (getAllPodcasts()))
-        .subscribeOn(Schedulers.io());
-    }
 
-    private List<Podcast> getAllPodcasts() {
-        return dataRepo.getAllPodcast();
-    }
-//
-//
 //    /**
 //     * get update Pod
 //     */
@@ -236,21 +212,5 @@ public class PodcastViewModel {
                     .subscribeOn(Schedulers.io());
     }
 
-    public Observable<Map<Podcast,List<Episode>>> getUpdateListObservable (){
-
-        return Observable.defer (
-                () -> Observable.just(
-                        dataRepo.getNewUpdate()
-                )
-        ).subscribeOn(Schedulers.io());
-    }
-
-    public Observable<List<Episode>> getDownloadedEpisodes() {
-        return Observable.defer (
-                () -> Observable.just (
-                        dataRepo.getDownloadedEpisodes()
-                )
-        ).subscribeOn(Schedulers.io());
-    }
 
 }
