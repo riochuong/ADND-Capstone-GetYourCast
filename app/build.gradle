@@ -24,10 +24,19 @@ android {
 
 
     }
+    signingConfigs {
+        release {
+            storeFile file("getyourcastnewkey.jks")
+            storePassword "GetYourCast"
+            keyAlias "GetYourCastKey"
+            keyPassword "GetYourCast"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 

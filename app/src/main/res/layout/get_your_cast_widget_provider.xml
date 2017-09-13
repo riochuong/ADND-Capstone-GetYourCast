@@ -25,7 +25,7 @@
         <ImageButton
             android:id="@+id/widget_play_pause_btn"
             android:src="@mipmap/ic_media_play"
-            android:contentDescription="@string/widget_"
+            android:contentDescription="@string/widget_play_pause_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
