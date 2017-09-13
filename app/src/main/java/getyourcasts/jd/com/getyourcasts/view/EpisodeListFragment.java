@@ -14,6 +14,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -47,6 +49,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadServic
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
+import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeOfPodcastLoader;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -55,7 +58,8 @@ import io.reactivex.disposables.Disposable;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class EpisodeListFragment extends Fragment implements MediaServiceBoundListener, PopupMenu.OnMenuItemClickListener {
+public class EpisodeListFragment extends Fragment implements MediaServiceBoundListener, PopupMenu
+        .OnMenuItemClickListener, LoaderManager.LoaderCallbacks<List<Episode>> {
 
 
     private Podcast podcast;
@@ -66,10 +70,13 @@ public class EpisodeListFragment extends Fragment implements MediaServiceBoundLi
 
     private MediaPlayBackService mediaService = null;
 
+    LoaderManager loaderManager;
+
 
     private static final String PODCAST_KEY = "podcast_key";
     private static final String TAG = EpisodeListFragment.class.getSimpleName();
     private static final int PALETTE_BG_MASK = 0x00555555;
+    private static final int EPISODE_LIST_LOADER_ID_ = 852;
 
     // UI ITEMs
     ImageButton show_menu_btn;
@@ -96,6 +103,7 @@ public class EpisodeListFragment extends Fragment implements MediaServiceBoundLi
         episode_podcast_img = (ImageView) root.findViewById(R.id.episode_podcast_img);
         episode_list_loading_prog_view = (AVLoadingIndicatorView) root.findViewById(R.id
                 .episode_list_loading_prog_view);
+        loaderManager = getActivity().getSupportLoaderManager();
         return root;
     }
 
@@ -177,41 +185,7 @@ public class EpisodeListFragment extends Fragment implements MediaServiceBoundLi
         loadPodcastImage();
         // now load title
         episode_podcast_title.setText(podcast.getCollectionName());
-        // now fetch data from DB
-        viewModel.getAllEpisodesOfPodcastObservable(podcast.getCollectionId())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        new Observer<List<Episode>>() {
-                            @Override
-                            public void onSubscribe(Disposable d) {
-
-                            }
-
-                            @Override
-                            public void onNext(List<Episode> episodeList) {
-                                if (episodeList.size() > 0) {
-                                    episodeAdapter.setEpisodeList(episodeList);
-                                    episodeAdapter.notifyDataSetChanged();
-                                    // now show the image
-                                    stopAnim();
-                                    // make the main view visible now
-                                    Log.d(TAG,
-                                            "Successfully fetched all Episodes of Podcast : ${podcast" +
-                                                    ".collectionName}");
-                                }
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                e.printStackTrace();
-                            }
-
-                            @Override
-                            public void onComplete() {
-
-                            }
-                        }
-                );
+        loaderManager.initLoader(EPISODE_LIST_LOADER_ID_,new Bundle(),this).forceLoad();
     }
 
     private void initRecyclerView() {
@@ -407,4 +381,30 @@ public class EpisodeListFragment extends Fragment implements MediaServiceBoundLi
         podcast_detail_appbar.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public Loader<List<Episode>> onCreateLoader(int id, Bundle args) {
+        if (id != EPISODE_LIST_LOADER_ID_) {
+            throw new IllegalArgumentException("Wrong loader id received...must be weird");
+        }
+        return new EpisodeOfPodcastLoader(getActivity(),podcast.getCollectionId());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Episode>> loader, List<Episode> episodeList) {
+        if (episodeList.size() > 0) {
+            episodeAdapter.setEpisodeList(episodeList);
+            episodeAdapter.notifyDataSetChanged();
+            // now show the image
+            stopAnim();
+            // make the main view visible now
+            Log.d(TAG,
+                    "Successfully fetched all Episodes of Podcast : ${podcast" +
+                            ".collectionName}");
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Episode>> loader) {
+
+    }
 }

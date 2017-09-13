@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,18 +29,17 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 import getyourcasts.jd.com.getyourcasts.view.adapter.PodcastMainViewAdapter;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity;
-import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerViewFragment;
+import getyourcasts.jd.com.getyourcasts.viewmodel.AllSubscribedPodcastLoader;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
 import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainPodcastFragment extends Fragment {
+public class MainPodcastFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Podcast>> {
     private PodcastViewModel viewModel;
     private PodcastMainViewAdapter adapter;
     private static final String TAG = MainPodcastFragment.class.getSimpleName();
@@ -47,6 +48,9 @@ public class MainPodcastFragment extends Fragment {
     NavigationView nv_drawer;
     DrawerLayout drawerLayout;
     ImageView show_nv_pane_btn;
+    LoaderManager loaderManager;
+
+    private static final int MAIN_POD_CAST_LOADER = 384;
 
     @Nullable
     @Override
@@ -60,6 +64,7 @@ public class MainPodcastFragment extends Fragment {
         nv_drawer = (NavigationView) root.findViewById(R.id.navigation_pane);
         drawerLayout = (DrawerLayout) root.findViewById(R.id.drawer_layout);
         show_nv_pane_btn = (ImageView) root.findViewById(R.id.show_nv_pane_btn);
+        loaderManager = getActivity().getSupportLoaderManager();
 
         if (nv_drawer != null) {setupDrawerListener();}
         return root;
@@ -130,32 +135,7 @@ public class MainPodcastFragment extends Fragment {
 
 
     private void updateDataToAdapter() {
-        if (viewModel != null) {
-            viewModel.getAllSubscribedPodcastObservable()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<List<Podcast>>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-
-                        }
-
-                        @Override
-                        public void onNext(List<Podcast> podcasts) {
-                            updateAdapterData(podcasts);
-                            Log.d(TAG, "Successfully load  all podcast to main view");
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
-                    });
-        }
+      loaderManager.initLoader(MAIN_POD_CAST_LOADER, new Bundle(),this).forceLoad();
     }
 
 
@@ -199,6 +179,24 @@ public class MainPodcastFragment extends Fragment {
             }
         });
 
+
+    }
+
+    @Override
+    public Loader<List<Podcast>> onCreateLoader(int id, Bundle args) {
+        if (id != MAIN_POD_CAST_LOADER) {
+            throw new IllegalArgumentException("Wrong loader id received...must be weird");
+        }
+        return new AllSubscribedPodcastLoader(getActivity());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Podcast>> loader, List<Podcast> podcasts) {
+        updateAdapterData(podcasts);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Podcast>> loader) {
 
     }
 }

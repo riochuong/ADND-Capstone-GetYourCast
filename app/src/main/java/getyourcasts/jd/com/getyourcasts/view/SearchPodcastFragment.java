@@ -18,10 +18,7 @@ import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Observable;
 
 import getyourcasts.jd.com.getyourcasts.R;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
@@ -37,13 +34,14 @@ import io.reactivex.disposables.Disposable;
  * Created by chuondao on 9/10/17.
  */
 
-public class SearchPodcastFragment extends Fragment {
+public class SearchPodcastFragment extends Fragment{
     RecyclerView recyclerView;
     PodcastViewModel searchViewModel;
     SearchPodcastRecyclerViewAdapter searchAdapter;
     EditText search_term_text;
     TextView search_empty_view;
     AVLoadingIndicatorView searching_prog_view;
+    private static final int LOADER_SEARCH_POD_ID = 417;
 
     private static final String SEARCH_RESULT_LIST = "search_list_key";
 
@@ -93,6 +91,8 @@ public class SearchPodcastFragment extends Fragment {
                 // search for podcast here
                 startLoadingAnim();
                 String searchTerm = search_term_text.getText().toString();
+
+
                 io.reactivex.Observable<List<Podcast>> searchObsrv = searchViewModel.getPodcastSearchObservable(searchTerm);
                 searchObsrv.observeOn(AndroidSchedulers.mainThread()).subscribe(
                         // OnNext
@@ -171,4 +171,5 @@ public class SearchPodcastFragment extends Fragment {
         super.onDestroy();
         searchAdapter.cleanUpAllDisposable();
     }
+
 }
