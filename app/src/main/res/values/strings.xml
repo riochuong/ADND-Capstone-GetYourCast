@@ -56,4 +56,6 @@
     <string name="widget_play_btn">Play current episode</string>
     <string name="widget_pause_btn">Pause Current Episode</string>
     <string name="media_player_shutter_img">Media Player Shutter Image</string>
+    <string name="error_empty_playlist">Playlist is Empty !</string>
+    <string name="episode_str">Episodes</string>
 </resources>

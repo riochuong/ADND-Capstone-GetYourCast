@@ -18,6 +18,7 @@ import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.view.ErrorDialogActivity;
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp;
 import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
@@ -209,7 +210,12 @@ public class GetYourCastWidgetProvider extends AppWidgetProvider {
                                 forceUpdateAppWidgets(context, false);
                                 break;
                             case MediaPlayBackService.MEDIA_PLAYLIST_EMPTY:
-                                widgetCurrState = WIDGET_EMPTY_PLAYLIST;
+                                widgetCurrState = WIDGET_PRESS_TO_PLAY;
+                                // show error dialog to let user know play list is empty
+                                Intent showEmptyErrIntent = new Intent(context, ErrorDialogActivity.class);
+                                showEmptyErrIntent.putExtra(ErrorDialogActivity.MESSAGE_KEY,
+                                        context.getString(R.string.error_empty_playlist));
+                                context.startActivity(showEmptyErrIntent);
                                 forceUpdateAppWidgets(context, false);
                                 break;
 

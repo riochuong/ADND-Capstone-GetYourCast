@@ -128,7 +128,8 @@ public class PodcastDetailsFragment  extends Fragment{
             loadRssDescription(podcast);
             podcast_detail_title.setText(podcast.getCollectionName());
             podcast_detail_artist.setText(podcast.getArtistName());
-            podcast_total_episodes.setText(podcast.getTrackCount() + " Episodes");
+            podcast_total_episodes.setText(podcast.getTrackCount() + " " + getContext().getString(R.string
+                    .episode_str));
 
             // subscribe to any outside change
             subscribeToPodcastUpdate(podcast);

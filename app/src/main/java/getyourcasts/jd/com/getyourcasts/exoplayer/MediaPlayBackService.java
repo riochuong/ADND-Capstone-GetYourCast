@@ -357,7 +357,14 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                     pausePlayback();
                     break;
                 case WIDGET_ACTION_PLAY:
-                    resumePlayback();
+                    if (exoPlayer!= null) {
+                        resumePlayback();
+                    } else if (currEpisodePos < 0 && !playList.isEmpty()) {
+                        playMediaFileAtIndex(0);
+                    } else {
+                        MediaPlayBackService.publishMediaPlaybackSubject(null, MediaPlayBackService
+                                .MEDIA_PLAYLIST_EMPTY);
+                    }
                     break;
                 case WIDGET_ACTION_NEXT:
                     playNextSongInPlaylist();
@@ -584,6 +591,9 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public synchronized void resumePlayback() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(true);
+        }
+        if (playList.isEmpty()) {
+
         }
     }
 
