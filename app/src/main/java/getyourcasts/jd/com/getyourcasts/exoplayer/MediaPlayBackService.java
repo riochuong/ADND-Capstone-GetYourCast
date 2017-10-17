@@ -310,7 +310,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                         public void onError(Throwable e) {
 
                         }
-
                         @Override
                         public void onComplete() {
 
@@ -337,12 +336,10 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                                         prepareMediaFile(playList.get(0));
                                     }
                                 }
-
                                 @Override
                                 public void onError(Throwable e) {
                                     e.printStackTrace();
                                 }
-
                                 @Override
                                 public void onComplete() {
                                 }
@@ -351,7 +348,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         }
 
         if (intent != null && initialized){
-            int action = intent.getIntExtra(GetYourCastWidgetProvider.WIDGET_MEDIA_ACTION_KEY, 0xFF);
+            int action = intent.getIntExtra(GetYourCastWidgetProvider.Companion.getWIDGET_MEDIA_ACTION_KEY(), 0xFF);
             switch (action) {
                 case WIDGET_ACTION_PAUSE:
                     pausePlayback();
@@ -375,7 +372,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             }
 
         }
-
         return START_STICKY;
     }
 

@@ -52,7 +52,6 @@
             android:theme="@style/TransluentNoActionbar">
         </activity>
 
-
         <provider
             android:name=".repository.local.CastProvider"
             android:authorities="com.jd.udacity.getyourcast"
@@ -108,9 +107,15 @@
             android:label="@string/title_activity_downloads"
             android:theme="@style/AppTheme">
         </activity>
-        <activity android:name=".view.ErrorDialogActivity"
+        <activity
+            android:name=".view.ErrorDialogActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
+
+        <service
+            android:name=".widget.AppWidgetIntentService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

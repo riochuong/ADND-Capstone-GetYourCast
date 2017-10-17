@@ -144,3 +144,6 @@ dependencies {
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application' //or apply plugin: 'java'
 apply plugin: 'me.tatarka.retrolambda'
+
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
