@@ -69,7 +69,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch(position) {
                 case PLAYER_PAGE:
-                    return MediaPlayerViewFragment.newInstance();
+                    return MediaPlayerViewFragment.Companion.newInstance();
                 case PLAYLIST_PAGE:
                     return PlayListFragment.newInstance();
             }

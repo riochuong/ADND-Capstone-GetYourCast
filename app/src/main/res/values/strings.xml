@@ -60,4 +60,5 @@
     <string name="episode_str">Episodes</string>
     <string name="btn_ep_fab_str">Download or Play Episode Action button</string>
     <string name="btn_subscribe_str">Subscribe to Podcast Button</string>
+    <string name="empty_play_list_str">Playlist is empty</string>
 </resources>

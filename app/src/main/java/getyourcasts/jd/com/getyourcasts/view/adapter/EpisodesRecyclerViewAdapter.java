@@ -123,7 +123,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         }
         // load size
         if (episode.getFileSize() != null) {
-            vh.fileSize.setText(StorageUtil.convertToMbRep(episode.getFileSize()));
+            vh.fileSize.setText(StorageUtil.INSTANCE.convertToMbRep(episode.getFileSize()));
         }
 
         // load download or play icons depends on podcast url link available or not
@@ -175,7 +175,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
             @Override
             public void onNext(EpisodeState epState) {
                 if (epState.getUniqueId().equals(ep.getEpisodeUniqueKey())) {
-                    Pair<String, String> paths = StorageUtil.getPathToStoreEp(ep, fragment.getActivity()
+                    Pair<String, String> paths = StorageUtil.INSTANCE.getPathToStoreEp(ep, fragment.getActivity()
                             .getApplicationContext());
                     String fullUrl = paths.first+"/"+paths.second;
 
@@ -359,7 +359,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                                          int itempos) {
         // Now start Downloading
         String url = episode.getDownloadUrl();
-        Pair <String, String> pathItems = StorageUtil.getPathToStoreEp(episode, fragment.getActivity().getApplicationContext());
+        Pair <String, String> pathItems = StorageUtil.INSTANCE.getPathToStoreEp(episode, fragment.getActivity().getApplicationContext());
         // TODO :detect duplicate here to avoid crash
         if (url != null) {
             long transactionId = fragment.requestDownload(episode, url, pathItems.first, pathItems.second);

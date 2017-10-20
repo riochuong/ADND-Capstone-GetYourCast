@@ -218,7 +218,7 @@ public final class Podcast implements Parcelable {
         cv.put(Contract.PodcastTable.FEED_URL, this.getFeedUrl());
         cv.put(Contract.PodcastTable.RELEASE_DATE, this.getReleaseDate());
                 // only inject this for episode that get inserted to db
-        cv.put(Contract.PodcastTable.IMG_LOCAL_PATH, StorageUtil.getPathToStorePodImg(this, ctx));
+        cv.put(Contract.PodcastTable.IMG_LOCAL_PATH, StorageUtil.INSTANCE.getPathToStorePodImg(this, ctx));
         cv.put(Contract.PodcastTable.IMG_ONLINE_PATH, this.getArtworkUrl100());
         cv.put(Contract.PodcastTable.ARTIST_NAME, this.getArtistName());
         cv.put(Contract.PodcastTable.TRACK_COUNT, this.getTrackCount());

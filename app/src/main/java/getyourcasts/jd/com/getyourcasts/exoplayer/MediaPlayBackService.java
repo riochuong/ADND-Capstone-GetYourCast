@@ -22,9 +22,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -34,15 +32,13 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.R;
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
-import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener;
 import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
@@ -71,7 +67,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     private Disposable playListRemoveDisposable;
 
     /*Simple fields for playlist management*/
-    private List<Episode> playList ;
+    private List<Episode> playList;
     private int currEpisodePos = -1;
     private boolean initialized = false;
 
@@ -87,14 +83,14 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public static final int MEDIA_UNKNOWN_STATE = 0xFF;
 
     // widget ACTION
-    public static final int WIDGET_ACTION_PLAY  = 389;
+    public static final int WIDGET_ACTION_PLAY = 389;
     public static final int WIDGET_ACTION_PAUSE = 390;
     public static final int WIDGET_ACTION_NEXT = 391;
     public static final int WIDGET_ACTION_PREV = 392;
 
     // state of the playlist
     public static final int MEDIA_ADDED_TO_PLAYLIST = 3;
-//    public static final int MEDIA_ADDED_TO_END_PLAYLIST = 4;
+    //    public static final int MEDIA_ADDED_TO_END_PLAYLIST = 4;
     public static final int MEDIA_REMOVED_FROM_PLAYLIST = 5;
     public static final int MEDIA_PLAYLIST_EMPTY = 6;
 
@@ -116,7 +112,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     }
 
     private void initExoPlayer() {
-        if (exoPlayer != null){
+        if (exoPlayer != null) {
             exoPlayer.release();
         }
 
@@ -127,7 +123,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         }
     }
 
-    private void initPlayListRemoveObserver(){
+    private void initPlayListRemoveObserver() {
         subscribeMediaPlaybackSubject(new Observer<Pair<Episode, Integer>>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -136,31 +132,31 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
             @Override
             public void onNext(Pair<Episode, Integer> info) {
-                    int state = info.second;
-                    switch (state){
-                        case MEDIA_REMOVED_FROM_PLAYLIST:
-                            Episode currentEp = playList.get(currEpisodePos);
-                            if (currEpisodePos >= 0) {
-                                int index = findIndexFromList(info.first);
-                                if (index >= 0) {removeTrackFromPlayList(index);}
-                                // only remove item above will affect the index
-                                // fix the current pointer of the playlist position
-                                if (index < currEpisodePos) {
-                                    // just need to update curr episode here
-                                    currEpisodePos = findIndexFromList(currentEp);
-                                }
-                                else if (index == currEpisodePos){
-                                    if (!playList.isEmpty()){
-                                        currEpisodePos = (currEpisodePos == (playList.size() - 1)) ? 0 : currEpisodePos;
-                                        playMediaFileAtIndex(currEpisodePos);
-                                    }
-                                    else{
-                                        stopPlayback();
-                                    }
+                int state = info.second;
+                switch (state) {
+                    case MEDIA_REMOVED_FROM_PLAYLIST:
+                        Episode currentEp = playList.get(currEpisodePos);
+                        if (currEpisodePos >= 0) {
+                            int index = findIndexFromList(info.first);
+                            if (index >= 0) {
+                                removeTrackFromPlayList(index);
+                            }
+                            // only remove item above will affect the index
+                            // fix the current pointer of the playlist position
+                            if (index < currEpisodePos) {
+                                // just need to update curr episode here
+                                currEpisodePos = findIndexFromList(currentEp);
+                            } else if (index == currEpisodePos) {
+                                if (!playList.isEmpty()) {
+                                    currEpisodePos = (currEpisodePos == (playList.size() - 1)) ? 0 : currEpisodePos;
+                                    playMediaFileAtIndex(currEpisodePos);
+                                } else {
+                                    stopPlayback();
                                 }
                             }
-                            break;
-                    }
+                        }
+                        break;
+                }
             }
 
             @Override
@@ -177,8 +173,8 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
 
     private synchronized int findIndexFromList(Episode ep) {
-        for (int i = 0; i < playList.size() ; i++) {
-            if (playList.get(i).getUniqueId().equals(ep.getUniqueId())){
+        for (int i = 0; i < playList.size(); i++) {
+            if (playList.get(i).getUniqueId().equals(ep.getUniqueId())) {
                 return i;
             }
         }
@@ -256,17 +252,17 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
                 @Override
                 public void onNext(EpisodeState episodeState) {
-                        switch(episodeState.getState()){
-                            case EpisodeState.DELETED:
-                                for (Episode ep : playList) {
-                                    if (ep.getUniqueId().equals(episodeState.getUniqueId())) {
-                                        MediaPlayBackService.publishMediaPlaybackSubject(ep,
-                                                MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
-                                        saveMediaPlaylist();
-                                        break;
-                                    }
+                    switch (episodeState.getState()) {
+                        case EpisodeState.DELETED:
+                            for (Episode ep : playList) {
+                                if (ep.getUniqueId().equals(episodeState.getUniqueId())) {
+                                    MediaPlayBackService.publishMediaPlaybackSubject(ep,
+                                            MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
+                                    saveMediaPlaylist();
+                                    break;
                                 }
-                        }
+                            }
+                    }
                 }
 
                 @Override
@@ -291,25 +287,26 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
                         @Override
                         public void onNext(PodcastState podcastState) {
-                                switch (podcastState.getState()){
-                                    case PodcastState.UNSUBSCRIBED:
-                                        // check if current episode is belong to this unsubscribed one
-                                        for (Episode ep : playList) {
-                                            if (ep.getPodcastId().equals(podcastState.getUniqueId())) {
-                                                MediaPlayBackService.publishMediaPlaybackSubject(ep,
-                                                        MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
-                                            }
+                            switch (podcastState.getState()) {
+                                case PodcastState.UNSUBSCRIBED:
+                                    // check if current episode is belong to this unsubscribed one
+                                    for (Episode ep : playList) {
+                                        if (ep.getPodcastId().equals(podcastState.getUniqueId())) {
+                                            MediaPlayBackService.publishMediaPlaybackSubject(ep,
+                                                    MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
                                         }
-                                        saveMediaPlaylist();
-                                        break;
+                                    }
+                                    saveMediaPlaylist();
+                                    break;
 
-                                }
+                            }
                         }
 
                         @Override
                         public void onError(Throwable e) {
 
                         }
+
                         @Override
                         public void onComplete() {
 
@@ -317,7 +314,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                     }
             );
             // load playlist from file
-            Observable.just(StorageUtil.loadMediaPlayList(this))
+            Observable.just(StorageUtil.INSTANCE.loadMediaPlayList(this))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -330,37 +327,42 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                                 public void onNext(List<Episode> episodeList) {
                                     initialized = true;
                                     playList = episodeList;
-                                    if (playList.size() > 0){
+                                    if (playList.size() > 0) {
                                         // simply set the current index to 0
                                         currEpisodePos = 0;
                                         prepareMediaFile(playList.get(0));
                                     }
                                 }
+
                                 @Override
                                 public void onError(Throwable e) {
                                     e.printStackTrace();
                                 }
+
                                 @Override
                                 public void onComplete() {
                                 }
                             }
                     );
         }
-
-        if (intent != null && initialized){
+        // handle Widget intent
+        if (intent != null && initialized) {
             int action = intent.getIntExtra(GetYourCastWidgetProvider.Companion.getWIDGET_MEDIA_ACTION_KEY(), 0xFF);
             switch (action) {
                 case WIDGET_ACTION_PAUSE:
                     pausePlayback();
                     break;
                 case WIDGET_ACTION_PLAY:
-                    if (exoPlayer!= null) {
+                    if (exoPlayer != null) {
                         resumePlayback();
                     } else if (currEpisodePos < 0 && !playList.isEmpty()) {
                         playMediaFileAtIndex(0);
                     } else {
                         MediaPlayBackService.publishMediaPlaybackSubject(null, MediaPlayBackService
                                 .MEDIA_PLAYLIST_EMPTY);
+                        GetYourCastWidgetProvider.Companion.resolveButtonState(this,
+                                GetYourCastWidgetProvider.Companion.getWIDGET_EMPTY_PLAYLIST_ACTION_PROVIDER(),
+                                false,null);
                     }
                     break;
                 case WIDGET_ACTION_NEXT:
@@ -383,38 +385,36 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     private void saveMediaPlaylist() {
         Observable.just(
-                StorageUtil.saveMediaPlayList(this,playList)
+                StorageUtil.INSTANCE.saveMediaPlayList(this, playList)
         ).subscribeOn(Schedulers.io())
-         .subscribe(
-                 new Observer<Boolean>() {
-                     @Override
-                     public void onSubscribe(Disposable d) {
+                .subscribe(
+                        new Observer<Boolean>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
 
-                     }
-
-                     @Override
-                     public void onNext(Boolean result) {
-                            if (result){
-                                Log.d(TAG,"Successfully save media playlist as GSON");
                             }
-                            else{
-                                Log.e(TAG, "Failed to save media playlist");
+
+                            @Override
+                            public void onNext(Boolean result) {
+                                if (result) {
+                                    Log.d(TAG, "Successfully save media playlist as GSON");
+                                } else {
+                                    Log.e(TAG, "Failed to save media playlist");
+                                }
                             }
-                     }
 
-                     @Override
-                     public void onError(Throwable e) {
+                            @Override
+                            public void onError(Throwable e) {
 
-                     }
+                            }
 
-                     @Override
-                     public void onComplete() {
+                            @Override
+                            public void onComplete() {
 
-                     }
-                 }
-         );
+                            }
+                        }
+                );
     }
-
 
 
     @Override
@@ -428,7 +428,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             mediaSessionConn.mediaSession.release();
         }
 
-        if (playListRemoveDisposable != null ) {
+        if (playListRemoveDisposable != null) {
             playListRemoveDisposable.dispose();
             playListRemoveDisposable = null;
         }
@@ -450,7 +450,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /*====================== SERVICE APP FUNTIONS EXPOSED TO CLIENTS ============ */
 
-    private synchronized void  prepareMediaFile(Episode episode) {
+    private synchronized void prepareMediaFile(Episode episode) {
         stopPlayback();
         initExoPlayer();
         exoPlayer.addListener(this);
@@ -475,6 +475,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /**
      * add this function to support select song on the playlist side
+     *
      * @param index
      */
     public synchronized void playMediaFileAtIndex(int index) {
@@ -487,18 +488,49 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             exoPlayer.prepare(buildMediaSourceFromUrl(playList.get(index).getLocalUrl()));
             exoPlayer.setPlayWhenReady(true);
             publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_TRACK_CHANGED);
-        }
+            // update app widget to display new image
+            PodcastViewModel.getInstance(DataSourceRepo.getInstance(this))
+                    .getPodcastObservable(playList.get(currEpisodePos).getPodcastId())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            new Observer<Podcast>() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
 
+                                }
+
+                                @Override
+                                public void onNext(Podcast podcast) {
+                                    GetYourCastWidgetProvider.Companion.resolveButtonState(
+                                            MediaPlayBackService.this,
+                                            GetYourCastWidgetProvider.Companion.getWIDGET_PLAY_ACTION_PROVIDER(),
+                                            false,
+                                            podcast.getImgLocalPath()
+                                    );
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    e.printStackTrace();
+                                }
+
+                                @Override
+                                public void onComplete() {
+
+                                }
+                            }
+                    );
+        }
     }
 
-    public void setPlayerView (SimpleExoPlayerView view) {
+    public void setPlayerView(SimpleExoPlayerView view) {
         view.setPlayer(exoPlayer);
     }
 
 
     private int findDuplicateIndex(Episode ep) {
         for (int i = 0; i < playList.size(); i++) {
-            if (playList.get(i).getUniqueId().equals(ep.getUniqueId())){
+            if (playList.get(i).getUniqueId().equals(ep.getUniqueId())) {
                 return i;
             }
         }
@@ -519,6 +551,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /**
      * add track to the current end of the playlist
+     *
      * @param episode
      */
     public synchronized void addTrackToEndPlaylist(Episode episode) {
@@ -537,6 +570,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /**
      * remove item from playlist
+     *
      * @param index
      */
     private synchronized void removeTrackFromPlayList(int index) {
@@ -546,12 +580,13 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /**
      * to help synchronize between playlist activity and current playlist
+     *
      * @return
      */
     public synchronized List<Episode> getMediaPlaylist() {
         // make a copy here to avoid mutable outside of this class
         List<Episode> newList = new ArrayList<>();
-        for (Episode ep: this.playList) {
+        for (Episode ep : this.playList) {
             newList.add(new Episode(ep));
         }
         return newList;
@@ -582,11 +617,23 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(false);
         }
+        GetYourCastWidgetProvider.Companion.resolveButtonState(
+                this,
+                GetYourCastWidgetProvider.Companion.getWIDGET_PAUSE_ACTION_PROVIDER(),
+                false,
+                null
+                );
     }
 
     public synchronized void resumePlayback() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(true);
+            GetYourCastWidgetProvider.Companion.resolveButtonState(
+                    this,
+                    GetYourCastWidgetProvider.Companion.getWIDGET_PAUSE_ACTION_PROVIDER(),
+                    false,
+                    null
+            );
         }
         if (playList.isEmpty()) {
 
@@ -594,10 +641,12 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     }
 
     public boolean isEpisodeInPlayList(String episodeKey) {
-       for (Episode ep : playList) {
-           if (ep.getUniqueId().equals(episodeKey)) {return true;}
-       }
-       return false;
+        for (Episode ep : playList) {
+            if (ep.getUniqueId().equals(episodeKey)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -609,7 +658,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            Log.d(TAG, "Track Changed");
+        Log.d(TAG, "Track Changed");
     }
 
     @Override
@@ -625,8 +674,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                 case Player.STATE_READY:
                     if (exoPlayer.getPlayWhenReady()) {
                         publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_PLAYING);
-                    }
-                    else{
+                    } else {
                         publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_PAUSE);
                     }
 
@@ -645,10 +693,11 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /**
      * return the next song index
+     *
      * @return
      */
-    private int getNextMediaFile () {
-        if (playList.size() == 0){
+    private int getNextMediaFile() {
+        if (playList.size() == 0) {
             return -1;
         }
         return (currEpisodePos == playList.size() - 1) ? 0 : currEpisodePos + 1;
@@ -656,13 +705,14 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
     /**
      * return the previous song index
+     *
      * @return
      */
     private int getPrevMediaFile() {
-        if (playList.size() == 0){
+        if (playList.size() == 0) {
             return -1;
         }
-        return (currEpisodePos == 0) ? playList.size() -1 : currEpisodePos - 1;
+        return (currEpisodePos == 0) ? playList.size() - 1 : currEpisodePos - 1;
     }
 
     @Override
@@ -684,8 +734,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
 
     }
-
-
 
 
     public class MediaPlayBackServiceBinder extends Binder {

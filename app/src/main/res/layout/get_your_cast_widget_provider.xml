@@ -1,6 +1,11 @@
 
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/widget_playback_control"
         android:orientation="horizontal"
         android:gravity="center_horizontal"
         android:layout_width="match_parent"
@@ -36,4 +41,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>
+
+    <TextView
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/widget_empty_view"
+        android:text="@string/empty_play_list_str"
+        />
+</FrameLayout>
+
 

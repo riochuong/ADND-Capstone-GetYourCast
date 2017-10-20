@@ -245,7 +245,7 @@ public class DownloadService extends Service {
         if (fetcher.isValid()) {
             Request req = new Request(url, dirPath, filename);
             // remove duplicate filename in the db
-            StorageUtil.cleanUpOldFile(episode, this);
+            StorageUtil.INSTANCE.cleanUpOldFile(episode, this);
             long id = fetcher.enqueue(req);
             listReqIds.put(id,id);
             String fullUrl = dirPath+"/"+filename;
