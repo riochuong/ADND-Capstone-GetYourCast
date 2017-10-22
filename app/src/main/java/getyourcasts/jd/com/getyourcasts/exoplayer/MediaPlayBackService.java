@@ -123,7 +123,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         }
     }
 
-    private void initPlayListRemoveObserver() {
+    private void initMediaPlaybackObserver() {
         subscribeMediaPlaybackSubject(new Observer<Pair<Episode, Integer>>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -134,6 +134,46 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             public void onNext(Pair<Episode, Integer> info) {
                 int state = info.second;
                 switch (state) {
+                    case MEDIA_PLAYING:
+                        PodcastViewModel.getInstance(DataSourceRepo.getInstance(MediaPlayBackService.this))
+                                .getPodcastObservable(playList.get(currEpisodePos).getPodcastId())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        new Observer<Podcast>() {
+                                            @Override
+                                            public void onSubscribe(Disposable d) {
+
+                                            }
+
+                                            @Override
+                                            public void onNext(Podcast podcast) {
+                                                GetYourCastWidgetProvider.Companion.resolveButtonState(
+                                                        MediaPlayBackService.this,
+                                                        GetYourCastWidgetProvider.Companion.getWIDGET_PLAY_ACTION_PROVIDER(),
+                                                        false,
+                                                        podcast.getImgLocalPath()
+                                                );
+                                            }
+
+                                            @Override
+                                            public void onError(Throwable e) {
+                                                e.printStackTrace();
+                                            }
+
+                                            @Override
+                                            public void onComplete() {
+
+                                            }
+                                        }
+                                );
+                        break;
+                    case MEDIA_PAUSE:
+                        GetYourCastWidgetProvider.Companion.resolveButtonState(
+                                MediaPlayBackService.this,
+                                GetYourCastWidgetProvider.Companion.getWIDGET_PAUSE_ACTION_PROVIDER(),
+                                false,
+                                null);
+                        break;
                     case MEDIA_REMOVED_FROM_PLAYLIST:
                         Episode currentEp = playList.get(currEpisodePos);
                         if (currEpisodePos >= 0) {
@@ -236,7 +276,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         dataSourceFactory = buildDataSource();
         extractorFactory = buildExtractorFactory();
         playList = new ArrayList<>();
-        initPlayListRemoveObserver();
+        initMediaPlaybackObserver();
     }
 
     @Override
@@ -249,7 +289,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                 public void onSubscribe(Disposable d) {
 
                 }
-
                 @Override
                 public void onNext(EpisodeState episodeState) {
                     switch (episodeState.getState()) {
@@ -275,8 +314,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
 
                 }
             });
-
-
             // subscribe to Podcast to remove episode of unsubscribed one
             PodcastViewModel.subscribePodcastSubject(
                     new Observer<PodcastState>() {
@@ -489,37 +526,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
             exoPlayer.setPlayWhenReady(true);
             publishMediaPlaybackSubject(playList.get(currEpisodePos), MEDIA_TRACK_CHANGED);
             // update app widget to display new image
-            PodcastViewModel.getInstance(DataSourceRepo.getInstance(this))
-                    .getPodcastObservable(playList.get(currEpisodePos).getPodcastId())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            new Observer<Podcast>() {
-                                @Override
-                                public void onSubscribe(Disposable d) {
-
-                                }
-
-                                @Override
-                                public void onNext(Podcast podcast) {
-                                    GetYourCastWidgetProvider.Companion.resolveButtonState(
-                                            MediaPlayBackService.this,
-                                            GetYourCastWidgetProvider.Companion.getWIDGET_PLAY_ACTION_PROVIDER(),
-                                            false,
-                                            podcast.getImgLocalPath()
-                                    );
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    e.printStackTrace();
-                                }
-
-                                @Override
-                                public void onComplete() {
-
-                                }
-                            }
-                    );
         }
     }
 
@@ -617,23 +623,11 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(false);
         }
-        GetYourCastWidgetProvider.Companion.resolveButtonState(
-                this,
-                GetYourCastWidgetProvider.Companion.getWIDGET_PAUSE_ACTION_PROVIDER(),
-                false,
-                null
-                );
     }
 
     public synchronized void resumePlayback() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(true);
-            GetYourCastWidgetProvider.Companion.resolveButtonState(
-                    this,
-                    GetYourCastWidgetProvider.Companion.getWIDGET_PAUSE_ACTION_PROVIDER(),
-                    false,
-                    null
-            );
         }
         if (playList.isEmpty()) {
 

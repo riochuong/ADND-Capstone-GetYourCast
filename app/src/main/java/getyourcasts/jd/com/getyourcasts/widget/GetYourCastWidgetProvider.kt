@@ -64,12 +64,12 @@ class GetYourCastWidgetProvider : AppWidgetProvider() {
             var mediaAction : Intent? = null
             when (action) {
                 WIDGET_PLAY_ACTION_PROVIDER -> {
-                    mediaAction = getIntentForPlayBtnNextState(context, WIDGET_PRESS_TO_PAUSE)
-                    forceUpdateAppWidgets(context, imgRsc, WIDGET_PRESS_TO_PAUSE)
-                }
-                WIDGET_PAUSE_ACTION_PROVIDER -> {
                     mediaAction = getIntentForPlayBtnNextState(context, WIDGET_PRESS_TO_PLAY)
                     forceUpdateAppWidgets(context, imgRsc, WIDGET_PRESS_TO_PLAY)
+                }
+                WIDGET_PAUSE_ACTION_PROVIDER -> {
+                    mediaAction = getIntentForPlayBtnNextState(context, WIDGET_PRESS_TO_PAUSE)
+                    forceUpdateAppWidgets(context, imgRsc, WIDGET_PRESS_TO_PAUSE)
                 }
                 WIDGET_NEXT_ACTION_PROVIDER -> {
                     mediaAction = getNextIntentBtn(context)
@@ -150,11 +150,14 @@ class GetYourCastWidgetProvider : AppWidgetProvider() {
                 views.setViewVisibility(R.id.widget_empty_view, View.GONE)
                 views.setViewVisibility(R.id.widget_playback_control, View.VISIBLE)
                 val broadcastBack = Intent(context, GetYourCastWidgetProvider::class.java)
-                broadcastBack.action = WIDGET_PLAY_ACTION_PROVIDER
+                // determine which action to assign button
+                if (widgetCurrState == WIDGET_PRESS_TO_PLAY) broadcastBack.action = WIDGET_PAUSE_ACTION_PROVIDER
+                else broadcastBack.action = WIDGET_PLAY_ACTION_PROVIDER
+
                 views.setOnClickPendingIntent(R.id.widget_play_pause_btn,
                         PendingIntent.getBroadcast(context, WIDGET_REQ_CODE,
                                 broadcastBack, PendingIntent.FLAG_UPDATE_CURRENT))
-                updatePlayPauseBtn(views, widgetCurrState)
+                updatePlayPauseBtn(views, broadcastBack.action)
                 // setup prev/next on click listener
                 val broadcastNext = Intent(context, GetYourCastWidgetProvider::class.java)
                 broadcastNext.action = WIDGET_NEXT_ACTION_PROVIDER
@@ -190,10 +193,11 @@ class GetYourCastWidgetProvider : AppWidgetProvider() {
             }
         }
 
-        private fun updatePlayPauseBtn(views: RemoteViews, widgetCurrState: Int) {
-            when (widgetCurrState) {
-                WIDGET_PRESS_TO_PAUSE -> views.setImageViewResource(R.id.widget_play_pause_btn, R.mipmap.ic_media_pause)
-                WIDGET_PRESS_TO_PLAY -> {
+        private fun updatePlayPauseBtn(views: RemoteViews, nextAction: String) {
+            when (nextAction) {
+                WIDGET_PAUSE_ACTION_PROVIDER -> views.setImageViewResource(R.id.widget_play_pause_btn, R.mipmap
+                        .ic_media_pause)
+                WIDGET_PLAY_ACTION_PROVIDER -> {
                     views.setImageViewResource(R.id.widget_play_pause_btn, R.mipmap.ic_media_play)
                 }
             }

@@ -35,7 +35,7 @@ open class BaseActivity : AppCompatActivity() {
     internal var isPlaybackShow = false
     lateinit var controlViewHolder: PlaybackControlViewHolder
     internal lateinit var viewModel: PodcastViewModel
-    internal var mediaBoundListeners: MutableList<MediaServiceBoundListener> = ArrayList()
+    private var mediaBoundListeners: MutableList<MediaServiceBoundListener> = ArrayList()
     internal var currEpisode: Episode? = null
 
 
@@ -44,7 +44,7 @@ open class BaseActivity : AppCompatActivity() {
     protected var mediaService: MediaPlayBackService? = null
 
     // connection to service
-    protected var mediaServiceConnection: ServiceConnection? = object : ServiceConnection {
+    private var mediaServiceConnection: ServiceConnection? = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             boundToMediaService = true
             mediaService = (service as MediaPlayBackService.MediaPlayBackServiceBinder).service
@@ -162,7 +162,7 @@ open class BaseActivity : AppCompatActivity() {
         internal var artist: TextView
         internal var actionBtn: ImageButton
         internal var actionBtnDisposable: Disposable? = null
-        internal var mediaService: MediaPlayBackService? = null
+        private var mediaService: MediaPlayBackService? = null
         internal var actionBtnState = MediaPlayBackService.MEDIA_UNKNOWN_STATE
 
         fun setMediaService(mediaService: MediaPlayBackService?) {
