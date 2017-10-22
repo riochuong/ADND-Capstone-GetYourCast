@@ -1,13 +1,15 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="@dimen/widget_width"
+    android:layout_height="@dimen/widget_height"
+    android:background="@color/transparent"
     >
     <LinearLayout
         android:id="@+id/widget_playback_control"
         android:orientation="horizontal"
         android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -46,7 +48,10 @@
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center_vertical|center_horizontal"
         android:id="@+id/widget_empty_view"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold|italic"
         android:text="@string/empty_play_list_str"
         />
 </FrameLayout>

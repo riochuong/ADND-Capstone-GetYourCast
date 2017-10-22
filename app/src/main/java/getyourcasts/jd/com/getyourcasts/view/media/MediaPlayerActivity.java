@@ -6,15 +6,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Pair;
 
 import com.pixelcan.inkpageindicator.InkPageIndicator;
 
 import getyourcasts.jd.com.getyourcasts.R;
-import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService;
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 
 public class MediaPlayerActivity extends AppCompatActivity {
     ViewPager viewPager;

@@ -168,19 +168,20 @@ class MediaPlayerViewFragment : Fragment() {
     }
 
     private fun initMediaServiceSubscribe() {
-        MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode, Int>> {
+        MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode?, Int>> {
             override fun onSubscribe(d: Disposable) {
                 mediaServiceDisposable = d
             }
 
-            override fun onNext(info: Pair<Episode, Int>) {
+            override fun onNext(info: Pair<Episode?, Int>) {
+                if (info.first == null) {
+                    return
+                }
                 val state = info.second
-
                 when (state) {
                     MediaPlayBackService.MEDIA_STOPPED, MediaPlayBackService.MEDIA_PAUSE, MediaPlayBackService.MEDIA_PLAYING -> {
-                        val epId = info.first.uniqueId
+                        val epId = info.first!!.uniqueId
                         if (currentEpisode == null || currentEpisode!!.uniqueId != epId) {
-
                             reloadCorrectDataForFragment(info)
                         }
                     }
@@ -212,18 +213,17 @@ class MediaPlayerViewFragment : Fragment() {
         }
     }
 
-    private fun reloadCorrectDataForFragment(info: Pair<Episode, Int>) {
+    private fun reloadCorrectDataForFragment(info: Pair<Episode?, Int>) {
+        if (info.first == null ){
+            return
+        }
         currentEpisode = info.first
-        podcastId = info.first.podcastId
+        podcastId = info.first!!.podcastId
         enablePlayerView(true)
         // load album podcast image to the view
-        if (info.first.type.contains("audio")) {
-            isVideo = false
-        } else {
-            isVideo = true
-        }
+        isVideo = !info.first!!.type.contains("audio")
         // load image
-        loadImgViewForPodcast(info.first.podcastId, isVideo)
+        loadImgViewForPodcast(info.first!!.podcastId, isVideo)
         if (mediaService != null) {
             mediaService!!.setPlayerView(playerView)
         }

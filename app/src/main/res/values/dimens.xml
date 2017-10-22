@@ -47,4 +47,6 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="remove_ic_size">30dp</dimen>
     <dimen name="download_image_size">60dp</dimen>
     <dimen name="design_navigation_icon_size" tools:override="true">40dp</dimen>
+    <dimen name="widget_width">350dp</dimen>
+    <dimen name="widget_height">80dp</dimen>
 </resources>

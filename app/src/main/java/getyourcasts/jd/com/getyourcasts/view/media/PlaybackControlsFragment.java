@@ -1,8 +1,6 @@
 package getyourcasts.jd.com.getyourcasts.view.media;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import getyourcasts.jd.com.getyourcasts.R;
-import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService;
-import getyourcasts.jd.com.getyourcasts.view.BaseActivity;
 
 
 public class PlaybackControlsFragment extends Fragment  {

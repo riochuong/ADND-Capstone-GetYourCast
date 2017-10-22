@@ -23,7 +23,6 @@ import getyourcasts.jd.com.getyourcasts.view.adapter.MediaPlaylistRecyclerAdapte
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-import static getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST;
 
 /**
  * Created by chuondao on 8/11/17.
@@ -95,7 +94,7 @@ public class PlayListFragment extends Fragment {
             public void onNext(Pair<Episode, Integer> info) {
                 int state = info.second;
                 switch (state) {
-                    case MEDIA_REMOVED_FROM_PLAYLIST:
+                    case MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST:
                         if (mediaService != null){
                             adapter.setEpisodeList(mediaService.getMediaPlaylist());
                         }

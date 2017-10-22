@@ -398,7 +398,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
 
             @Override
             public void onError() {
-                Log.e(TAG, "Failed to download episode "+episode.getTitle());
+                    Log.e(TAG, "Failed to download episode "+episode.getTitle());
                 vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down);
                 vh.downPlayImg.setVisibility(View.VISIBLE);
                 vh.progressView.setVisibility(View.GONE);

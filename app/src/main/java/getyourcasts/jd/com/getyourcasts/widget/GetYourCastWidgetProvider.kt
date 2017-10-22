@@ -7,15 +7,22 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.util.Pair
 import android.view.View
 import android.widget.RemoteViews
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import getyourcasts.jd.com.getyourcasts.R
-import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
+import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
+import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
+import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.MainPodcastActivity
 import getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerActivity
+import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 
 
 /**
@@ -211,5 +218,57 @@ class GetYourCastWidgetProvider : AppWidgetProvider() {
         val WIDGET_MEDIA_ACTION_KEY = "widget_media_action_key"
     }
 
+    override fun onEnabled(context: Context?) {
+        super.onEnabled(context)
+        var disposable : Disposable? = null
+        MediaPlayBackService.subscribeMediaPlaybackSubject(
+                object : Observer<Pair<Episode?, Int>> {
+                    override fun onSubscribe(d: Disposable) {
+                        disposable = d
+                    }
+
+                    override fun onNext(info: Pair<Episode?, Int>) {
+                        // make sure we have valid epsiode
+                        if (info.first == null){
+                            return
+                        }
+
+                        PodcastViewModel.getInstance(DataSourceRepo.getInstance(context))
+                                .getPodcastObservable(info.first!!.podcastId)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        // on next
+                                        {
+                                            if (context != null) {
+                                                when(info.second) {
+                                                    MediaPlayBackService.MEDIA_PLAYING ->
+                                                        forceUpdateAppWidgets(context,it.imgLocalPath, WIDGET_PRESS_TO_PLAY)
+                                                    MediaPlayBackService.MEDIA_PAUSE ->
+                                                        forceUpdateAppWidgets(context,it.imgLocalPath, WIDGET_PRESS_TO_PAUSE)
+                                                }
+                                            }
+                                        },
+                                        // on error
+                                        {
+                                            it.printStackTrace()
+                                        }
+                                )
+
+                        // only run this once
+                        if (disposable != null) disposable!!.dispose()
+                    }
+
+
+                    override fun onError(e: Throwable) {
+                        e.printStackTrace()
+                    }
+
+                    override fun onComplete() {
+
+                    }
+                }
+        )
+
+    }
 }
 

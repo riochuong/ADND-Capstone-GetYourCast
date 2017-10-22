@@ -196,6 +196,13 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                             }
                         }
                         break;
+                    case MEDIA_PLAYLIST_EMPTY:
+                        GetYourCastWidgetProvider.Companion.resolveButtonState(
+                                MediaPlayBackService.this,
+                                GetYourCastWidgetProvider.Companion.getWIDGET_EMPTY_PLAYLIST_ACTION_PROVIDER(),
+                                false,
+                                null);
+                        break;
                 }
             }
 

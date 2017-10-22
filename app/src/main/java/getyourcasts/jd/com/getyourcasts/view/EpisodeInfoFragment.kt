@@ -215,12 +215,12 @@ class EpisodeInfoFragment : Fragment() {
     private fun subscribeToMediaServiceSubject() {
 
         MediaPlayBackService.subscribeMediaPlaybackSubject(
-                object : Observer<Pair<Episode, Int>> {
+                object : Observer<Pair<Episode?, Int>> {
                     override fun onSubscribe(d: Disposable) {
                         mediaServiceDisposable = d
                     }
 
-                    override fun onNext(t: Pair<Episode, Int>) {
+                    override fun onNext(t: Pair<Episode?, Int>) {
                         val episode = t.first
                         val state = t.second
                         if (episode != null && currInfoEpisode!!.uniqueId == episode.uniqueId) {
@@ -349,7 +349,7 @@ class EpisodeInfoFragment : Fragment() {
             // ADD song to play list
             Log.d(TAG, "ADD TO PLAYLIST !!! ")
             if (mediaService != null && !mediaService!!.isEpisodeInPlayList(currInfoEpisode!!.uniqueId)) {
-                mediaService!!.addTrackToEndPlaylist(currInfoEpisode)
+                mediaService!!.addTrackToEndPlaylist(currInfoEpisode!!)
                 add_to_playlist.setImageResource(R.mipmap.ic_already_add_to_playlist)
             }
         }

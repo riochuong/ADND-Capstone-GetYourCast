@@ -21,7 +21,6 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
-import getyourcasts.jd.com.getyourcasts.view.glide.GlideAppModule
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener
 import getyourcasts.jd.com.getyourcasts.view.media.PlaybackControlsFragment
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
@@ -197,30 +196,33 @@ open class BaseActivity : AppCompatActivity() {
         }
 
         fun subscribeToMediaService() {
-            MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode, Int>> {
+            MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<Pair<Episode?, Int>> {
                 override fun onSubscribe(d: Disposable) {
                     actionBtnDisposable = d
                 }
 
-                override fun onNext(info: Pair<Episode, Int>) {
-
+                override fun onNext(info: Pair<Episode?, Int>) {
+                    // make sure we have valid epsiode
+                    if (info.first == null){
+                        return
+                    }
                     when (info.second) {
                         MediaPlayBackService.MEDIA_TRACK_CHANGED, MediaPlayBackService.MEDIA_PLAYING -> if (actionBtnState != MediaPlayBackService.MEDIA_PLAYING) {
                             actionBtnState = MediaPlayBackService.MEDIA_PLAYING
                             actionBtn.setImageResource(R.mipmap.ic_pause_for_list)
-                            setControlPlaybackInfo(info.first, actionBtnState)
+                            setControlPlaybackInfo(info.first!!, actionBtnState)
                             if (!this@BaseActivity.isPlaybackShow) {
                                 this@BaseActivity.showPlaybackControls()
                             }
 
-                        } else if (currEpisode == null || currEpisode!!.uniqueId != info.first.uniqueId) {
-                            setControlPlaybackInfo(info.first, actionBtnState)
+                        } else if (currEpisode == null || currEpisode!!.uniqueId != info.first!!.uniqueId) {
+                            setControlPlaybackInfo(info.first!!, actionBtnState)
                         }
                         MediaPlayBackService.MEDIA_PAUSE, MediaPlayBackService.MEDIA_ADDED_TO_PLAYLIST, MediaPlayBackService.MEDIA_STOPPED -> {
                             if (actionBtnState != MediaPlayBackService.MEDIA_PAUSE) {
                                 actionBtnState = MediaPlayBackService.MEDIA_PAUSE
                                 actionBtn.setImageResource(R.mipmap.ic_ep_play)
-                                setControlPlaybackInfo(info.first, actionBtnState)
+                                setControlPlaybackInfo(info.first!!, actionBtnState)
                             }
                             if (!this@BaseActivity.isPlaybackShow) {
                                 this@BaseActivity.showPlaybackControls()

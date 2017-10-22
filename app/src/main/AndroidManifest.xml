@@ -80,7 +80,7 @@
         <service
             android:name=".exoplayer.MediaPlayBackService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
         </service>
         <service
             android:name=".update.UpdateJobService"
