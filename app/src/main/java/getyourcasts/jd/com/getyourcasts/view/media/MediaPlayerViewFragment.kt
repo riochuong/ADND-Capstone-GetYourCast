@@ -121,11 +121,11 @@ class MediaPlayerViewFragment : Fragment() {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE && isVideo) {
             Log.d(TAG, "In Landscape mode")
             root = inflater!!.inflate(R.layout.fragment_media_player_view_horizontal_video, container, false)
-            playerView = root!!.findViewById(R.id.simple_exo_video_view) as SimpleExoPlayerView
+            playerView = root!!.findViewById(R.id.simple_exo_video_view)
         } else { // IN PORTRAIT MODE && not landscape video
             root = inflater!!.inflate(R.layout.fragment_media_player_view_vertical, container, false)
-            playerView = root!!.findViewById(R.id.simple_exo_video_view) as SimpleExoPlayerView
-            close_icon = root.findViewById(R.id.close_icon) as ImageView
+            playerView = root!!.findViewById(R.id.simple_exo_video_view)
+            close_icon = root.findViewById(R.id.close_icon)
             // set X icon to go back to previous screen
             if (close_icon != null) {
                 close_icon!!.setOnClickListener { activity.onBackPressed() }
@@ -133,15 +133,15 @@ class MediaPlayerViewFragment : Fragment() {
         }
 
         // find common features
-        videoSurfaceView = playerView.findViewById(R.id.exo_content_frame) as AspectRatioFrameLayout
-        mainLayout = root.findViewById(R.id.media_player_view_main_layout) as LinearLayout
+        videoSurfaceView = playerView.findViewById(R.id.exo_content_frame)
+        mainLayout = root.findViewById(R.id.media_player_view_main_layout)
         // some of the below might be null
-        exoShutter = playerView.findViewById(R.id.exo_shutter) as ImageView
-        episodeTitle = playerView.findViewById(R.id.media_player_view_episode_title) as TextView
-        emptyView = root.findViewById(R.id.media_player_empty_view) as TextView
-        controlView = playerView.findViewById(R.id.exo_controller) as PlaybackControlView
-        mediaNextBtn = controlView.findViewById(R.id.playback_exo_next) as ImageButton
-        mediaPrevBtn = controlView.findViewById(R.id.playback_exo_prev) as ImageButton
+        exoShutter = playerView.findViewById(R.id.exo_shutter)
+        episodeTitle = playerView.findViewById(R.id.media_player_view_episode_title)
+        emptyView = root.findViewById(R.id.media_player_empty_view)
+        controlView = playerView.findViewById(R.id.exo_controller)
+        mediaNextBtn = controlView.findViewById(R.id.playback_exo_next)
+        mediaPrevBtn = controlView.findViewById(R.id.playback_exo_prev)
         // set this to enable text marquee
         if (episodeTitle != null) {
             episodeTitle!!.isSelected = true

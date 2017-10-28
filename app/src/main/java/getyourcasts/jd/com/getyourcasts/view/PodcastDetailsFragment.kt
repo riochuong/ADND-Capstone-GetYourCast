@@ -75,15 +75,15 @@ class PodcastDetailsFragment : Fragment() {
         viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this.context))
         // disable subscribe button until all views are ready
         val root = inflater!!.inflate(R.layout.fragment_podcast_detail_layout, container, false)
-        subscribe_button = root.findViewById(R.id.subscribe_button) as FloatingActionButton
-        pocast_detail_scroll_view = root.findViewById(R.id.pocast_detail_scroll_view) as ScrollView
-        podcast_detail_title = root.findViewById(R.id.podcast_detail_title) as TextView
-        podcast_detail_artist = root.findViewById(R.id.podcast_detail_artist) as TextView
-        podcast_total_episodes = root.findViewById(R.id.podcast_total_episodes) as TextView
-        podcast_detail_main_fragment = root.findViewById(R.id.podcast_detail_main_fragment) as CoordinatorLayout
-        podcast_detail_desc = root.findViewById(R.id.podcast_detail_desc) as TextView
-        loading_prog_view = root.findViewById(R.id.loading_prog_view) as AVLoadingIndicatorView
-        podcast_detail_img = root.findViewById(R.id.podcast_detail_img) as ImageView
+        subscribe_button = root.findViewById(R.id.subscribe_button)
+        pocast_detail_scroll_view = root.findViewById(R.id.pocast_detail_scroll_view)
+        podcast_detail_title = root.findViewById(R.id.podcast_detail_title)
+        podcast_detail_artist = root.findViewById(R.id.podcast_detail_artist)
+        podcast_total_episodes = root.findViewById(R.id.podcast_total_episodes)
+        podcast_detail_main_fragment = root.findViewById(R.id.podcast_detail_main_fragment)
+        podcast_detail_desc = root.findViewById(R.id.podcast_detail_desc)
+        loading_prog_view = root.findViewById(R.id.loading_prog_view)
+        podcast_detail_img = root.findViewById(R.id.podcast_detail_img)
         return root
     }
 

@@ -152,17 +152,17 @@ class EpisodeInfoFragment : Fragment() {
             datePub = TimeUtil.parseDatePub(currInfoEpisode!!.pubDate)
         }
         val root = inflater!!.inflate(R.layout.fragment_episode_info, container, false)
-        ep_info_title = root.findViewById(R.id.ep_info_title) as TextView
-        ep_info_app_bar = root.findViewById(R.id.ep_info_app_bar) as AppBarLayout
-        ep_info_desc = root.findViewById(R.id.ep_info_desc) as TextView
-        ep_info_release = root.findViewById(R.id.ep_info_release) as TextView
-        ep_info_media_info = root.findViewById(R.id.ep_info_media_info) as TextView
-        episode_info_main_layout = root.findViewById(R.id.episode_info_main_layout) as CoordinatorLayout
-        episode_info_scroll_view = root.findViewById(R.id.episode_info_scroll_view) as ScrollView
-        ep_info_fab = root.findViewById(R.id.ep_info_fab) as FloatingActionButton
-        add_to_playlist = root.findViewById(R.id.add_to_playlist) as ImageView
-        episode_info_loading_anim = root.findViewById(R.id.episode_info_loading_anim) as AVLoadingIndicatorView
-        ep_info_img = root.findViewById(R.id.ep_info_img) as ImageView
+        ep_info_title = root.findViewById<TextView>(R.id.ep_info_title)
+        ep_info_app_bar = root.findViewById<AppBarLayout>(R.id.ep_info_app_bar)
+        ep_info_desc = root.findViewById<TextView>(R.id.ep_info_desc)
+        ep_info_release = root.findViewById<TextView>(R.id.ep_info_release)
+        ep_info_media_info = root.findViewById<TextView>(R.id.ep_info_media_info)
+        episode_info_main_layout = root.findViewById<CoordinatorLayout>(R.id.episode_info_main_layout)
+        episode_info_scroll_view = root.findViewById(R.id.episode_info_scroll_view)
+        ep_info_fab = root.findViewById(R.id.ep_info_fab)
+        add_to_playlist = root.findViewById(R.id.add_to_playlist)
+        episode_info_loading_anim = root.findViewById(R.id.episode_info_loading_anim)
+        ep_info_img = root.findViewById(R.id.ep_info_img)
         return root
     }
 

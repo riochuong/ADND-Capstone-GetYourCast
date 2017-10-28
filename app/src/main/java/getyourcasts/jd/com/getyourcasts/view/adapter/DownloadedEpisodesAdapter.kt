@@ -58,7 +58,6 @@ class DownloadedEpisodesAdapter(internal var episodeList: MutableList<Episode>?,
                         override fun onSubscribe(d: Disposable) {
 
                         }
-
                         override fun onNext(res: Boolean) {
                             PodcastViewModel.updateEpisodeSubject(EpisodeState(ep.uniqueId,
                                     EpisodeState.DELETED, 0))
@@ -125,10 +124,10 @@ class DownloadedEpisodesAdapter(internal var episodeList: MutableList<Episode>?,
         var mainLayout: CardView
 
         init {
-            podImg = itemView.findViewById(R.id.download_ep_img) as ImageView
-            epTitle = itemView.findViewById(R.id.download_ep_title) as TextView
-            removeImg = itemView.findViewById(R.id.download_remove_img) as ImageView
-            mainLayout = itemView.findViewById(R.id.download_item_main_layout) as CardView
+            podImg = itemView.findViewById(R.id.download_ep_img)
+            epTitle = itemView.findViewById(R.id.download_ep_title)
+            removeImg = itemView.findViewById(R.id.download_remove_img)
+            mainLayout = itemView.findViewById(R.id.download_item_main_layout) 
         }
     }
 

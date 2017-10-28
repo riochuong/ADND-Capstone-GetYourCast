@@ -123,10 +123,10 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
 
 
         init {
-            epDate = itemView.findViewById(R.id.episode_date) as TextView
-            epName = itemView.findViewById(R.id.episode_name) as TextView
-            podcastImg = itemView.findViewById(R.id.ep_img) as ImageView
-            itemRemove = itemView.findViewById(R.id.remove_item_img) as ImageView
+            epDate = itemView.findViewById(R.id.episode_date)
+            epName = itemView.findViewById(R.id.episode_name)
+            podcastImg = itemView.findViewById(R.id.ep_img)
+            itemRemove = itemView.findViewById(R.id.remove_item_img)
         }
     }
 

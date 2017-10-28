@@ -66,7 +66,7 @@ public class DataSourceRepo implements   DataRepository {
 
     @NotNull
     @Override
-    public List getAllEpisodesOfPodcast(@NotNull String podcastId) {
+    public List<Episode> getAllEpisodesOfPodcast(@NotNull String podcastId) {
         return localRepo.getAllEpisodesOfPodcast(podcastId);
     }
 

@@ -59,7 +59,7 @@ class PodcastMainViewAdapter(internal var podcastList: List<Podcast>, internal v
         var imgView: ImageView
 
         init {
-            imgView = itemView.findViewById(R.id.subscribed_pod_img) as ImageView
+            imgView = itemView.findViewById(R.id.subscribed_pod_img)
         }
     }
 }

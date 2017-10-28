@@ -138,7 +138,7 @@ public class DownloadService extends Service {
                 ContentValues cvUpdate = new ContentValues();
                 cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, fullUrl);
                 cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, EpisodeState.DOWNLOADED);
-                viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
+                viewModel.getUpdateEpisodeObservable(ep, cvUpdate)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 new Observer<Boolean>() {
@@ -149,11 +149,15 @@ public class DownloadService extends Service {
 
                                     @Override
                                     public void onNext(Boolean res) {
-                                        Log.d(TAG,"Successfully update DB $ep");
-                                        if (res) PodcastViewModel.updateEpisodeSubject(
-                                                new EpisodeState(ep.getUniqueId(),
-                                                        EpisodeState.DOWNLOADED,
-                                                        transId));
+                                        if (res) {
+                                            Log.d(TAG,"Successfully update Downloaded Episode "+ep);
+                                            if (res) PodcastViewModel.updateEpisodeSubject(
+                                                    new EpisodeState(ep.getUniqueId(),
+                                                            EpisodeState.DOWNLOADED,
+                                                            transId));
+                                        } else {
+                                            Log.e(TAG, "Failed update downloaded episode "+ep);
+                                        }
                                     }
 
                                     @Override
@@ -188,7 +192,7 @@ public class DownloadService extends Service {
                 Log.e(TAG, "Failed to request download "+ep.getDownloadUrl());
                 ContentValues cvUpdate = new ContentValues();
                 cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, "");
-                cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, 0);
+                cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, EpisodeState.FETCHED);
                 viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
@@ -200,11 +204,19 @@ public class DownloadService extends Service {
 
                                     @Override
                                     public void onNext(Boolean res) {
-                                        Log.d(TAG,"Successfully update DB "+ep);
-                                        PodcastViewModel.updateEpisodeSubject(
-                                                new EpisodeState(ep.getUniqueId(),
-                                                        EpisodeState.FETCHED,
-                                                        transId));
+                                        if (res) {
+                                            Log.d(TAG,"Failed to download Epsiode. Update Episode as Fetched only  " +
+                                                    ""+ep);
+                                            PodcastViewModel.updateEpisodeSubject(
+                                                    new EpisodeState(ep.getUniqueId(),
+                                                            EpisodeState.FETCHED,
+                                                            transId));
+                                        }
+                                        else{
+                                            Log.e(TAG, "Failed to update DB as Fetched after failed to request " +
+                                                    "download");
+                                        }
+
                                     }
 
                                     @Override

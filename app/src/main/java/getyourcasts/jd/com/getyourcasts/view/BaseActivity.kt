@@ -172,10 +172,10 @@ open class BaseActivity : AppCompatActivity() {
             if (mainView == null) {
                 throw IllegalStateException("Fragment root view cannot be null")
             }
-            podcastImg = mainView!!.findViewById(R.id.podcastImg) as ImageView
-            title = mainView!!.findViewById(R.id.epTitle) as TextView
-            artist = mainView!!.findViewById(R.id.artist) as TextView
-            actionBtn = mainView!!.findViewById(R.id.play_pause) as ImageButton
+            podcastImg = mainView!!.findViewById<ImageView>(R.id.podcastImg)
+            title = mainView!!.findViewById<TextView>(R.id.epTitle)
+            artist = mainView!!.findViewById<TextView>(R.id.artist)
+            actionBtn = mainView!!.findViewById<ImageButton>(R.id.play_pause)
             // set onclick listener for the play/pause button on the playback fragment
             actionBtn.setOnClickListener { _ ->
                 when (actionBtnState) {

@@ -60,13 +60,10 @@ public class UpdateJobService extends JobService {
                                 if (isThereUpdate) {
                                     UpdateNotificationHelper
                                             .notifyNewUpdateAvailable(UpdateJobService.this);
-
+                                    Log.d(TAG, "Updates are available for download");
                                 }
-                                else {
-                                    Log.d(TAG, "No New updates available");
-                                    // FOR DEBUGGING ... REMOVE ITEMS
-                                   dataRepo.deleteEpisodes("-146694578");
-                                   dataRepo.deleteEpisodes("-744845929");
+                                else{
+                                    Log.d(TAG, "No new Episode to be updated ");
                                 }
                             }
 
@@ -129,7 +126,8 @@ public class UpdateJobService extends JobService {
 
     /**
      * go through each subscribed podcast and get the updated
-     * list of all episodes
+     * list of all episodes. this method need to be called on
+     * a seperate thread as it has some works done on network.
      *
      * @param pList
      * @return
@@ -144,8 +142,9 @@ public class UpdateJobService extends JobService {
             }
         }
         return updateEpisodeMap;
-
     }
+
+
 
     private void clearOldUpdate () {
         if (dataRepo != null) {

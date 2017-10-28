@@ -106,13 +106,13 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
             )
         }
         val root = inflater!!.inflate(R.layout.fragment_episode_list, container, false)
-        show_menu_btn = root.findViewById(R.id.show_menu_btn) as ImageButton
-        episode_podcast_title = root.findViewById(R.id.episode_podcast_title) as TextView
-        episode_list_recylcer_view = root.findViewById(R.id.episode_list_recylcer_view) as RecyclerView
-        podcast_detail_appbar = root.findViewById(R.id.podcast_detail_appbar) as AppBarLayout
-        episode_podcast_img = root.findViewById(R.id.episode_podcast_img) as ImageView
+        show_menu_btn = root.findViewById(R.id.show_menu_btn)
+        episode_podcast_title = root.findViewById(R.id.episode_podcast_title)
+        episode_list_recylcer_view = root.findViewById(R.id.episode_list_recylcer_view)
+        podcast_detail_appbar = root.findViewById(R.id.podcast_detail_appbar)
+        episode_podcast_img = root.findViewById(R.id.episode_podcast_img)
         episode_list_loading_prog_view = root.findViewById(R.id
-                .episode_list_loading_prog_view) as AVLoadingIndicatorView
+                .episode_list_loading_prog_view)
         loaderManager = activity.supportLoaderManager
         return root
     }

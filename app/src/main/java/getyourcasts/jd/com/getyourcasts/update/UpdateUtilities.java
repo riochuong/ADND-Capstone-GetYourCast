@@ -23,7 +23,7 @@ public class UpdateUtilities  {
     private static final String UPDATE_JOB_TAG = "UPDATE_PODCAST_EPS";
 
     private static final int REMINDER_INTERVALS = 12*60*60; // run every 12 hours
-    private static final int REMINDER_FLEX_TIME = 60*60; // run every 12 hours
+    private static final int REMINDER_FLEX_TIME = 12*60*60; // run every 12 hours
 
 
     public synchronized static void scheduleUpdateTask (@NonNull  Context context) {

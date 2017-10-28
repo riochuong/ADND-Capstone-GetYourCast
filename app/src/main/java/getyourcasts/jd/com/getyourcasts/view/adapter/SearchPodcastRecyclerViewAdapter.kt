@@ -222,10 +222,10 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
         var downloadedView: ImageView
 
         init {
-            imgView = itemView.findViewById(R.id.podcast_image) as ImageView
-            author = itemView.findViewById(R.id.podcast_author) as TextView
-            title = itemView.findViewById(R.id.podcast_title) as TextView
-            downloadedView = itemView.findViewById(R.id.podcast_downloaded_img) as ImageView
+            imgView = itemView.findViewById(R.id.podcast_image)
+            author = itemView.findViewById(R.id.podcast_author)
+            title = itemView.findViewById(R.id.podcast_title)
+            downloadedView = itemView.findViewById(R.id.podcast_downloaded_img)
         }
     }
 

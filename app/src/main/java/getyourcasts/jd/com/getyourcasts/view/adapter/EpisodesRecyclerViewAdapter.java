@@ -158,6 +158,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                         intent.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
                         intent.putExtra(IS_DOWNLOADING, downloadItemMaps.containsKey(ep.getEpisodeUniqueKey()));
                         intent.putExtra(DL_TRANS_ID, vh.transId);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         ctx.startActivity(intent);
                     }
                 });

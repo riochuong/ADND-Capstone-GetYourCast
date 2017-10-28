@@ -20,10 +20,12 @@ abstract class EpisodeDownloadListener(private val transactionId: Long) : FetchL
                 Fetch.STATUS_DONE -> this.onComplete()
 
                 Fetch.STATUS_PAUSED -> this.onStop()
+
+                Fetch.STATUS_ERROR -> {
+                    Log.e(EpisodesRecyclerViewAdapter.TAG, "Error happen ${error.toString()}")
+                    this.onError()
+                }
             }
-        } else if (error != Fetch.NO_ERROR) {
-            Log.e(EpisodesRecyclerViewAdapter.TAG, "Error happens \${error.toString()}")
-            this.onError()
         }
     }
 

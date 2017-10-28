@@ -66,7 +66,7 @@ class UpateEpisodeListAdapter(private var epUpdateMap: Map<Podcast, List<Episode
             val podView = LayoutInflater.from(parent.context).inflate(R.layout.episode_playlist_item_layout, parent,
                     false)
             // hide the remove button
-            val imgBtn = podView.findViewById(R.id.remove_item_img) as ImageView
+            val imgBtn = podView.findViewById<ImageView>(R.id.remove_item_img)
             imgBtn.visibility = View.GONE
             return UpdateEpViewHolder(podView)
         }
@@ -127,11 +127,11 @@ class UpateEpisodeListAdapter(private var epUpdateMap: Map<Podcast, List<Episode
         var mainLayout: CardView
 
         init {
-            imgView = itemView.findViewById(R.id.ep_img) as ImageView
-            epTitle = itemView.findViewById(R.id.episode_name) as TextView
-            epPubDate = itemView.findViewById(R.id.episode_date) as TextView
+            imgView = itemView.findViewById(R.id.ep_img)
+            epTitle = itemView.findViewById(R.id.episode_name)
+            epPubDate = itemView.findViewById(R.id.episode_date)
             imgView.visibility = View.GONE
-            mainLayout = itemView.findViewById(R.id.update_ep_main_view) as CardView
+            mainLayout = itemView.findViewById(R.id.update_ep_main_view)
         }
     }
 
@@ -141,9 +141,9 @@ class UpateEpisodeListAdapter(private var epUpdateMap: Map<Podcast, List<Episode
         var artistTitle: TextView
 
         init {
-            podTitle = itemView.findViewById(R.id.pod_update_title_text) as TextView
-            artistTitle = itemView.findViewById(R.id.pod_update_artist_text) as TextView
-            podImg = itemView.findViewById(R.id.pod_img) as ImageView
+            podTitle = itemView.findViewById(R.id.pod_update_title_text)
+            artistTitle = itemView.findViewById(R.id.pod_update_artist_text)
+            podImg = itemView.findViewById(R.id.pod_img)
         }
     }
 

@@ -5,12 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
-
-import com.google.firebase.crash.FirebaseCrash;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +47,6 @@ public class LocalDataRepository implements DataRepository {
                                             null,null,null,null);
             return Podcast.fromCursor(cursor);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to query a specific podcast"));
             e.printStackTrace();
         }
         return  null;
@@ -68,7 +63,6 @@ public class LocalDataRepository implements DataRepository {
             return convertToPodcastList(cursor);
         }
         catch(Exception e ) {
-            FirebaseCrash.report(new Exception("Local Repo fails to query all podcast in DB"));
             e.printStackTrace();
         }
 
@@ -107,7 +101,6 @@ public class LocalDataRepository implements DataRepository {
             list = convertToEpisodeList(cursor);
             Collections.sort(list);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to query all episodes of podcast "));
             e.printStackTrace();
         }
 
@@ -142,7 +135,6 @@ public class LocalDataRepository implements DataRepository {
                     null,null,null,null);
             return Episode.fromCursor(cursor);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to query epsiode from DB"));
             e.printStackTrace();
         }
 
@@ -157,7 +149,6 @@ public class LocalDataRepository implements DataRepository {
             count = this.context.getContentResolver().update(uri,
                     cv,null,null);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to update podcast to DB"));
             e.printStackTrace();
         }
 
@@ -172,7 +163,6 @@ public class LocalDataRepository implements DataRepository {
             count = this.context.getContentResolver().update(uri,
                     cv,null,null);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to update episode DB"));
             e.printStackTrace();
         }
 
@@ -188,7 +178,6 @@ public class LocalDataRepository implements DataRepository {
             returnUri = this.context.getContentResolver().insert(uri,
                     cv);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to insert podcast to DB"));
             e.printStackTrace();
         }
 
@@ -206,7 +195,6 @@ public class LocalDataRepository implements DataRepository {
             returnUri = this.context.getContentResolver().insert(uri,
                     cv);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to insert episode to DB"));
             e.printStackTrace();
         }
         return returnUri != null;
@@ -234,7 +222,6 @@ public class LocalDataRepository implements DataRepository {
             count = this.context.getContentResolver().bulkInsert(uri,cvas);
         }
         catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to insert list of episodes to DB"));
             e.printStackTrace();
         }
 
@@ -341,7 +328,6 @@ public class LocalDataRepository implements DataRepository {
             // eventually removed podcast from the database table
             count = this.context.getContentResolver().delete(uri, null,null);
         } catch (Exception e) {
-            FirebaseCrash.report(new Exception("Local Repo fails to delete podcast in DB"));
             e.printStackTrace();
         }
         return count == 1;
