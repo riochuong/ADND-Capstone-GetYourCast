@@ -14,6 +14,7 @@ import android.util.Log;
 import com.tonyodev.fetch.Fetch;
 import com.tonyodev.fetch.listener.FetchListener;
 import com.tonyodev.fetch.request.Request;
+import com.tonyodev.fetch.request.RequestInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class DownloadService extends Service {
 
     private IBinder binder = new DownloadServiceBinder();
     private Fetch fetcher;
-    private Map<Long,Long> listReqIds = new HashMap<Long,Long>();
+    private Map<Long,Long> listReqIds = new HashMap<>();
     private NotificationManager notifyManager;
     private int currentId = 0;
 
@@ -188,7 +189,8 @@ public class DownloadService extends Service {
             @Override
             public void onError() {
                 // failed to download remove everything even partial file
-                fetcher.remove(transId);
+//                fetcher.removeRequest(transId);
+                //fetcher.remove(transId);
                 Log.e(TAG, "Failed to request download "+ep.getDownloadUrl());
                 ContentValues cvUpdate = new ContentValues();
                 cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, "");
@@ -258,7 +260,19 @@ public class DownloadService extends Service {
             Request req = new Request(url, dirPath, filename);
             // remove duplicate filename in the db
             StorageUtil.INSTANCE.cleanUpOldFile(episode, this);
+            // temporary fix to remove request at beginning
+            if (fetcher.contains(req)) {
+                RequestInfo info = fetcher.get(req);
+                if (info != null){
+                    fetcher.remove(info.getId());
+                }
+            }
             long id = fetcher.enqueue(req);
+            // failed to enqueue
+            if (id < 0) {
+                Log.d(TAG, "Failed to enqueue !");
+                return -1L;
+            }
             listReqIds.put(id,id);
             String fullUrl = dirPath+"/"+filename;
             registerLisenerForNotiProg(episode,

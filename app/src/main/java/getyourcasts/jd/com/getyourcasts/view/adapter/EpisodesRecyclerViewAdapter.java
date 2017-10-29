@@ -176,16 +176,10 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
             @Override
             public void onNext(EpisodeState epState) {
                 if (epState.getUniqueId().equals(ep.getEpisodeUniqueKey())) {
-                    Pair<String, String> paths = StorageUtil.INSTANCE.getPathToStoreEp(ep, fragment.getActivity()
-                            .getApplicationContext());
-                    String fullUrl = paths.first+"/"+paths.second;
-
                     switch(epState.getState()) {
                         case EpisodeState.DOWNLOADING:
                             if (!downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
                                 Log.d(TAG, "downloading update for episode ${ep.toString()}");
-
-
                                 // start showing progress
                                 EpisodeDownloadListener listener = getListenerForDownload(epState.getTransId(), vh, ep);
                                 // would be really wrong if transId is not available
@@ -314,8 +308,11 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                             case ButtonStateUtil.PRESS_TO_DOWNLOAD:
                                 // check if episode is already state or not
                                 // bind download service
-                                vh.state = ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD;
-                                startDownloadEpisodeFile(episode, vh, pos);
+                                boolean res = startDownloadEpisodeFile(episode, vh);
+                                // if we start download successflly then change state of the button
+                                if (res) {
+                                    vh.state = ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD;
+                                }
                                 break;
 
                             case ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD:
@@ -355,21 +352,23 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     /**
      * start to download episode here
      */
-    private void startDownloadEpisodeFile(Episode episode,
-                                          EpisodeItemViewHolder vh,
-                                         int itempos) {
+    private boolean startDownloadEpisodeFile(Episode episode,
+                                          EpisodeItemViewHolder vh) {
         // Now start Downloading
         String url = episode.getDownloadUrl();
         Pair <String, String> pathItems = StorageUtil.INSTANCE.getPathToStoreEp(episode, fragment.getActivity().getApplicationContext());
-        // TODO :detect duplicate here to avoid crash
         if (url != null) {
             long transactionId = fragment.requestDownload(episode, url, pathItems.first, pathItems.second);
             vh.transId = transactionId;
             if (transactionId < 0) {
-                // TODO : Show some error here
-                Log.e(TAG, "Failed to start Download $episode");
+                Log.e(TAG, "Failed to start Download: "+ episode.getTitle());
+                return false;
             }
+        } else{
+            Log.e(TAG, "Episode Url is null for : "+episode.getTitle());
+            return false;
         }
+        return true;
     }
 
 
