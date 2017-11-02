@@ -185,7 +185,7 @@ public class MainPodcastFragment extends Fragment implements LoaderManager.Loade
         if (id != MAIN_POD_CAST_LOADER) {
             throw new IllegalArgumentException("Wrong loader id received...must be weird");
         }
-        return new AllSubscribedPodcastLoader(getActivity());
+        return new AllSubscribedPodcastLoader(this.getActivity());
     }
 
     @Override

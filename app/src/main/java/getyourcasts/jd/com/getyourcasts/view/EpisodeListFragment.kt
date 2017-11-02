@@ -125,12 +125,11 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(object : Observer<Boolean> {
                         override fun onSubscribe(d: Disposable) {
-
+                            activity.finish()
                         }
-
                         override fun onNext(res: Boolean) {
-                            if (res!!) {
-                                activity.finish()
+                            if (res) {
+                                Log.d(TAG,"Successfully unsubscribe Podcast ${podcast.toString()}")
                             }
                         }
 
@@ -142,9 +141,6 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
 
                         }
                     })
-            // on next here
-
-
             return true
         }
         return false

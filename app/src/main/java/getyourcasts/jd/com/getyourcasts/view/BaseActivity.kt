@@ -12,9 +12,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-
-import java.util.ArrayList
-
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
@@ -27,6 +24,7 @@ import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import java.util.*
 
 open class BaseActivity : AppCompatActivity() {
 
@@ -109,7 +107,8 @@ open class BaseActivity : AppCompatActivity() {
                                 controlViewHolder.artist.text = podcast.artistName
                                 controlViewHolder.title.text = ep.title
                                 // set color background for the playback fragment
-                                if (playbackControlsFragment != null) {
+                                if (playbackControlsFragment != null
+                                        && podcast.vibrantColor.trim() != "") {
                                     playbackControlsFragment!!.mainLayout
                                             .setBackgroundColor(Integer.parseInt(podcast.vibrantColor))
                                 }
@@ -203,22 +202,24 @@ open class BaseActivity : AppCompatActivity() {
 
                 override fun onNext(info: Pair<Episode?, Int>) {
                     // make sure we have valid epsiode
-                    if (info.first == null){
-                        return
-                    }
                     when (info.second) {
-                        MediaPlayBackService.MEDIA_TRACK_CHANGED, MediaPlayBackService.MEDIA_PLAYING -> if (actionBtnState != MediaPlayBackService.MEDIA_PLAYING) {
-                            actionBtnState = MediaPlayBackService.MEDIA_PLAYING
-                            actionBtn.setImageResource(R.mipmap.ic_pause_for_list)
-                            setControlPlaybackInfo(info.first!!, actionBtnState)
-                            if (!this@BaseActivity.isPlaybackShow) {
-                                this@BaseActivity.showPlaybackControls()
-                            }
+                        MediaPlayBackService.MEDIA_TRACK_CHANGED,
+                        MediaPlayBackService.MEDIA_PLAYING -> {
+                            if (actionBtnState != MediaPlayBackService.MEDIA_PLAYING) {
+                                actionBtnState = MediaPlayBackService.MEDIA_PLAYING
+                                actionBtn.setImageResource(R.mipmap.ic_pause_for_list)
+                                setControlPlaybackInfo(info.first!!, actionBtnState)
+                                if (!this@BaseActivity.isPlaybackShow) {
+                                    this@BaseActivity.showPlaybackControls()
+                                }
 
-                        } else if (currEpisode == null || currEpisode!!.uniqueId != info.first!!.uniqueId) {
-                            setControlPlaybackInfo(info.first!!, actionBtnState)
+                            } else if (currEpisode == null || currEpisode!!.uniqueId != info.first!!.uniqueId) {
+                                setControlPlaybackInfo(info.first!!, actionBtnState)
+                            }
                         }
-                        MediaPlayBackService.MEDIA_PAUSE, MediaPlayBackService.MEDIA_ADDED_TO_PLAYLIST, MediaPlayBackService.MEDIA_STOPPED -> {
+                        MediaPlayBackService.MEDIA_PAUSE,
+                        MediaPlayBackService.MEDIA_ADDED_TO_PLAYLIST,
+                        MediaPlayBackService.MEDIA_STOPPED -> {
                             if (actionBtnState != MediaPlayBackService.MEDIA_PAUSE) {
                                 actionBtnState = MediaPlayBackService.MEDIA_PAUSE
                                 actionBtn.setImageResource(R.mipmap.ic_ep_play)
@@ -228,6 +229,10 @@ open class BaseActivity : AppCompatActivity() {
                                 this@BaseActivity.showPlaybackControls()
                             }
                         }
+                        MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST -> {
+                            // do nothing here for now
+                        }
+                        // info.first will be null here
                         MediaPlayBackService.MEDIA_PLAYLIST_EMPTY -> this@BaseActivity.hidePlaybackControls()
                     }
                 }

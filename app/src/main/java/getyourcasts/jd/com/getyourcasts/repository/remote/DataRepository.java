@@ -26,7 +26,7 @@ public interface DataRepository {
     Podcast getPodcast(@NotNull String var1);
 
     @NotNull
-    List getAllPodcast();
+    List<Podcast> getAllPodcast();
 
     @Nullable
     Channel downloadFeed(@NotNull String var1);

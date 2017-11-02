@@ -175,26 +175,7 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                                 null);
                         break;
                     case MEDIA_REMOVED_FROM_PLAYLIST:
-                        Episode currentEp = playList.get(currEpisodePos);
-                        if (currEpisodePos >= 0) {
-                            int index = findIndexFromList(info.first);
-                            if (index >= 0) {
-                                removeTrackFromPlayList(index);
-                            }
-                            // only remove item above will affect the index
-                            // fix the current pointer of the playlist position
-                            if (index < currEpisodePos) {
-                                // just need to update curr episode here
-                                currEpisodePos = findIndexFromList(currentEp);
-                            } else if (index == currEpisodePos) {
-                                if (!playList.isEmpty()) {
-                                    currEpisodePos = (currEpisodePos == (playList.size() - 1)) ? 0 : currEpisodePos;
-                                    playMediaFileAtIndex(currEpisodePos);
-                                } else {
-                                    stopPlayback();
-                                }
-                            }
-                        }
+                        removeTrackAndSetMediaPlayerNewState(info.first);
                         break;
                     case MEDIA_PLAYLIST_EMPTY:
                         GetYourCastWidgetProvider.Companion.resolveButtonState(
@@ -218,6 +199,31 @@ public class MediaPlayBackService extends Service implements Player.EventListene
         });
     }
 
+    private void removeTrackAndSetMediaPlayerNewState (Episode ep) {
+        // make sure playlist is not empty
+        Episode currentEp = playList.get(currEpisodePos);
+        if (currEpisodePos >= 0) {
+            int index = findIndexFromList(ep);
+            if (index >= 0) {
+                removeTrackFromPlayList(index);
+
+            }
+            // only remove item above will affect the index
+            // fix the current pointer of the playlist position
+            if (index < currEpisodePos) {
+                // just need to update curr episode here
+                currEpisodePos = findIndexFromList(currentEp);
+            } else if (index == currEpisodePos) {
+                if (!playList.isEmpty()) {
+                    currEpisodePos = (currEpisodePos == (playList.size() - 1)) ? 0 : currEpisodePos;
+                    playMediaFileAtIndex(currEpisodePos);
+                } else {
+                    // playlist is empty here
+                    stopPlayback();
+                }
+            }
+        }
+    }
 
     private synchronized int findIndexFromList(Episode ep) {
         for (int i = 0; i < playList.size(); i++) {
@@ -334,15 +340,17 @@ public class MediaPlayBackService extends Service implements Player.EventListene
                             switch (podcastState.getState()) {
                                 case PodcastState.UNSUBSCRIBED:
                                     // check if current episode is belong to this unsubscribed one
+                                    List<Episode> removedItems = new ArrayList<>();
                                     for (Episode ep : playList) {
                                         if (ep.getPodcastId().equals(podcastState.getUniqueId())) {
-                                            MediaPlayBackService.publishMediaPlaybackSubject(ep,
-                                                    MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST);
+                                           removedItems.add(ep);
                                         }
                                     }
-                                    saveMediaPlaylist();
+                                    // remove each item from list
+                                    for (Episode ep: removedItems) {
+                                        publishMediaPlaybackSubject(ep, MEDIA_REMOVED_FROM_PLAYLIST);
+                                    }
                                     break;
-
                             }
                         }
 
@@ -589,6 +597,10 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     private synchronized void removeTrackFromPlayList(int index) {
         playList.remove(index);
         saveMediaPlaylist();
+        if (playList.isEmpty()){
+            MediaPlayBackService.publishMediaPlaybackSubject(null,
+                    MediaPlayBackService.MEDIA_PLAYLIST_EMPTY);
+        }
     }
 
     /**
@@ -635,9 +647,6 @@ public class MediaPlayBackService extends Service implements Player.EventListene
     public synchronized void resumePlayback() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(true);
-        }
-        if (playList.isEmpty()) {
-
         }
     }
 
