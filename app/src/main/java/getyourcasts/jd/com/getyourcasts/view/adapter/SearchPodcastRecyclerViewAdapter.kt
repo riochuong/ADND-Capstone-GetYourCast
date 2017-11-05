@@ -123,19 +123,13 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                                                 }
                                             }
                                     )
-
-
                         }
-
-
                     }
-
                     override fun onError(e: Throwable) {
                         e.printStackTrace()
                     }
 
                     override fun onComplete() {
-
                     }
                 }
         )

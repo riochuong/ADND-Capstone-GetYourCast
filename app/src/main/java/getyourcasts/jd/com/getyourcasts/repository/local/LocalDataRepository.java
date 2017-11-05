@@ -103,7 +103,6 @@ public class LocalDataRepository implements DataRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return list;
     }
 
@@ -288,32 +287,19 @@ public class LocalDataRepository implements DataRepository {
         }
         return count == 1;
     }
-    // delete image file
-    private void removePodcastImageFile(Podcast pod) {
-        String imgUrl = pod.getImgLocalPath();
-        if (imgUrl != null) {
-            File imgFile = new File(imgUrl);
-            if (imgFile.exists()) {
-                imgFile.delete();
-            }
-        }
-    }
 
     @Override
-    public boolean deletePodcast(String podcastId) {
-        int count = 0;
+    public boolean deleteEpisodeOfPodcast(String podcastId) {
         boolean res = false;
         try {
-            Uri uri = Contract.PodcastTable.URI_ID.buildUpon().appendPath(podcastId.trim()).build();
-            Podcast podcast = getPodcast(podcastId);
-            // remove image file
-            removePodcastImageFile(podcast);
             List<Episode> episodes = getAllEpisodesOfPodcast(podcastId);
+            for(Episode ep : episodes) { deleteEpisodes(ep.getUniqueId()); }
             // remove all downloaded episode file
-            for (Episode ep : episodes){
-                String localUrl = ep.getLocalUrl();
+            // this might take a while. For, responsiveness, schedule it as an asynctask
+            for (Episode epi : episodes){
+                String localUrl = epi.getLocalUrl();
                 if (localUrl!= null && !localUrl.trim().equals("") ){
-                    File file = new File(ep.getLocalUrl());
+                    File file = new File(epi.getLocalUrl());
                     // delete the file
                     if (file.exists()){
                         res = file.delete();
@@ -323,13 +309,19 @@ public class LocalDataRepository implements DataRepository {
                     }
                 }
                 // remove episode from db
-                deleteEpisodes(ep.getUniqueId());
             }
-            // eventually removed podcast from the database table
-            count = this.context.getContentResolver().delete(uri, null,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return res;
+    }
+
+    @Override
+    public boolean deletePodcast(String podcastId) {
+        int count = 0;
+        Uri uri = Contract.PodcastTable.URI_ID.buildUpon().appendPath(podcastId.trim()).build();
+        // eventually removed podcast from the database table
+        count = this.context.getContentResolver().delete(uri, null,null);
         return count == 1;
     }
 

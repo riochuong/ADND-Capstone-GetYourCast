@@ -120,6 +120,11 @@ public class RemoteDataRepository implements DataRepository {
     }
 
     @Override
+    public boolean deleteEpisodeOfPodcast(String podcastId) {
+        return false;
+    }
+
+    @Override
     public List<Episode> getDownloadedEpisodes() {
         // NO-OP
         return null;

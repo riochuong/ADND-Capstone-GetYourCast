@@ -34,18 +34,10 @@ import io.reactivex.schedulers.Schedulers
  */
 
 object StorageUtil {
-
-
     private val TAG = "StorageUtil"
-    private val PODCAST_IMG_TYPE = 0
-    private val EPISODE_IMG_TYPE = 1
-    private val EPISODE_MEDIA_FILE_TYPE = 2
     private val ONE_MB = 1024 * 1024
-    private val NOT_AVAIL_STR = "N/A"
-
     private val MEDIA_ROOT = "media"
     private val PODCAST_IMG_ROOT = "podcast_img"
-    private val EPISODE_MEDIA_FILE_ROOT = "episode_media"
     private val PLAYLIST_ROOT = "playlist"
     private val PLAYLIST_FILE_NAME = "currPlaylist"
     private val PNG_FORMAT = ".png"
@@ -70,10 +62,9 @@ object StorageUtil {
         // this api wil lcreate directory if needed to
         val file = ctx.getDir(root, Context.MODE_PRIVATE)
         val finalPath = File(file, pod.collectionId + PNG_FORMAT)
-        return if (finalPath.exists()) {
-            null
-        } else finalPath.absolutePath
-        // get absolute path
+        // remove old duplicate
+        if (finalPath.exists()) { finalPath.delete(); }
+        return finalPath.absolutePath
     }
 
     /**
