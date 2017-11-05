@@ -35,17 +35,11 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
         RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
-    var podcastList: List<Podcast>
-    private val viewModel: PodcastViewModel
-    private val ctx: Context
+    var podcastList: List<Podcast> = podcastList
+    private val viewModel: PodcastViewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(fragment.context))
+    private val ctx: Context = fragment.context
     private var disposableList: MutableList<Disposable> = ArrayList()
 
-
-    init {
-        this.podcastList = podcastList
-        viewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(fragment.context))
-        ctx = fragment.context
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.podcast_item_layout, parent, false)
@@ -66,14 +60,13 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                     override fun onSubscribe(d: Disposable) {
 
                     }
-
                     override fun onNext(it: Podcast) {
                         // this true mean podcast is already subscribed
                         var podcastToPass: Podcast? = null
                         if (it.collectionId.trim { it <= ' ' } != "") {
                             podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
                             // disable on click listener
-                            Log.d(TAG, "Load image from local path \${it.imgLocalPath}")
+                            Log.d(TAG, "Load image from local path ${it.imgLocalPath}")
                             GlideApp.with(fragment).load(it.imgLocalPath.trim { it <= ' ' }).into(podcastVh.imgView)
                             podcastToPass = it
                         } else {

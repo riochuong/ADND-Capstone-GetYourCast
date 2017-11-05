@@ -45,7 +45,6 @@ class PodcastDetailsFragment : Fragment() {
     private var podcast: Podcast? = null
     private var subscribed: Boolean? = false
     private var isFullScreen: Boolean? = false
-    private var podDisposable: Disposable? = null
 
     // UI Items
     lateinit var subscribe_button: FloatingActionButton
@@ -87,33 +86,6 @@ class PodcastDetailsFragment : Fragment() {
         return root
     }
 
-
-    private fun subscribeToPodcastUpdate(podcast: Podcast) {
-        PodcastViewModel.subscribePodcastSubject(
-                object : Observer<PodcastState> {
-                    override fun onSubscribe(d: Disposable) {
-                        podDisposable = d
-                    }
-
-                    override fun onNext(t: PodcastState) {
-                        if (t.uniqueId == podcast.collectionId) {
-                            // only the button and state have to change
-                            this@PodcastDetailsFragment.subscribed = t.state == PodcastState.SUBSCRIBED
-                            this@PodcastDetailsFragment.setSubscribeButtonImg()
-                        }
-                    }
-
-                    override fun onError(e: Throwable) {
-
-                    }
-
-                    override fun onComplete() {
-
-                    }
-                }
-        )
-    }
-
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         subscribe_button.isEnabled = false
         startLoadingAnim()
@@ -130,9 +102,6 @@ class PodcastDetailsFragment : Fragment() {
             podcast_detail_artist.text = podcast!!.artistName
             podcast_total_episodes.text = podcast!!.trackCount.toString() + " " + context.getString(R.string
                     .episode_str)
-
-            // subscribe to any outside change
-            subscribeToPodcastUpdate(podcast!!)
         }
 
         // enable swipe detector
@@ -206,14 +175,25 @@ class PodcastDetailsFragment : Fragment() {
     }
 
 
-    override fun onPause() {
-        super.onPause()
-        if (podDisposable != null) {
-            podDisposable!!.dispose()
-            podDisposable = null
+    override fun onResume() {
+        super.onResume()
+        // check if podcast state changed
+        if (podcast != null) {
+            viewModel!!.getPodcastObservable(podcast!!.collectionId)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            // On Next
+                            {
+                                subscribed = it.description.trim() != ""
+                                setSubscribeButtonImg()
+                            },
+                            // On Error
+                            {
+                                it.printStackTrace()
+                            }
+                    )
         }
     }
-
 
     private fun changeFabColor(color: Int) {
         subscribe_button.backgroundTintList = ColorStateList.valueOf(color)
@@ -248,7 +228,7 @@ class PodcastDetailsFragment : Fragment() {
                                 }
 
                                 override fun onNext(channel: Channel) {
-                                    if (channel != null && channel.channelDescription != null) {
+                                    if (channel.channelDescription != null) {
                                         // set description
                                         this@PodcastDetailsFragment.podcast_detail_desc.text = channel
                                                 .channelDescription.trim { it <= ' ' }
