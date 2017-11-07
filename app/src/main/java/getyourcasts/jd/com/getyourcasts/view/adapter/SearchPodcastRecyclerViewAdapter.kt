@@ -175,7 +175,6 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                     override fun onSubscribe(d: Disposable) {
                         disposableList.add(d)
                     }
-
                     override fun onNext(t: PodcastState) {
                         if (t.uniqueId == podcastId) {
                             // only the button and state have to change
@@ -184,7 +183,7 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                     }
 
                     override fun onError(e: Throwable) {
-
+                        e.printStackTrace()
                     }
 
                     override fun onComplete() {

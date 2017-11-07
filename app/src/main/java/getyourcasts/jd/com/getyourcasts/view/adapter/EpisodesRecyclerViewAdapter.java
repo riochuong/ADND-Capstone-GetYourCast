@@ -55,7 +55,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     public static final String DL_TRANS_ID = "dl_trans_id";
     public static final String BG_COLOR_KEY = "bg_color";
     public static final String PODAST_IMG_KEY = "podcast_img";
-    public static final  String EPISODE_KEY = "episode";
+    public static final String EPISODE_KEY = "episode";
     public static final int REQUEST_CODE = 1;
     public static final String IS_DOWNLOADING_KEY = "is_downloading";
 
@@ -68,7 +68,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     private List<Disposable> disposableList = new ArrayList<>();
 
     public EpisodesRecyclerViewAdapter(List<Episode> newList,
-                                        EpisodeListFragment fragment,
+                                       EpisodeListFragment fragment,
                                        Podcast podcast) {
         episodeList = newList;
         this.fragment = fragment;
@@ -94,15 +94,10 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         return vh;
     }
 
-
-
-
     public void cleanUpAllDisposables() {
-
-        for (Disposable disposable : disposableList){
+        for (Disposable disposable : disposableList) {
             disposable.dispose();
         }
-
         disposableList = new ArrayList<>();
     }
 
@@ -111,29 +106,28 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     public void onBindViewHolder(EpisodeItemViewHolder holder, int position) {
         Episode episode = episodeList.get(position);
         // load episode info
-        EpisodeItemViewHolder vh = (EpisodeItemViewHolder) holder;
-        vh.nameText.setText(episode.getTitle());
+        holder.nameText.setText(episode.getTitle());
         // load date
         if (episode.getPubDate() != null) {
             TimeUtil.DatePub dateParsed = TimeUtil.parseDatePub(episode.getPubDate());
             if (dateParsed != null) {
-                vh.monthText.setText(dateParsed.getMonth()+","+dateParsed.getDayOfMonth());
-                vh.yearText.setText(dateParsed.getYear());
+                holder.monthText.setText(dateParsed.getMonth() + "," + dateParsed.getDayOfMonth());
+                holder.yearText.setText(dateParsed.getYear());
             }
         }
         // load size
         if (episode.getFileSize() != null) {
-            vh.fileSize.setText(StorageUtil.INSTANCE.convertToMbRep(episode.getFileSize()));
+            holder.fileSize.setText(StorageUtil.INSTANCE.convertToMbRep(episode.getFileSize()));
         }
 
         // load download or play icons depends on podcast url link available or not
-        loadCorrectDownOrPlayImg(episode, vh);
+        loadCorrectDownOrPlayImg(episode, holder);
 
         // set on click listener to download file and updat progress
-        setViewHolderOnClickListener(vh, episode, position);
+        setViewHolderOnClickListener(holder, episode, position);
 
         // set on click listener for episode detail info
-        setOnClickListenerForEpisodeInfo(vh, episode, position);
+        setOnClickListenerForEpisodeInfo(holder, episode, position);
     }
 
     @Override
@@ -144,7 +138,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
 
     private void setOnClickListenerForEpisodeInfo(final EpisodeItemViewHolder vh,
                                                   final Episode ep,
-                                                 int itemPos
+                                                  int itemPos
     ) {
         subscribeToEpisodeSyncSubject(ep, vh, itemPos);
         vh.mainLayout.setOnClickListener(
@@ -176,10 +170,10 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
             @Override
             public void onNext(EpisodeState epState) {
                 if (epState.getUniqueId().equals(ep.getEpisodeUniqueKey())) {
-                    switch(epState.getState()) {
+                    switch (epState.getState()) {
                         case EpisodeState.DOWNLOADING:
                             if (!downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
-                                Log.d(TAG, "downloading update for episode ${ep.toString()}");
+                                Log.d(TAG, "downloading update for episode" + ep.toString());
                                 // start showing progress
                                 EpisodeDownloadListener listener = getListenerForDownload(epState.getTransId(), vh, ep);
                                 // would be really wrong if transId is not available
@@ -232,7 +226,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     }
 
     private void hideProgressView(EpisodeItemViewHolder vh) {
-        vh.downPlayImg.setVisibility( View.VISIBLE);
+        vh.downPlayImg.setVisibility(View.VISIBLE);
         vh.progressView.setVisibility(View.GONE);
     }
 
@@ -262,7 +256,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                 Episode ep = info.first;
                 if (ep != null && ep.getUniqueId().equals(episode.getUniqueId())) {
                     int state = info.second;
-                    switch(state){
+                    switch (state) {
                         case MediaPlayBackService.MEDIA_PAUSE:
                             vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE;
                             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
@@ -277,10 +271,10 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
                             break;
                     }
-                } else{
+                } else {
                     // this episode is not playing or anything reset it to original state
                     if (vh.state != ButtonStateUtil.PRESS_TO_DOWNLOAD
-                            && vh.state != ButtonStateUtil.PRESS_TO_PLAY){
+                            && vh.state != ButtonStateUtil.PRESS_TO_PLAY) {
                         vh.state = ButtonStateUtil.PRESS_TO_PLAY;
                         vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
                     }
@@ -299,50 +293,47 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
             }
         });
 
+        // set onclick listener for viewholder
         vh.downPlayImg.setOnClickListener(
+                v -> {
+                    switch (vh.state) {
+                        case ButtonStateUtil.PRESS_TO_DOWNLOAD:
+                            // check if episode is already state or not
+                            // bind download service
+                            boolean res = startDownloadEpisodeFile(episode, vh);
+                            // if we start download successflly then change state of the button
+                            if (res) {
+                                vh.state = ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD;
+                            }
+                            break;
 
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        switch (vh.state) {
-                            case ButtonStateUtil.PRESS_TO_DOWNLOAD:
-                                // check if episode is already state or not
-                                // bind download service
-                                boolean res = startDownloadEpisodeFile(episode, vh);
-                                // if we start download successflly then change state of the button
-                                if (res) {
-                                    vh.state = ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD;
-                                }
-                                break;
+                        case ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD:
+                            if (vh.transId != -1) {
+                                fragment.requestStopDownload(vh.transId);
+                                hideProgressView(vh);
+                            }
+                            vh.state = ButtonStateUtil.PRESS_TO_DOWNLOAD;
+                            break;
 
-                            case ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD:
-                                if (vh.transId != -1) {
-                                    fragment.requestStopDownload(vh.transId);
-                                    hideProgressView(vh);
-                                }
-                                vh.state = ButtonStateUtil.PRESS_TO_DOWNLOAD;
-                                break;
+                        case ButtonStateUtil.PRESS_TO_PLAY:
+                            // limited to downloaded episode only for now
+                            vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
+                            EpisodesRecyclerViewAdapter.this.fragment.requestToPlaySong(episode);
+                            vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
+                            break;
 
-                            case ButtonStateUtil.PRESS_TO_PLAY:
-                                // limited to downloaded episode only for now
-                                vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
-                                EpisodesRecyclerViewAdapter.this.fragment.requestToPlaySong(episode);
-                                vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
-                                break;
+                        case ButtonStateUtil.PRESS_TO_PAUSE:
+                            vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE;
+                            vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
+                            EpisodesRecyclerViewAdapter.this.fragment.requestToPause();
+                            break;
 
-                            case ButtonStateUtil.PRESS_TO_PAUSE:
-                                vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE;
-                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
-                                EpisodesRecyclerViewAdapter.this.fragment.requestToPause();
-                                break;
+                        case ButtonStateUtil.PRESS_TO_UNPAUSE:
+                            vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
+                            vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
+                            EpisodesRecyclerViewAdapter.this.fragment.requestToResume();
+                            break;
 
-                            case ButtonStateUtil.PRESS_TO_UNPAUSE:
-                                vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
-                                vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
-                                EpisodesRecyclerViewAdapter.this.fragment.requestToResume();
-                                break;
-
-                        }
                     }
                 }
         );
@@ -353,19 +344,19 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
      * start to download episode here
      */
     private boolean startDownloadEpisodeFile(Episode episode,
-                                          EpisodeItemViewHolder vh) {
+                                             EpisodeItemViewHolder vh) {
         // Now start Downloading
         String url = episode.getDownloadUrl();
-        Pair <String, String> pathItems = StorageUtil.INSTANCE.getPathToStoreEp(episode, fragment.getActivity().getApplicationContext());
+        Pair<String, String> pathItems = StorageUtil.INSTANCE.getPathToStoreEp(episode, fragment.getActivity().getApplicationContext());
         if (url != null) {
             long transactionId = fragment.requestDownload(episode, url, pathItems.first, pathItems.second);
             vh.transId = transactionId;
             if (transactionId < 0) {
-                Log.e(TAG, "Failed to start Download: "+ episode.getTitle());
+                Log.e(TAG, "Failed to start Download: " + episode.getTitle());
                 return false;
             }
-        } else{
-            Log.e(TAG, "Episode Url is null for : "+episode.getTitle());
+        } else {
+            Log.e(TAG, "Episode Url is null for : " + episode.getTitle());
             return false;
         }
         return true;
@@ -378,8 +369,6 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     )
 
     {
-
-
         return new EpisodeDownloadListener(transactionId) {
             @Override
             public void onProgressUpdate(int progress) {
@@ -398,7 +387,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
 
             @Override
             public void onError() {
-                    Log.e(TAG, "Failed to download episode "+episode.getTitle());
+                Log.e(TAG, "Failed to download episode " + episode.getTitle());
                 vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down);
                 vh.downPlayImg.setVisibility(View.VISIBLE);
                 vh.progressView.setVisibility(View.GONE);
@@ -408,8 +397,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     }
 
 
-
-    private void updateItemData(Episode ep,  final int pos) {
+    private void updateItemData(Episode ep, final int pos) {
         viewModel.getEpisodeObsevable(ep)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Episode>() {
@@ -466,7 +454,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         long transId = -1;
 
         // bind item to view here
-        public EpisodeItemViewHolder (View itemView){
+        EpisodeItemViewHolder(View itemView) {
             super(itemView);
             mainLayout = itemView.findViewById(R.id.episode_main_view_layout);
             downPlayImg = (ImageView) itemView.findViewById(R.id.episode_down_play_img);
