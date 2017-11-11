@@ -128,19 +128,13 @@ class EpisodeInfoFragment : Fragment() {
     private val imageUrlFromIntent: String
         get()
 
-        = this.activity.intent.getStringExtra(EpisodesRecyclerViewAdapter.PODAST_IMG_KEY)
+        = this.activity.intent.getStringExtra(EpisodesRecyclerViewAdapter.PODCAST_IMG_KEY)
 
     private val isDownloadingFromIntent: Boolean
         get()
 
         = this.activity.intent.getBooleanExtra(
-                EpisodesRecyclerViewAdapter.IS_DOWNLOADING, false)
-
-    private val downloadingStatusFromIntent: Long
-        get()
-
-        = this.activity.intent.getLongExtra(
-                EpisodesRecyclerViewAdapter.IS_DOWNLOADING_KEY, -1)
+                EpisodesRecyclerViewAdapter.IS_DOWNLOADING_KEY, false)
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         currInfoEpisode = episodeFromIntent
@@ -361,20 +355,26 @@ class EpisodeInfoFragment : Fragment() {
     private fun adjustFabState() {
         // change fab color to red always
         changeFabColor(ContextCompat.getColor(this.context, R.color.unfin_color))
-
-        if (isDownloadingFromIntent) {
-            fabState = PRESS_TO_STOP_DOWNLOAD
-            ep_info_fab.visibility = View.INVISIBLE
-            ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
-        } else if (currInfoEpisode!!.downloaded == EpisodeState.DOWNLOADED) {
-            fabState = PRESS_TO_PLAY
-            ep_info_fab.visibility = View.VISIBLE
-            ep_info_fab.setImageResource(R.mipmap.ic_play_white)
-            add_to_playlist.visibility = View.VISIBLE
-        } else {
-            fabState = PRESS_TO_DOWNLOAD
-            ep_info_fab.visibility = View.VISIBLE
-            ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
+        when {
+            // downloading
+            isDownloadingFromIntent -> {
+                fabState = PRESS_TO_STOP_DOWNLOAD
+                ep_info_fab.visibility = View.INVISIBLE
+                ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
+            }
+            // downloaded
+            currInfoEpisode!!.downloaded == EpisodeState.DOWNLOADED -> {
+                fabState = PRESS_TO_PLAY
+                ep_info_fab.visibility = View.VISIBLE
+                ep_info_fab.setImageResource(R.mipmap.ic_play_white)
+                add_to_playlist.visibility = View.VISIBLE
+            }
+            // press to download
+            else -> {
+                fabState = PRESS_TO_DOWNLOAD
+                ep_info_fab.visibility = View.VISIBLE
+                ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
+            }
         }
     }
 

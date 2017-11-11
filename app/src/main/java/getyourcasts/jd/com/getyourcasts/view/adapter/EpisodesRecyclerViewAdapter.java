@@ -50,10 +50,9 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
 
     public static final String TAG = EpisodesRecyclerViewAdapter.class.getSimpleName();
     public static final String PODCAST_KEY = "podcast_key";
-    public static final String IS_DOWNLOADING = "item_key";
     public static final String DL_TRANS_ID = "dl_trans_id";
     public static final String BG_COLOR_KEY = "bg_color";
-    public static final String PODAST_IMG_KEY = "podcast_img";
+    public static final String PODCAST_IMG_KEY = "podcast_img";
     public static final String EPISODE_KEY = "episode";
     public static final String IS_DOWNLOADING_KEY = "is_downloading";
 
@@ -125,7 +124,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         setViewHolderOnClickListener(holder, episode, position);
 
         // set on click listener for episode detail info
-        setOnClickListenerForEpisodeInfo(holder, episode, position);
+        setOnClickListenerForEpisodeInfo(holder, episode);
     }
 
     @Override
@@ -135,16 +134,19 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
 
 
     private void setOnClickListenerForEpisodeInfo(final EpisodeItemViewHolder vh,
-                                                  final Episode ep,
-                                                  int itemPos
+                                                  final Episode ep
     ) {
         vh.mainLayout.setOnClickListener(
                 v -> {
                     Intent intent = new Intent(ctx, EpisodeInfoActivity.class);
                     intent.putExtra(BG_COLOR_KEY, bgColor);
                     intent.putExtra(EPISODE_KEY, ep);
-                    intent.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
+                    intent.putExtra(PODCAST_IMG_KEY, podcast.getImgLocalPath());
                     intent.putExtra(DL_TRANS_ID, vh.transId);
+                    // check downloading status
+                    if (vh.downloadListener != null ) {
+                        intent.putExtra(IS_DOWNLOADING_KEY, true);
+                    }
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     ctx.startActivity(intent);
                 });
