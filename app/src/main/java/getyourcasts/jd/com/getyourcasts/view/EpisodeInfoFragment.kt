@@ -463,12 +463,11 @@ class EpisodeInfoFragment : Fragment() {
 
             // get transaction id for
             transactionId = downloadService!!.requestDownLoad(
-                    currInfoEpisode,
-                    currInfoEpisode!!.downloadUrl,
+                    currInfoEpisode!!,
                     downloadsPath.first,
                     downloadsPath.second)!!
         } else {
-            Log.e(TAG, "Download Service is not bound or Download URL is bad \${currInfoEpisode.toString()} ")
+            Log.e(TAG, "Download Service is not bound or Download URL is bad ${currInfoEpisode.toString()} ")
         }
     }
 

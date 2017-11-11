@@ -32,10 +32,6 @@ public final class Episode implements Parcelable, Comparable<Episode> {
     private int downloaded;
     private int isNewUpdate;
 
-
-
-
-
     public Episode(String podcastId,
                    String title,
                    String uniqueId,

@@ -59,13 +59,9 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
 
 
     private var podcast: Podcast? = null
-
     private var viewModel: PodcastViewModel? = null
-
-    private var episodeAdapter: EpisodesRecyclerViewAdapter? = null
-
+    var episodeAdapter: EpisodesRecyclerViewAdapter? = null
     private var mediaService: MediaPlayBackService? = null
-
     internal lateinit var loaderManager: LoaderManager
 
     // UI ITEMs
@@ -189,7 +185,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
         layoutManager.orientation = LinearLayoutManager.VERTICAL
         episode_list_recylcer_view.layoutManager = layoutManager
         // initialize with empty list for now
-        episodeAdapter = EpisodesRecyclerViewAdapter(ArrayList(), this, podcast)
+        episodeAdapter = EpisodesRecyclerViewAdapter(ArrayList(), this, this.podcast!!)
         episode_list_recylcer_view.adapter = episodeAdapter
     }
 
@@ -255,7 +251,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
                         dir: String,
                         fileName: String): Long {
         return if (downloadService != null) {
-            downloadService!!.requestDownLoad(ep, url, dir, fileName)
+            downloadService!!.requestDownLoad(ep, dir, fileName)
         } else -1L
     }
 
@@ -344,7 +340,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
 
     override fun onLoadFinished(loader: Loader<List<Episode>>, episodeList: List<Episode>) {
         if (episodeList.size > 0) {
-            episodeAdapter!!.episodeList = episodeList
+            episodeAdapter!!.setEpisodeList(episodeList.toMutableList())
             episodeAdapter!!.notifyDataSetChanged()
             // now show the image
             stopAnim()

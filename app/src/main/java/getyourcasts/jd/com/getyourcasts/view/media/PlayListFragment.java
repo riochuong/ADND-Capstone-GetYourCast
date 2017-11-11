@@ -84,7 +84,7 @@ public class PlayListFragment extends Fragment {
     }
 
     private void subscribeToMediaPlayBackService(){
-        MediaPlayBackService.subscribeMediaPlaybackSubject(new Observer<Pair<Episode, Integer>>() {
+        MediaPlayBackService.Companion.subscribeMediaPlaybackSubject(new Observer<Pair<Episode, Integer>>() {
             @Override
             public void onSubscribe(Disposable d) {
                 mediaServiceDisposable= d;

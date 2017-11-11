@@ -16,9 +16,8 @@ import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.EpisodeListActivity
+import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.Companion.PODCAST_KEY
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
-
-import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter.PODCAST_KEY
 
 /**
  * Created by chuondao on 8/18/17.

@@ -11,7 +11,7 @@ import java.util.ArrayList
 
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
-import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST
+import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService.Companion.MEDIA_REMOVED_FROM_PLAYLIST
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
