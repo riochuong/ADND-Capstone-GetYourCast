@@ -24,7 +24,6 @@ import getyourcasts.jd.com.getyourcasts.repository.local.Contract;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
-import getyourcasts.jd.com.getyourcasts.view.ErrorDialogActivity;
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodeDownloadListener;
 import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState;
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel;
@@ -138,7 +137,7 @@ public class DownloadService extends Service {
                 // update the DB
                 ContentValues cvUpdate = new ContentValues();
                 cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, fullUrl);
-                cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, EpisodeState.DOWNLOADED);
+                cvUpdate.put(Contract.EpisodeTable.DOWNLOAD_STATUS, EpisodeState.DOWNLOADED);
                 viewModel.getUpdateEpisodeObservable(ep, cvUpdate)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
@@ -194,7 +193,7 @@ public class DownloadService extends Service {
                 Log.e(TAG, "Failed to request download "+ep.getDownloadUrl());
                 ContentValues cvUpdate = new ContentValues();
                 cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, "");
-                cvUpdate.put(Contract.EpisodeTable.DOWNLOADED, EpisodeState.FETCHED);
+                cvUpdate.put(Contract.EpisodeTable.DOWNLOAD_STATUS, EpisodeState.FETCHED);
                 viewModel.getUpdateEpisodeObservable(ep,cvUpdate)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
@@ -282,9 +281,6 @@ public class DownloadService extends Service {
                     fullUrl);
 
             // notify other views to change status
-            PodcastViewModel.updateEpisodeSubject(
-                    new EpisodeState(episode.getUniqueId(), EpisodeState.DOWNLOADING, id));
-
             return id;
         }
 

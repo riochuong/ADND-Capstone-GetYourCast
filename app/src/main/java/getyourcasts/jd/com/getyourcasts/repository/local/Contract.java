@@ -63,7 +63,7 @@ public final class Contract {
         public static final String EPISODE_NAME = "episode_name";
         public static final String DATE_RELEASED = "date_released";
         public static final String DATE_DOWNLOADED = "date_downloaded";
-        public static final String DOWNLOADED = "downloaded";
+        public static final String DOWNLOAD_STATUS = "download_status";
         public static final String PROGRESS = "consume_percentage";
         public static final String DESCRIPTION = "description";
         public static final String LOCAL_URL = "local_url";

@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.github.lzyzsd.circleprogress.CircleProgress;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,6 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     public static final String BG_COLOR_KEY = "bg_color";
     public static final String PODAST_IMG_KEY = "podcast_img";
     public static final String EPISODE_KEY = "episode";
-    public static final int REQUEST_CODE = 1;
     public static final String IS_DOWNLOADING_KEY = "is_downloading";
 
     private List<Episode> episodeList;
@@ -64,8 +62,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     private Podcast podcast;
 
     /*to keep track of downloaidng items to send it to details view */
-    private Map<String, EpisodeDownloadListener> downloadItemMaps = new HashMap<>();
-    private List<Disposable> disposableList = new ArrayList<>();
+    private Map<String, Disposable> disposableList = new HashMap<>();
 
     public EpisodesRecyclerViewAdapter(List<Episode> newList,
                                        EpisodeListFragment fragment,
@@ -95,10 +92,10 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
     }
 
     public void cleanUpAllDisposables() {
-        for (Disposable disposable : disposableList) {
+        for (Disposable disposable : disposableList.values()) {
             disposable.dispose();
         }
-        disposableList = new ArrayList<>();
+        disposableList = new HashMap<>();
     }
 
 
@@ -107,6 +104,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         Episode episode = episodeList.get(position);
         // load episode info
         holder.nameText.setText(episode.getTitle());
+        holder.setEpisode(episode, position);
         // load date
         if (episode.getPubDate() != null) {
             TimeUtil.DatePub dateParsed = TimeUtil.parseDatePub(episode.getPubDate());
@@ -140,82 +138,19 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                                                   final Episode ep,
                                                   int itemPos
     ) {
-        subscribeToEpisodeSyncSubject(ep, vh, itemPos);
         vh.mainLayout.setOnClickListener(
-
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(ctx, EpisodeInfoActivity.class);
-                        intent.putExtra(BG_COLOR_KEY, bgColor);
-                        intent.putExtra(EPISODE_KEY, ep);
-                        intent.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
-                        intent.putExtra(IS_DOWNLOADING, downloadItemMaps.containsKey(ep.getEpisodeUniqueKey()));
-                        intent.putExtra(DL_TRANS_ID, vh.transId);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        ctx.startActivity(intent);
-                    }
+                v -> {
+                    Intent intent = new Intent(ctx, EpisodeInfoActivity.class);
+                    intent.putExtra(BG_COLOR_KEY, bgColor);
+                    intent.putExtra(EPISODE_KEY, ep);
+                    intent.putExtra(PODAST_IMG_KEY, podcast.getImgLocalPath());
+                    intent.putExtra(DL_TRANS_ID, vh.transId);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ctx.startActivity(intent);
                 });
 
     }
 
-
-    private void subscribeToEpisodeSyncSubject(final Episode ep, final EpisodeItemViewHolder vh, final int itemPos) {
-        PodcastViewModel.subscribeEpisodeSubject(new Observer<EpisodeState>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                disposableList.add(d);
-            }
-
-            @Override
-            public void onNext(EpisodeState epState) {
-                if (epState.getUniqueId().equals(ep.getEpisodeUniqueKey())) {
-                    switch (epState.getState()) {
-                        case EpisodeState.DOWNLOADING:
-                            if (!downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
-                                Log.d(TAG, "downloading update for episode" + ep.toString());
-                                // start showing progress
-                                EpisodeDownloadListener listener = getListenerForDownload(epState.getTransId(), vh, ep);
-                                // would be really wrong if transId is not available
-                                downloadItemMaps.put(ep.getEpisodeUniqueKey(), listener);
-                                showProgressView(vh);
-                                EpisodesRecyclerViewAdapter.this.fragment.registerListener(listener);
-                            }
-                            // else it's just a progress update
-                            break;
-
-                        case EpisodeState.FETCHED:
-                            if (downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
-                                EpisodesRecyclerViewAdapter.this.updateItemData(ep, itemPos);
-                                downloadItemMaps.remove(ep.getEpisodeUniqueKey());
-                            }
-                            break;
-
-                        case EpisodeState.DOWNLOADED:
-                            if (downloadItemMaps.containsKey(ep.getEpisodeUniqueKey())) {
-                                EpisodeDownloadListener oldListener = downloadItemMaps.get(ep.getEpisodeUniqueKey());
-                                EpisodesRecyclerViewAdapter.this.fragment.unRegisterListener(oldListener);
-                                downloadItemMaps.remove(ep.getEpisodeUniqueKey());
-                                EpisodesRecyclerViewAdapter.this.updateItemData(ep, itemPos);
-                                vh.state = ButtonStateUtil.PRESS_TO_PLAY;
-                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
-                            }
-                            break;
-                    }
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
-    }
 
     /**
      * show porgress view and hide button
@@ -245,53 +180,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down);
         }
         // subscribe to media service info to change the icon appropriately
-        MediaPlayBackService.subscribeMediaPlaybackSubject(new Observer<android.util.Pair<Episode, Integer>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                disposableList.add(d);
-            }
 
-            @Override
-            public void onNext(android.util.Pair<Episode, Integer> info) {
-                Episode ep = info.first;
-                if (ep != null && ep.getUniqueId().equals(episode.getUniqueId())) {
-                    int state = info.second;
-                    switch (state) {
-                        case MediaPlayBackService.MEDIA_PAUSE:
-                            vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE;
-                            vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
-                            break;
-                        case MediaPlayBackService.MEDIA_PLAYING:
-                            vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
-                            vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
-                            break;
-                        case MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST:
-                        case MediaPlayBackService.MEDIA_STOPPED:
-                            vh.state = ButtonStateUtil.PRESS_TO_PLAY;
-                            vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
-                            break;
-                    }
-                } else {
-                    // this episode is not playing or anything reset it to original state
-                    if (vh.state != ButtonStateUtil.PRESS_TO_DOWNLOAD
-                            && vh.state != ButtonStateUtil.PRESS_TO_PLAY) {
-                        vh.state = ButtonStateUtil.PRESS_TO_PLAY;
-                        vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
-                    }
-
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
 
         // set onclick listener for viewholder
         vh.downPlayImg.setOnClickListener(
@@ -403,7 +292,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                 .subscribe(new Observer<Episode>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        disposableList.add(d);
+                        disposableList.put(ep.getUniqueId(), d);
                     }
 
                     @Override
@@ -450,8 +339,130 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
         TextView fileSize;
         CircleProgress progressView;
         int state = ButtonStateUtil.PRESS_TO_DOWNLOAD;
+        private EpisodeDownloadListener downloadListener;
+        private Episode episode;
+        private Disposable disposable;
         // quick hack for stop download
         long transId = -1;
+
+        /**
+         * @param episode
+         * @param itemPos
+         */
+        void setEpisode(Episode episode, int itemPos) {
+            // need ro remove old listener to avoid conflict
+            if (this.episode != null && downloadListener != null) {
+                EpisodesRecyclerViewAdapter.this.fragment.unRegisterListener(downloadListener);
+                downloadListener = null;
+            }
+            if (this.disposable != null) {
+                this.disposable.dispose();
+                this.disposable = null;
+            }
+            // set episode
+            this.episode = episode;
+
+            // subscribe to episode state
+            PodcastViewModel.subscribeEpisodeSubject(new Observer<EpisodeState>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                    // dispose old disposable also
+                    if (EpisodeItemViewHolder.this.disposable != null) EpisodeItemViewHolder.this.disposable.dispose();
+                    EpisodeItemViewHolder.this.disposable = d;
+                }
+
+                @Override
+                public void onNext(EpisodeState epState) {
+                    if (epState.getUniqueId().equals(EpisodeItemViewHolder.this.episode.getUniqueId())) {
+                        Episode ep = EpisodeItemViewHolder.this.episode;
+                        EpisodeItemViewHolder vh = EpisodeItemViewHolder.this;
+                        switch (epState.getState()) {
+                            case EpisodeState.DOWNLOADING:
+                                Log.d(TAG, "downloading update for episode" + ep.toString());
+                                if (vh.downloadListener == null) {
+                                    vh.downloadListener = getListenerForDownload(epState
+                                            .getTransId(), vh, ep);
+                                    showProgressView(vh);
+                                    // add new listener
+                                    EpisodesRecyclerViewAdapter.this.fragment.registerListener(vh.downloadListener);
+                                }
+                                break;
+                            case EpisodeState.FETCHED:
+                                EpisodesRecyclerViewAdapter.this.updateItemData(ep, itemPos);
+                                break;
+                            case EpisodeState.DOWNLOADED:
+                                // we only change things if download listener was from
+                                if (vh.downloadListener != null) {
+                                    EpisodesRecyclerViewAdapter.this.fragment.unRegisterListener(vh.downloadListener);
+                                    vh.downloadListener = null;
+                                }
+                                EpisodesRecyclerViewAdapter.this.updateItemData(ep, itemPos);
+                                vh.state = ButtonStateUtil.PRESS_TO_PLAY;
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
+                                // subscribe to media service
+                                subscribeToMeidaSerivce();
+                                break;
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onComplete() {
+
+                }
+            });
+
+        }
+
+        private void subscribeToMeidaSerivce() {
+            MediaPlayBackService.subscribeMediaPlaybackSubject(new Observer<android.util.Pair<Episode, Integer>>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                    if (EpisodeItemViewHolder.this.disposable != null) EpisodeItemViewHolder.this.disposable.dispose();
+                    EpisodeItemViewHolder.this.disposable = d;
+                }
+
+                @Override
+                public void onNext(android.util.Pair<Episode, Integer> info) {
+                    Episode ep = info.first;
+                    EpisodeItemViewHolder vh = EpisodeItemViewHolder.this;
+                    if (ep != null && ep.getUniqueId().equals(vh.episode.getUniqueId())) {
+                        int state = info.second;
+                        switch (state) {
+                            case MediaPlayBackService.MEDIA_PAUSE:
+                                vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE;
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
+                                break;
+                            case MediaPlayBackService.MEDIA_PLAYING:
+                                vh.state = ButtonStateUtil.PRESS_TO_PAUSE;
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list);
+                                break;
+                            case MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST:
+                            case MediaPlayBackService.MEDIA_STOPPED:
+                                vh.state = ButtonStateUtil.PRESS_TO_PLAY;
+                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play);
+                                break;
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+
+                @Override
+                public void onComplete() {
+
+                }
+            });
+        }
+
 
         // bind item to view here
         EpisodeItemViewHolder(View itemView) {

@@ -200,7 +200,7 @@ public class CastProvider extends ContentProvider {
                 returnCursor = db.query(
                         Contract.EpisodeTable.TABLE_NAME,
                         projection,
-                        Contract.EpisodeTable.DOWNLOADED + " = ?",
+                        Contract.EpisodeTable.DOWNLOAD_STATUS + " = ?",
                         new String[]{1+""},
                         null,
                         null,

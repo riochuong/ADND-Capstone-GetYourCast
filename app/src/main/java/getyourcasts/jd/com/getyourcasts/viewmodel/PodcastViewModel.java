@@ -4,7 +4,6 @@ import android.content.ContentValues;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import getyourcasts.jd.com.getyourcasts.repository.local.Contract;
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataRepository;
@@ -12,7 +11,6 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
-import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -159,7 +157,7 @@ public class PodcastViewModel {
     private boolean removeDownloadedEpisode(Episode ep) {
         // remove downloaded file
         ContentValues cv = new ContentValues();
-        cv.put(Contract.EpisodeTable.DOWNLOADED, 0+"");
+        cv.put(Contract.EpisodeTable.DOWNLOAD_STATUS, 0+"");
         cv.put(Contract.EpisodeTable.LOCAL_URL, "");
         File file = new File (ep.getLocalUrl());
         if (file.exists()) {file.delete();}

@@ -201,7 +201,7 @@ public final class Episode implements Parcelable, Comparable<Episode> {
                     CursorHelper.getStringValue(cursor, Contract.EpisodeTable.MEDIA_TYPE),
                     CursorHelper.getIntValue(cursor, Contract.EpisodeTable.FAVORITE),
                     CursorHelper.getIntValue(cursor, Contract.EpisodeTable.PROGRESS),
-                    CursorHelper.getIntValue(cursor, Contract.EpisodeTable.DOWNLOADED),
+                    CursorHelper.getIntValue(cursor, Contract.EpisodeTable.DOWNLOAD_STATUS),
                     CursorHelper.getIntValue(cursor, Contract.EpisodeTable.IS_NEW_UPDATE)
             );
         }
