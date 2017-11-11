@@ -274,6 +274,9 @@ public class DownloadService extends Service {
             }
             listReqIds.put(id,id);
             String fullUrl = dirPath+"/"+filename;
+            // showing download progress
+            PodcastViewModel.updateEpisodeSubject(
+                    new EpisodeState(episode.getUniqueId(), EpisodeState.DOWNLOADING, id));
             registerLisenerForNotiProg(episode,
                     id,
                     buildProgressNotification(episode.getTitle()),

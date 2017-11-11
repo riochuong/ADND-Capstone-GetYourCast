@@ -253,7 +253,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
     fun requestDownload(ep: Episode,
                         url: String,
                         dir: String,
-                        fileName: String): Long? {
+                        fileName: String): Long {
         return if (downloadService != null) {
             downloadService!!.requestDownLoad(ep, url, dir, fileName)
         } else -1L

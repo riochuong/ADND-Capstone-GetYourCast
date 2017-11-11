@@ -179,9 +179,6 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
             vh.state = ButtonStateUtil.PRESS_TO_DOWNLOAD;
             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down);
         }
-        // subscribe to media service info to change the icon appropriately
-
-
         // set onclick listener for viewholder
         vh.downPlayImg.setOnClickListener(
                 v -> {
@@ -189,6 +186,7 @@ public final class EpisodesRecyclerViewAdapter extends RecyclerView.Adapter<Epis
                         case ButtonStateUtil.PRESS_TO_DOWNLOAD:
                             // check if episode is already state or not
                             // bind download service
+                            showProgressView(vh);
                             boolean res = startDownloadEpisodeFile(episode, vh);
                             // if we start download successflly then change state of the button
                             if (res) {
