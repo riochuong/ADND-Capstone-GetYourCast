@@ -116,7 +116,6 @@ class PodcastDetailsFragment : Fragment() {
             if (!subscribed!!) {
                 // no suscription yet need to subscribed
                 // download image icon
-                StorageUtil.startGlideImageDownload(podcast!!, context)
                 viewModel!!.getSubscribeObservable(podcast, channelInfo)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
