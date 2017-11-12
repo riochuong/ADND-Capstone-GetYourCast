@@ -70,18 +70,26 @@
 
 
                     </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/podcast_downloaded_img"
-                    android:layout_margin="@dimen/small_margin"
-                    android:layout_gravity="center_vertical|right"
+                <FrameLayout
+                    android:layout_width="wrap_content"
                     android:layout_weight="1"
-                    android:layout_width="@dimen/download_ic_size"
-                    android:layout_height="@dimen/download_ic_size"/>
+                    android:layout_gravity="center_vertical|right"
+                    android:layout_margin="@dimen/small_margin"
+                    android:layout_height="wrap_content">
+                    <com.wang.avi.AVLoadingIndicatorView
+                        android:id="@+id/subscribing_progress_view"
+                        android:visibility="gone"
+                        android:layout_width="@dimen/download_ic_size"
+                        android:layout_height="@dimen/download_ic_size"/>
+                    <ImageView
+                        android:id="@+id/podcast_downloaded_img"
+                        android:layout_width="@dimen/download_ic_size"
+                        android:layout_height="@dimen/download_ic_size"
+                        android:contentDescription="@string/subscribe_podcast_content"/>
+                </FrameLayout>
+
             </LinearLayout>
-
         </LinearLayout>
-
 
         </android.support.v7.widget.CardView>
 
