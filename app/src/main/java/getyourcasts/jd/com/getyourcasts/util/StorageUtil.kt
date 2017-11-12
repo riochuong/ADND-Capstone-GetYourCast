@@ -10,23 +10,15 @@ import com.bumptech.glide.request.transition.Transition
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.FileReader
-import java.io.FileWriter
-import java.io.IOException
-import java.lang.reflect.Type
 import java.util.ArrayList
 
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
-import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.io.*
 
 
 /**
@@ -42,7 +34,6 @@ object StorageUtil {
     private val PLAYLIST_FILE_NAME = "currPlaylist"
     private val PNG_FORMAT = ".png"
 
-
     fun convertToMbRep(rawSize: String): String {
         try {
             var fileSize: Float? = java.lang.Float.parseFloat(rawSize)
@@ -54,7 +45,6 @@ object StorageUtil {
 
         return "NOT_AVAIL_STR"
     }
-
 
     // METHODS
     fun getPathToStorePodImg(pod: Podcast, ctx: Context): String? {
@@ -93,10 +83,24 @@ object StorageUtil {
 
 
     fun startGlideImageDownload(pod: Podcast, ctx: Context) {
-        GlideApp.with(ctx)
-                .asBitmap()
-                .load(pod.artworkUrl100)
-                .into(getStorageTarget(pod, ctx))
+        val downloadFile = GlideApp.with(ctx).downloadOnly().load(pod.artworkUrl100).submit().get()
+        if (downloadFile != null) {
+            // write file to storage
+            var source: FileInputStream? = null
+            var dest: FileOutputStream? = null
+            try {
+                val imgFile = File(StorageUtil.getPathToStorePodImg(pod, ctx))
+                source = FileInputStream(downloadFile)
+                dest = FileOutputStream(imgFile)
+                dest.channel.transferFrom(source.channel, 0, source.channel.size())
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.d(TAG, "Failed to transfer cache image after download")
+            } finally {
+                if (source != null) source.close()
+                if (dest != null) dest.close()
+            }
+        }
     }
 
     fun loadMediaPlayList(context: Context): List<Episode> {
@@ -151,63 +155,6 @@ object StorageUtil {
         }
     }
 
-    private fun getStorageTarget(pod: Podcast, ctx: Context): SimpleTarget<Bitmap> {
-
-        // create bitmap target will save image
-        return object : SimpleTarget<Bitmap>() {
-
-            override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>) {
-                val file = StorageUtil.getPathToStorePodImg(pod, ctx)
-                if (file != null && resource != null) {
-                    try {
-                        val os = FileOutputStream(file)
-                        Observable.just(resource.compress(Bitmap.CompressFormat.PNG, 100, os))
-                                .subscribeOn(Schedulers.io())
-                                .subscribe(
-                                        object : Observer<Boolean> {
-                                            override fun onSubscribe(d: Disposable) {
-
-                                            }
-
-                                            override fun onNext(aBoolean: Boolean) {
-
-                                                if (aBoolean!!) {
-                                                    Log.d(TAG, "Successfully download image :" + pod.artworkUrl100)
-                                                }
-
-                                                try {
-                                                    os.close()
-                                                } catch (e: IOException) {
-                                                    e.printStackTrace()
-                                                }
-
-                                            }
-
-                                            override fun onError(e: Throwable) {
-                                                try {
-                                                    e.printStackTrace()
-                                                    os.close()
-                                                } catch (ex: IOException) {
-                                                    ex.printStackTrace()
-                                                }
-
-                                            }
-
-                                            override fun onComplete() {
-
-                                            }
-                                        }
-                                )
-
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-
-                }
-            }
-        }
-
-    }
 }
 
 

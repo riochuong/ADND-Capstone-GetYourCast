@@ -54,6 +54,7 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
         podcastVh.title.text = podcast.collectionName
         // need glide to load the image here
         val checkPodcastDbObs = viewModel.getPodcastObservable(podcast.collectionId)
+
         // check to decide where to load image
         checkPodcastDbObs.observeOn(AndroidSchedulers.mainThread()).subscribe(
                 object : Observer<Podcast> {
@@ -76,15 +77,13 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                             }
                             podcastToPass = podcast
                         }
-
                         // subscribe to listen to change in podcast
-                        subscribeToPodcastUpdate(podcastToPass.collectionId, position)
+                         subscribeToPodcastUpdate(podcastToPass.collectionId, position)
                         // set onclickListenter to launch details podcast
                         val finalPodcastToPass = podcastToPass
-                        podcastVh.itemView.setOnClickListener { viewItem ->
-
+                        podcastVh.itemView.setOnClickListener {
                             // need to get the podcast from db to make sure it's updated
-                            viewModel.getPodcastObservable(finalPodcastToPass.collectionId)
+                            _ -> viewModel.getPodcastObservable(finalPodcastToPass.collectionId)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(
                                             object : Observer<Podcast> {
@@ -96,7 +95,7 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                                                     val intent = Intent(this@SearchPodcastRecyclerViewAdapter
                                                             .ctx, PodcastDetailsActivity::class.java)
                                                     // just in case the podcast is not in the db
-                                                    if (it.collectionId == "") {
+                                                    if (it.collectionId.trim() == "") {
                                                         intent.putExtra(PODCAST_KEY, podcast)
                                                     } else {
                                                         intent.putExtra(PODCAST_KEY, it)
@@ -141,13 +140,9 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                         }
 
                         override fun onNext(it: Boolean) {
-                            if (it!!) {
+                            if (it) {
                                 Log.d(SearchPodcastRecyclerViewAdapter.TAG,
-                                        "Insert Podcast To DB Complete \${podcast.collectionName}")
-                                StorageUtil.startGlideImageDownload(podcast, ctx)
-                                // change the icon
-                                podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
-
+                                        "Insert Podcast To DB Complete ${podcast.collectionName}")
                             } else {
                                 Log.e(SearchPodcastRecyclerViewAdapter.TAG, "Insert Podcast to DB " + "Failed. Maybe a duplicate  ")
                             }
@@ -206,12 +201,19 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
         var author: TextView
         var title: TextView
         var downloadedView: ImageView
+        private var disposable : Disposable? = null
+        private var podcast : Podcast? = null
 
         init {
             imgView = itemView.findViewById(R.id.podcast_image)
             author = itemView.findViewById(R.id.podcast_author)
             title = itemView.findViewById(R.id.podcast_title)
             downloadedView = itemView.findViewById(R.id.podcast_downloaded_img)
+        }
+        // set podcast to the holder
+        fun setPodcast (podcast: Podcast) {
+            PodcastItemViewHolder@this.podcast = podcast
+
         }
     }
 

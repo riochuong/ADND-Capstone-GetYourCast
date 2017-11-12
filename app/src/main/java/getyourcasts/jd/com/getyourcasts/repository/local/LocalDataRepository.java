@@ -18,6 +18,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataRepository;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode;
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
+import getyourcasts.jd.com.getyourcasts.util.StorageUtil;
 
 /**
  * Created by chuondao on 8/8/17.
@@ -176,6 +177,7 @@ public class LocalDataRepository implements DataRepository {
             Uri uri = Contract.PodcastTable.URI_ID.buildUpon().appendPath(podcast.getCollectionId()).build();
             returnUri = this.context.getContentResolver().insert(uri,
                     cv);
+            StorageUtil.INSTANCE.startGlideImageDownload(podcast, context);
         } catch (Exception e) {
             e.printStackTrace();
         }
