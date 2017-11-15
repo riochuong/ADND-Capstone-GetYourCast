@@ -31,7 +31,6 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.tonyodev.fetch.listener.FetchListener
 import com.wang.avi.AVLoadingIndicatorView
 
 import java.util.ArrayList
@@ -258,18 +257,6 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
     fun requestStopDownload(id: Long?) {
         if (downloadService != null) {
 
-        }
-    }
-
-    fun registerListener(listener: FetchListener) {
-        if (downloadService != null) {
-            downloadService!!.registerListener(listener)
-        }
-    }
-
-    fun unRegisterListener(listener: FetchListener) {
-        if (downloadService != null) {
-            downloadService!!.unregisterListener(listener)
         }
     }
 

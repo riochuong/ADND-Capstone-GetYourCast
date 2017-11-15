@@ -47,7 +47,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 
 
 /**
@@ -277,7 +276,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
 
                 override fun onNext(episodeState: EpisodeState) {
                     when (episodeState.state) {
-                        EpisodeState.DELETED -> for (ep in playList!!) {
+                        EpisodeState.EPISODE_DELETED -> for (ep in playList!!) {
                             if (ep.uniqueId == episodeState.uniqueId) {
                                 MediaPlayBackService.publishMediaPlaybackSubject(ep,
                                         MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST)

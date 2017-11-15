@@ -20,8 +20,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
-
-import com.tonyodev.fetch.listener.FetchListener
 import com.wang.avi.AVLoadingIndicatorView
 
 import getyourcasts.jd.com.getyourcasts.R
@@ -53,7 +51,6 @@ class EpisodeInfoFragment : Fragment() {
     private var datePub: TimeUtil.DatePub? = null
     private var viewModel: PodcastViewModel? = null
     private var fabState = PRESS_TO_DOWNLOAD
-    private val downloadListener: FetchListener? = null
     private var transactionId = -1L
     private var mainObserverDisposable: Disposable? = null
     private var mediaServiceDisposable: Disposable? = null
@@ -283,19 +280,19 @@ class EpisodeInfoFragment : Fragment() {
                                         override fun onNext(episode: Episode) {
                                             currInfoEpisode = episode
                                             when (epState.state) {
-                                                EpisodeState.DOWNLOADING -> {
+                                                EpisodeState.EPISODE_DOWNLOADING -> {
                                                     fabState = PRESS_TO_STOP_DOWNLOAD
                                                     ep_info_fab.visibility = View.VISIBLE
                                                     ep_info_fab.setImageResource(R.mipmap.ic_stop_white)
                                                 }
-                                                EpisodeState.FETCHED -> {
+                                                EpisodeState.EPISODE_FETCHED -> {
                                                     fabState = PRESS_TO_DOWNLOAD
                                                     ep_info_fab.visibility = View.VISIBLE
                                                     ep_info_fab.setImageResource(R.mipmap.ic_fab_tosubscribe)
                                                     currInfoEpisode!!.localUrl = null
                                                 }
 
-                                                EpisodeState.DOWNLOADED -> {
+                                                EpisodeState.EPISODE_DOWNLOADED -> {
                                                     fabState = PRESS_TO_PLAY
                                                     ep_info_fab.visibility = View.VISIBLE
                                                     ep_info_fab.setImageResource(R.mipmap.ic_play_white)
@@ -363,7 +360,7 @@ class EpisodeInfoFragment : Fragment() {
                 ep_info_fab.setImageResource(R.mipmap.ic_stop_dl)
             }
             // downloaded
-            currInfoEpisode!!.downloaded == EpisodeState.DOWNLOADED -> {
+            currInfoEpisode!!.downloaded == EpisodeState.EPISODE_DOWNLOADED -> {
                 fabState = PRESS_TO_PLAY
                 ep_info_fab.visibility = View.VISIBLE
                 ep_info_fab.setImageResource(R.mipmap.ic_play_white)
@@ -448,7 +445,7 @@ class EpisodeInfoFragment : Fragment() {
                 && downloadService != null
                 && currInfoEpisode!!.downloadUrl != null
                 && !currInfoEpisode!!.downloadUrl.trim { it <= ' ' }.isEmpty()) {
-            downloadService!!.requestStopDownload(transactionId)
+            downloadService!!.requestStopDownload(currInfoEpisode!!.uniqueId)
         }
     }
 
@@ -496,9 +493,6 @@ class EpisodeInfoFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if (this.downloadListener != null && downloadService != null) {
-            downloadService!!.unregisterListener(this.downloadListener)
-        }
         // destroy main observer
         if (mainObserverDisposable != null) {
             mainObserverDisposable!!.dispose()

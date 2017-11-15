@@ -60,7 +60,7 @@ class DownloadedEpisodesAdapter(internal var episodeList: MutableList<Episode>?,
                         }
                         override fun onNext(res: Boolean) {
                             PodcastViewModel.updateEpisodeSubject(EpisodeState(ep.uniqueId,
-                                    EpisodeState.DELETED, 0))
+                                    EpisodeState.EPISODE_DELETED, 0))
                             Log.d(TAG, "Successfully remove downloaded episode " + ep.title)
                         }
 

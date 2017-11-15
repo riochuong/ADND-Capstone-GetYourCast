@@ -110,14 +110,14 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
     private fun setOnClickListenerForEpisodeInfo(vh: EpisodeItemViewHolder,
                                                  ep: Episode
     ) {
-        vh.mainLayout.setOnClickListener { v ->
+        vh.mainLayout.setOnClickListener { _ ->
             val intent = Intent(ctx, EpisodeInfoActivity::class.java)
             intent.putExtra(BG_COLOR_KEY, bgColor)
             intent.putExtra(EPISODE_KEY, ep)
             intent.putExtra(PODCAST_IMG_KEY, podcast.imgLocalPath)
             intent.putExtra(DL_TRANS_ID, vh.transId)
             // check downloading status
-            if (vh.downloadListener != null) {
+            if (vh.state == ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD) {
                 intent.putExtra(IS_DOWNLOADING_KEY, true)
             }
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -222,34 +222,6 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
     }
 
 
-    private fun getListenerForDownload(transactionId: Long?,
-                                       vh: EpisodeItemViewHolder,
-                                       episode: Episode?
-    ): EpisodeDownloadListener {
-        return object : EpisodeDownloadListener(transactionId!!) {
-            override fun onProgressUpdate(progress: Int) {
-                vh.progressView.progress = progress
-            }
-
-            override fun onComplete() {
-
-            }
-
-            override fun onStop() {
-
-            }
-
-            override fun onError() {
-                Log.e(TAG, "Failed to download episode " + episode!!.title)
-                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down)
-                vh.downPlayImg.visibility = View.VISIBLE
-                vh.progressView.visibility = View.GONE
-            }
-        }
-
-    }
-
-
     private fun updateItemData(ep: Episode?, pos: Int) {
         viewModel.getEpisodeObsevable(ep)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -298,7 +270,6 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
         var fileSize: TextView
         var progressView: CircleProgress
         var state = ButtonStateUtil.PRESS_TO_DOWNLOAD
-        var downloadListener: EpisodeDownloadListener? = null
         private var episode: Episode? = null
         private var disposable: Disposable? = null
         // quick hack for stop download
@@ -309,11 +280,6 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
          * @param itemPos
          */
         fun setEpisode(episode: Episode, itemPos: Int) {
-            // need ro remove old listener to avoid conflict
-            if (this.episode != null && downloadListener != null) {
-                this@EpisodesRecyclerViewAdapter.fragment.unRegisterListener(downloadListener!!)
-                downloadListener = null
-            }
             if (this.disposable != null) {
                 this.disposable!!.dispose()
                 this.disposable = null
@@ -334,23 +300,18 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
                         val ep = this@EpisodeItemViewHolder.episode
                         val vh = this@EpisodeItemViewHolder
                         when (epState.state) {
-                            EpisodeState.DOWNLOADING -> {
+                            EpisodeState.EPISODE_DOWNLOADING -> {
                                 Log.d(TAG, "downloading update for episode" + ep!!.toString())
-                                if (vh.downloadListener == null) {
-                                    vh.downloadListener = getListenerForDownload(epState
-                                            .transId, vh, ep)
-                                    showProgressView(vh)
-                                    // add new listener
-                                    this@EpisodesRecyclerViewAdapter.fragment.registerListener(vh.downloadListener!!)
-                                }
+                                showProgressView(vh)
+                                vh.progressView.progress = epState.downloadProgress
+                                vh.state = ButtonStateUtil.PRESS_TO_STOP_DOWNLOAD
                             }
-                            EpisodeState.FETCHED -> this@EpisodesRecyclerViewAdapter.updateItemData(ep, itemPos)
-                            EpisodeState.DOWNLOADED -> {
-                                // we only change things if download listener was from
-                                if (vh.downloadListener != null) {
-                                    this@EpisodesRecyclerViewAdapter.fragment.unRegisterListener(vh.downloadListener!!)
-                                    vh.downloadListener = null
-                                }
+                            EpisodeState.EPISODE_FETCHED -> {
+                                this@EpisodesRecyclerViewAdapter.updateItemData(ep,
+                                        itemPos)
+                                vh.state = ButtonStateUtil.PRESS_TO_DOWNLOAD
+                            }
+                            EpisodeState.EPISODE_DOWNLOADED -> {
                                 this@EpisodesRecyclerViewAdapter.updateItemData(ep, itemPos)
                                 vh.state = ButtonStateUtil.PRESS_TO_PLAY
                                 vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
