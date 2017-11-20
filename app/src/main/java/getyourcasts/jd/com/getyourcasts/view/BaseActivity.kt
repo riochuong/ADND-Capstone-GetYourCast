@@ -12,11 +12,14 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
+import com.github.florent37.glidepalette.BitmapPalette
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener
 import getyourcasts.jd.com.getyourcasts.view.media.PlaybackControlsFragment
@@ -100,18 +103,18 @@ open class BaseActivity : AppCompatActivity() {
                             }
 
                             override fun onNext(podcast: Podcast) {
-                                GlideApp.with(this@BaseActivity)
-                                        .load(podcast.imgLocalPath)
-                                        .into(controlViewHolder.podcastImg)
+                                // load image and set background color
+                                GlideUtil.loadImageAndSetColorOfViews(this@BaseActivity,
+                                                                        podcast.imgLocalPath,
+                                                                        controlViewHolder.podcastImg,
+                                                                        playbackControlsFragment!!.mainLayout,
+                                                                        BitmapPalette.Profile.VIBRANT_DARK
+                                        )
+
                                 // set content
                                 controlViewHolder.artist.text = podcast.artistName
                                 controlViewHolder.title.text = ep.title
-                                // set color background for the playback fragment
-                                if (playbackControlsFragment != null
-                                        && podcast.vibrantColor.trim() != "") {
-                                    playbackControlsFragment!!.mainLayout
-                                            .setBackgroundColor(Integer.parseInt(podcast.vibrantColor))
-                                }
+                                // set state of the player
                                 if (state == MediaPlayBackService.MEDIA_PLAYING) {
                                     controlViewHolder.actionBtn.setImageResource(R.mipmap.ic_pause_for_list)
                                 } else {

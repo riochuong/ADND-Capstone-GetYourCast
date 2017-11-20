@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.github.florent37.glidepalette.BitmapPalette
 
 import java.util.ArrayList
 
@@ -15,6 +16,7 @@ import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService.Companion
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.media.PlayListFragment
@@ -64,49 +66,23 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
 
     override fun onBindViewHolder(holder: PlaylistItemViewHolder, position: Int) {
         val ep = episodeList!![position]
-        val datePub = TimeUtil.parseDatePub(ep.pubDate)
-        holder.epDate.text = datePub!!.month + "," + datePub.dayOfMonth + " " + datePub.year
-        holder.epName.text = ep.title
         // get the local podcast image from db and load it
-        viewModel.getPodcastObservable(ep.podcastId)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        object : Observer<Podcast> {
-                            override fun onSubscribe(d: Disposable) {
-
-                            }
-
-                            override fun onNext(podcast: Podcast) {
-                                // now load image to imgview
-                                GlideApp.with(playListFragment.context)
-                                        .load(podcast.imgLocalPath)
-                                        .into(holder.podcastImg)
-                            }
-
-                            override fun onError(e: Throwable) {
-
-                            }
-
-                            override fun onComplete() {
-
-                            }
-                        }
-                )
-
+        holder.episode = ep
         // set listenter
         setItemRemoveListener(holder, ep)
     }
 
 
     private fun setItemRemoveListener(vh: PlaylistItemViewHolder, ep: Episode) {
-        vh.itemRemove.setOnClickListener { v ->
+        vh.itemRemove.setOnClickListener { _ ->
             MediaPlayBackService.publishMediaPlaybackSubject(ep, MEDIA_REMOVED_FROM_PLAYLIST)
             episodeList!!.removeAt(vh.adapterPosition)
             if (episodeList!!.size == 0) {
                 MediaPlayBackService.publishMediaPlaybackSubject(null, MediaPlayBackService
                         .MEDIA_PLAYLIST_EMPTY)
             }
-            notifyItemRemoved(vh.adapterPosition)
+            //notifyItemRemoved(vh.adapterPosition)
+            notifyDataSetChanged()
         }
     }
 
@@ -120,6 +96,42 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
         var podcastImg: ImageView
         var epName: TextView
         var itemRemove: ImageView
+        var disposable : Disposable? = null
+        var episode : Episode? = null
+            set(value) {
+                field = episode
+                val datePub = TimeUtil.parseDatePub(value!!.pubDate)
+                epDate.text = "${datePub!!.month},${datePub.dayOfMonth},${datePub.year}"
+                epName.text = value!!.title
+                viewModel.getPodcastObservable(value.podcastId)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                object : Observer<Podcast> {
+                                    override fun onSubscribe(d: Disposable) {
+                                            if (disposable != null) disposable!!.dispose()
+                                            disposable = d
+                                    }
+
+                                    override fun onNext(podcast: Podcast) {
+                                        // now load image to imgview
+                                        GlideUtil.loadImageAndSetColorOfViews(playListFragment.context,
+                                                podcast.imgLocalPath,
+                                                podcastImg,
+                                                itemView,
+                                                BitmapPalette.Profile.VIBRANT_DARK)
+                                    }
+
+                                    override fun onError(e: Throwable) {
+                                        e.printStackTrace()
+                                    }
+
+                                    override fun onComplete() {
+
+                                    }
+                                }
+                        )
+
+            }
 
 
         init {

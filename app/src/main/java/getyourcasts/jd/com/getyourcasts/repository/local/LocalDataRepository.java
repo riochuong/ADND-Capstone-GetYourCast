@@ -177,6 +177,7 @@ public class LocalDataRepository implements DataRepository {
             Uri uri = Contract.PodcastTable.URI_ID.buildUpon().appendPath(podcast.getCollectionId()).build();
             returnUri = this.context.getContentResolver().insert(uri,
                     cv);
+            // download podcast image to local storage
             StorageUtil.INSTANCE.startGlideImageDownload(podcast, context);
         } catch (Exception e) {
             e.printStackTrace();

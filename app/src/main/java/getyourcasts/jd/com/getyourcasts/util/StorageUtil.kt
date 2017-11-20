@@ -82,7 +82,7 @@ object StorageUtil {
     }
 
 
-    fun startGlideImageDownload(pod: Podcast, ctx: Context) {
+    fun startGlideImageDownload(pod: Podcast, ctx: Context): Boolean {
         val downloadFile = GlideApp.with(ctx).downloadOnly().load(pod.artworkUrl100).submit().get()
         if (downloadFile != null) {
             // write file to storage
@@ -93,6 +93,7 @@ object StorageUtil {
                 source = FileInputStream(downloadFile)
                 dest = FileOutputStream(imgFile)
                 dest.channel.transferFrom(source.channel, 0, source.channel.size())
+                return true
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.d(TAG, "Failed to transfer cache image after download")
@@ -101,6 +102,7 @@ object StorageUtil {
                 if (dest != null) dest.close()
             }
         }
+        return false
     }
 
     fun loadMediaPlayList(context: Context): List<Episode> {

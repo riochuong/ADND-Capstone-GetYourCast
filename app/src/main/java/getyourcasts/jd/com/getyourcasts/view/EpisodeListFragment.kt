@@ -31,6 +31,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.github.florent37.glidepalette.BitmapPalette
 import com.wang.avi.AVLoadingIndicatorView
 
 import java.util.ArrayList
@@ -42,6 +43,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.media.MediaServiceBoundListener
@@ -189,60 +191,12 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
     }
 
     private fun loadPodcastImage() {
-        GlideApp.with(context)
-                .load(podcast!!.imgLocalPath)
-                .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(e: GlideException?,
-                                              model: Any, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
-                        e?.printStackTrace()
-                        return false
-                    }
-
-                    override fun onResourceReady(resource: Drawable?,
-                                                 model: Any,
-                                                 target: Target<Drawable>,
-                                                 dataSource: DataSource,
-                                                 isFirstResource: Boolean): Boolean {
-
-                        if (resource != null && resource is BitmapDrawable) {
-                            val bitmap = resource.bitmap
-                            // this will done in background thread with
-                            Palette.from(bitmap).generate { palette ->
-                                val vibrantColor = palette.getDarkVibrantColor(PALETTE_BG_MASK)
-                                podcast_detail_appbar.setBackgroundColor(vibrantColor)
-                                if (palette.darkVibrantSwatch != null) {
-                                    episode_podcast_title.setTextColor(palette.darkVibrantSwatch!!
-                                            .titleTextColor)
-                                }
-                                val cv = ContentValues()
-                                cv.put(Contract.PodcastTable.VIBRANT_COLOR, vibrantColor.toString() + "")
-                                viewModel!!.getUpdatePodcastObservable(podcast, cv)
-                                        .subscribe(
-                                                object : Observer<Boolean> {
-                                                    override fun onSubscribe(d: Disposable) {
-
-                                                    }
-
-                                                    override fun onNext(aBoolean: Boolean) {
-                                                        Log.d(TAG, " Finish update vibrant color for podcast ")
-                                                    }
-
-                                                    override fun onError(e: Throwable) {
-                                                        e.printStackTrace()
-                                                    }
-
-                                                    override fun onComplete() {
-
-                                                    }
-                                                }
+        GlideUtil.loadImageAndSetColorOfViews(context,
+                                            podcast!!.imgLocalPath,
+                                            episode_podcast_img,
+                                            podcast_detail_appbar,
+                                            BitmapPalette.Profile.VIBRANT_DARK
                                         )
-                            }
-                        }
-                        return false
-                    }
-                }).into(episode_podcast_img)
-
-
     }
 
     fun requestDownload(ep: Episode,

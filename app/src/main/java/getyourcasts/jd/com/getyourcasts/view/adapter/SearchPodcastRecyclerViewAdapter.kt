@@ -2,6 +2,7 @@ package getyourcasts.jd.com.getyourcasts.view.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,25 +10,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.github.florent37.glidepalette.BitmapPalette
 import com.wang.avi.AVLoadingIndicatorView
-
-import java.util.ArrayList
-
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper
-import getyourcasts.jd.com.getyourcasts.util.StorageUtil
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.view.PodcastDetailsActivity
 import getyourcasts.jd.com.getyourcasts.view.SearchPodcastFragment
-import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastState
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
-import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import org.jetbrains.anko.find
+import java.util.*
 
 /**
  * Created by chuondao on 9/10/17.
@@ -57,42 +54,8 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
         podcastVh.title.text = podcast.collectionName
         podcastVh.itemPos = position
         podcastVh.progressView.visibility = View.GONE
-        podcastVh.downloadedView.visibility = View.VISIBLE
-        // need glide to load the image here
-        // set onclick listener for download image locally and insert podcast to db
-        podcastVh.downloadedView.setOnClickListener { view ->
-            if (!NetworkHelper.isConnectedToNetwork(this@SearchPodcastRecyclerViewAdapter.ctx)) {
-                NetworkHelper.showNetworkErrorDialog(ctx)
-                return@setOnClickListener
-            }
-            // show progress view
-            podcastVh.progressView.visibility = View.VISIBLE
-            podcastVh.downloadedView.visibility = View.GONE
-            viewModel.getSubscribeObservable(podcast)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(object : Observer<Boolean> {
-                        override fun onSubscribe(d: Disposable) {
+        podcastVh.subscribeView.visibility = View.VISIBLE
 
-                        }
-
-                        override fun onNext(it: Boolean) {
-                            if (it) {
-                                Log.d(SearchPodcastRecyclerViewAdapter.TAG,
-                                        "Insert Podcast To DB Complete ${podcast.collectionName}")
-                            } else {
-                                Log.e(SearchPodcastRecyclerViewAdapter.TAG, "Insert Podcast to DB " + "Failed. Maybe a duplicate  ")
-                            }
-                        }
-
-                        override fun onError(it: Throwable) {
-                            it.printStackTrace()
-                        }
-
-                        override fun onComplete() {
-
-                        }
-                    })
-        }
 
     }
 
@@ -111,12 +74,15 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
 
     internal inner class PodcastItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
+
         var imgView: ImageView
         var author: TextView
         var title: TextView
-        var downloadedView: ImageView
+        var subscribeView: ImageView
         var progressView: AVLoadingIndicatorView
+        var backgroundView: CardView
         var itemPos: Int = -1
+        var status = UNSUBSCRIBED
         private var disposable : Disposable? = null
         var podcast : Podcast? = null
             set(value) {
@@ -135,19 +101,32 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                                 override fun onNext(it: Podcast) {
                                     // this true mean podcast is already subscribed
                                     if (it.collectionId.trim { it <= ' ' } != "") {
-                                        podcastVh.downloadedView.setImageResource(R.mipmap.ic_downloaded)
+                                        podcastVh.subscribeView.setImageResource(R.mipmap.ic_downloaded)
                                         // disable on click listener
                                         Log.d(TAG, "Load image from local path ${it.imgLocalPath}")
-                                        GlideApp.with(fragment).load(it.imgLocalPath.trim { it <= ' ' }).into(podcastVh.imgView)
+//                                        GlideApp.with(fragment).load(it.imgLocalPath.trim { it <= ' ' }).into(podcastVh.imgView)
+                                        GlideUtil.loadImageAndSetColorOfViews(
+                                                fragment.context,
+                                                it.imgLocalPath.trim(),
+                                                podcastVh.imgView,
+                                                podcastVh.backgroundView,
+                                                BitmapPalette.Profile.VIBRANT_DARK
+                                        )
                                         field = it
+                                        status = SUBSCRIBED
                                     } else {
-                                        podcastVh.downloadedView.setImageResource(R.mipmap.ic_subscribe)
+                                        podcastVh.subscribeView.setImageResource(R.mipmap.ic_subscribe)
                                         if (value.artworkUrl100 != null) {
-                                            GlideApp.with(fragment)
-                                                    .load(value.artworkUrl100
-                                                            .trim()).into(podcastVh.imgView)
+                                            GlideUtil.loadImageAndSetColorOfViews(
+                                                    fragment.context,
+                                                    value.artworkUrl100,
+                                                    podcastVh.imgView,
+                                                    podcastVh.backgroundView,
+                                                    BitmapPalette.Profile.VIBRANT_DARK
+                                                    )
                                         }
                                         field = value
+                                        status = UNSUBSCRIBED
                                     }
                                     // set onclickListenter to launch details podcast
                                     podcastVh.itemView.setOnClickListener {
@@ -216,21 +195,62 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                             }
                     )
                 }
+
             }
 
         init {
             imgView = itemView.findViewById(R.id.podcast_image)
             author = itemView.findViewById(R.id.podcast_author)
             title = itemView.findViewById(R.id.podcast_title)
-            downloadedView = itemView.findViewById(R.id.podcast_downloaded_img)
+            subscribeView = itemView.findViewById(R.id.podcast_downloaded_img)
             progressView = itemView.findViewById(R.id.subscribing_progress_view)
+            backgroundView = itemView.findViewById(R.id.movie_detail_fragment)
+            subscribeView.setOnClickListener { view ->
+                // check if network avaialble
+                if (!NetworkHelper.isConnectedToNetwork(this@SearchPodcastRecyclerViewAdapter.ctx)) {
+                    NetworkHelper.showNetworkErrorDialog(ctx)
+                    return@setOnClickListener
+                }
+                // if podcast view is not subscribed
+                if (status == SUBSCRIBED) {
+                    return@setOnClickListener
+                }
+                // show progress view
+                progressView.visibility = View.VISIBLE
+                subscribeView.visibility = View.GONE
+                viewModel.getSubscribeObservable(podcast)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object : Observer<Boolean> {
+                            override fun onSubscribe(d: Disposable) {
+
+                            }
+
+                            override fun onNext(it: Boolean) {
+                                if (it) {
+                                    Log.d(SearchPodcastRecyclerViewAdapter.TAG,
+                                            "Insert Podcast To DB Complete ${podcast!!.collectionName}")
+                                } else {
+                                    Log.e(SearchPodcastRecyclerViewAdapter.TAG, "Insert Podcast to DB " + "Failed. Maybe a duplicate  ")
+                                }
+                            }
+
+                            override fun onError(it: Throwable) {
+                                it.printStackTrace()
+                            }
+
+                            override fun onComplete() {
+
+                            }
+                        })
+            }
         }
     }
 
     companion object {
-
-        private val TAG = "PocastAdapter"
-        private val PODCAST_KEY = "podcast_key"
-        private val REQUEST_CODE = 1
+        const val TAG = "PocastAdapter"
+        const val PODCAST_KEY = "podcast_key"
+        const val REQUEST_CODE = 1
+        const val SUBSCRIBED = 1
+        const val UNSUBSCRIBED = 0
     }
 }
