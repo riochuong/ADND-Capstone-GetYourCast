@@ -8,10 +8,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.wang.avi.AVLoadingIndicatorView;
@@ -41,6 +43,7 @@ public class SearchPodcastFragment extends Fragment{
     EditText search_term_text;
     TextView search_empty_view;
     AVLoadingIndicatorView searching_prog_view;
+    ImageView podcast_go_back_icon;
     private static final int LOADER_SEARCH_POD_ID = 417;
 
     private static final String SEARCH_RESULT_LIST = "search_list_key";
@@ -49,10 +52,11 @@ public class SearchPodcastFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.search_podcast_fragment, container, false);
-        recyclerView = (RecyclerView) root.findViewById(R.id.podcast_list_recycler_view);
-        search_term_text = (EditText) root.findViewById(R.id.search_term_text);
-        search_empty_view = (TextView) root.findViewById(R.id.search_empty_view);
-        searching_prog_view = (AVLoadingIndicatorView) root.findViewById(R.id.searching_prog_view);
+        recyclerView = root.findViewById(R.id.podcast_list_recycler_view);
+        search_term_text = root.findViewById(R.id.search_term_text);
+        search_empty_view = root.findViewById(R.id.search_empty_view);
+        searching_prog_view = root.findViewById(R.id.searching_prog_view);
+        podcast_go_back_icon = root.findViewById(R.id.podcast_go_back_icon);
         searchAdapter = new SearchPodcastRecyclerViewAdapter(new ArrayList<>(), this);
         return root;
     }
@@ -70,6 +74,10 @@ public class SearchPodcastFragment extends Fragment{
         super.onViewCreated(view, savedInstanceState);
         searchViewModel = PodcastViewModel.getInstance(DataSourceRepo.getInstance(this.getContext()));
         setupRecyclerView();
+        // set
+        podcast_go_back_icon.setOnClickListener(
+                v -> SearchPodcastFragment.this.getActivity().finish()
+        );
         // restored search adapter instances
         if (savedInstanceState != null ){
             Parcelable[] savedPodcastArr = savedInstanceState.getParcelableArray(SEARCH_RESULT_LIST);
