@@ -270,7 +270,8 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
         var progressView: CircleProgress
         var state = ButtonStateUtil.PRESS_TO_DOWNLOAD
         private var episode: Episode? = null
-        private var disposable: Disposable? = null
+        private var episodeDisposable: Disposable? = null
+        private var mediaDisposable: Disposable? = null
         // quick hack for stop download
         var transId: Long = -1
 
@@ -279,9 +280,14 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
          * @param itemPos
          */
         fun setEpisode(episode: Episode, itemPos: Int) {
-            if (this.disposable != null) {
-                this.disposable!!.dispose()
-                this.disposable = null
+            if (this.mediaDisposable != null) {
+                this.mediaDisposable!!.dispose()
+                this.mediaDisposable = null
+            }
+
+            if (this.episodeDisposable != null){
+                this.episodeDisposable!!.dispose()
+                this.episodeDisposable = null
             }
             // set episode
             this.episode = episode
@@ -291,8 +297,11 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
             PodcastViewModel.subscribeEpisodeSubject(object : Observer<EpisodeState> {
                 override fun onSubscribe(d: Disposable) {
                     // dispose old disposable also
-                    if (this@EpisodeItemViewHolder.disposable != null) this@EpisodeItemViewHolder.disposable!!.dispose()
-                    this@EpisodeItemViewHolder.disposable = d
+                    if (this@EpisodeItemViewHolder.episodeDisposable != null) {
+                        this@EpisodeItemViewHolder
+                                .episodeDisposable!!.dispose()
+                    }
+                    this@EpisodeItemViewHolder.episodeDisposable = d
                 }
 
                 override fun onNext(epState: EpisodeState) {
@@ -336,8 +345,8 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
         private fun subscribeToMeidaSerivce() {
             MediaPlayBackService.subscribeMediaPlaybackSubject(object : Observer<android.util.Pair<Episode?, Int>> {
                 override fun onSubscribe(d: Disposable) {
-                    if (this@EpisodeItemViewHolder.disposable != null) this@EpisodeItemViewHolder.disposable!!.dispose()
-                    this@EpisodeItemViewHolder.disposable = d
+                    if (this@EpisodeItemViewHolder.mediaDisposable != null) this@EpisodeItemViewHolder.mediaDisposable!!.dispose()
+                    this@EpisodeItemViewHolder.mediaDisposable = d
                 }
 
                 override fun onNext(info: android.util.Pair<Episode?, Int>) {
