@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/media_player_view_main_layout"
-    tools:context="getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerViewFragment">
+    tools:context="getyourcasts.jd.com.getyourcasts.view.media.MediaPlayerViewFragment"
+    android:orientation="vertical">
 
 
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView

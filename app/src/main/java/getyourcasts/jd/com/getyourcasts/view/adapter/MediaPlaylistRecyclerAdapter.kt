@@ -1,15 +1,10 @@
 package getyourcasts.jd.com.getyourcasts.view.adapter
 
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import com.github.florent37.glidepalette.BitmapPalette
-
-import java.util.ArrayList
-
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService.Companion.MEDIA_REMOVED_FROM_PLAYLIST
@@ -18,19 +13,19 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
-import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.media.PlayListFragment
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import java.util.*
 
 
 /**
  * Created by chuondao on 8/12/17.
  */
 
-class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragment) :
+class MediaPlaylistRecyclerAdapter(val playListFragment: PlayListFragment) :
         RecyclerView.Adapter<MediaPlaylistRecyclerAdapter.PlaylistItemViewHolder>() {
     private var episodeList: MutableList<Episode>? = null
     private val viewModel: PodcastViewModel
@@ -46,17 +41,6 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
         episodeList = newList
         this.notifyDataSetChanged()
     }
-
-    fun addItemToTopList(ep: Episode) {
-        episodeList!!.add(0, ep)
-        this.notifyDataSetChanged()
-    }
-
-    fun addItemToEndList(ep: Episode) {
-        episodeList!!.add(ep)
-        this.notifyItemChanged(episodeList!!.size - 1)
-    }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistItemViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.episode_playlist_item_layout,
@@ -81,14 +65,11 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
                 MediaPlayBackService.publishMediaPlaybackSubject(null, MediaPlayBackService
                         .MEDIA_PLAYLIST_EMPTY)
             }
-            //notifyItemRemoved(vh.adapterPosition)
             notifyDataSetChanged()
         }
     }
 
-    override fun getItemCount(): Int {
-        return episodeList!!.size
-    }
+    override fun getItemCount(): Int = episodeList!!.size
 
 
     inner class PlaylistItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -99,7 +80,7 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
         var disposable : Disposable? = null
         var episode : Episode? = null
             set(value) {
-                field = episode
+                field = value
                 val datePub = TimeUtil.parseDatePub(value!!.pubDate)
                 epDate.text = "${datePub!!.month},${datePub.dayOfMonth},${datePub.year}"
                 epName.text = value!!.title
@@ -118,7 +99,7 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
                                                 podcast.imgLocalPath,
                                                 podcastImg,
                                                 itemView,
-                                                BitmapPalette.Profile.VIBRANT_DARK)
+                                                BitmapPalette.Profile.MUTED_DARK)
                                     }
 
                                     override fun onError(e: Throwable) {
@@ -132,8 +113,6 @@ class MediaPlaylistRecyclerAdapter(private val playListFragment: PlayListFragmen
                         )
 
             }
-
-
         init {
             epDate = itemView.findViewById(R.id.episode_date)
             epName = itemView.findViewById(R.id.episode_name)

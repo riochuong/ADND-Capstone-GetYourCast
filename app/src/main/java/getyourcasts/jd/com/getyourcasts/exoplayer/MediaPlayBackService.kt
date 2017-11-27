@@ -482,9 +482,28 @@ class MediaPlayBackService : Service(), Player.EventListener {
             exoPlayer!!.prepare(buildMediaSourceFromUrl(playList!![index].localUrl))
             exoPlayer!!.playWhenReady = true
             publishMediaPlaybackSubject(playList!![currEpisodePos], MEDIA_TRACK_CHANGED)
-            // update app widget to display new image
         }
     }
+
+    @Synchronized
+    fun playEpisodeInPlayList(ep: Episode) {
+        val index = findEpisodeIndexInPlaylist(ep)
+        if (index >= 0) {
+            playMediaFileAtIndex(index)
+        }
+    }
+
+    private fun findEpisodeIndexInPlaylist(episode: Episode): Int {
+        playList.forEachIndexed {
+            index, it -> run {
+                if (episode.uniqueId.equals(it.uniqueId)) {
+                    return index
+                }
+            }
+        }
+        return -1
+    }
+
 
     fun setPlayerView(view: SimpleExoPlayerView) {
         view.player = exoPlayer

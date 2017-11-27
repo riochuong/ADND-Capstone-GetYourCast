@@ -69,7 +69,7 @@ public class PlayListFragment extends Fragment {
     }
 
     private void initRecyclerView(View root) {
-        playListRecyclerView = (RecyclerView) root.findViewById(R.id.ep_play_list);
+        playListRecyclerView = root.findViewById(R.id.ep_play_list);
         LinearLayoutManager lm = new LinearLayoutManager(this.getContext());
         lm.setOrientation(LinearLayoutManager.VERTICAL);
         playListRecyclerView.setLayoutManager(lm);
@@ -117,6 +117,16 @@ public class PlayListFragment extends Fragment {
     /* ============================ CONNECT TO MEDIA SERVICE ========================================= */
     private boolean boundToMediaService = false;
     private MediaPlayBackService mediaService = null;
+
+    /**
+     * add function to help play episode in playlist
+     * @param episode
+     */
+    public void playEpisode(Episode episode) {
+        if (mediaService != null && boundToMediaService) {
+            mediaService.playEpisodeInPlayList(episode);
+        }
+    }
 
     // connection to service
     private ServiceConnection mediaServiceConnection =

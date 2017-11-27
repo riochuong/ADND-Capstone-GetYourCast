@@ -108,7 +108,7 @@ open class BaseActivity : AppCompatActivity() {
                                                                         podcast.imgLocalPath,
                                                                         controlViewHolder.podcastImg,
                                                                         playbackControlsFragment!!.mainLayout,
-                                                                        BitmapPalette.Profile.VIBRANT_DARK
+                                                                        BitmapPalette.Profile.MUTED_DARK
                                         )
 
                                 // set content
@@ -138,6 +138,7 @@ open class BaseActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (controlViewHolder.actionBtnDisposable != null) {
+            
             controlViewHolder.actionBtnDisposable!!.dispose()
             controlViewHolder.actionBtnDisposable = null
         }

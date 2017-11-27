@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
+import com.github.florent37.glidepalette.BitmapPalette
 import com.wang.avi.AVLoadingIndicatorView
 
 import getyourcasts.jd.com.getyourcasts.R
@@ -27,6 +28,7 @@ import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.DownloadService
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.util.TimeUtil
 import getyourcasts.jd.com.getyourcasts.view.adapter.EpisodesRecyclerViewAdapter
@@ -470,9 +472,13 @@ class EpisodeInfoFragment : Fragment() {
 
 
     private fun loadEpisodeImage() {
-        GlideApp.with(context)
-                .load(imgUrl)
-                .into(ep_info_img)
+        GlideUtil.loadImageAndSetColorOfViews(
+                context,
+                imgUrl!!,
+                ep_info_img,
+                ep_info_app_bar,
+                BitmapPalette.Profile.MUTED_DARK
+                )
     }
 
     override fun onDestroy() {

@@ -17,6 +17,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
+import com.github.florent37.glidepalette.BitmapPalette
 
 import com.wang.avi.AVLoadingIndicatorView
 
@@ -25,6 +26,7 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Channel
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.repository.remote.network.NetworkHelper
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.view.touchListener.SwipeDetector
@@ -33,6 +35,7 @@ import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import kotlinx.android.synthetic.main.fragment_podcast_detail_layout.*
 
 /**
  * Created by chuondao on 9/10/17.
@@ -259,9 +262,21 @@ class PodcastDetailsFragment : Fragment() {
      */
     private fun loadPodcastImage(pod: Podcast) {
         if (pod.imgLocalPath != null) {
-            GlideApp.with(this.context).load(pod.imgLocalPath).into(podcast_detail_img)
+            GlideUtil.loadImageAndSetColorOfViews(
+                    this.context,
+                    pod.imgLocalPath,
+                    podcast_detail_img,
+                    podcast_detail_appbar,
+                    BitmapPalette.Profile.MUTED_DARK
+            )
         } else {
-            GlideApp.with(this.context).load(pod.artworkUrl100).into(podcast_detail_img)
+            GlideUtil.loadImageAndSetColorOfViews(
+                    this.context,
+                    pod.artworkUrl100,
+                    podcast_detail_img,
+                    podcast_detail_appbar,
+                    BitmapPalette.Profile.MUTED_DARK
+            )
         }
     }
 

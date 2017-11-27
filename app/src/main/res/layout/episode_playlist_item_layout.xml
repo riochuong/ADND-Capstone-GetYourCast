@@ -14,7 +14,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:id="@+id/episode_main_view_layout"
+        android:id="@+id/episode_playlist_main_view_layout"
         android:layout_gravity="center_vertical"
         android:layout_height="wrap_content">
 

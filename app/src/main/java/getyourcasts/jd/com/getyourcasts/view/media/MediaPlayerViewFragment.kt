@@ -23,11 +23,13 @@ import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 
 import butterknife.BindView
+import com.github.florent37.glidepalette.BitmapPalette
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.exoplayer.MediaPlayBackService
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
 import getyourcasts.jd.com.getyourcasts.viewmodel.PodcastViewModel
 import io.reactivex.Observer
@@ -243,8 +245,13 @@ class MediaPlayerViewFragment : Fragment() {
                                 override fun onNext(podcast: Podcast) {
                                     try {
                                         if (!isVideo) {
-                                            GlideApp.with(this@MediaPlayerViewFragment.activity.applicationContext)
-                                                    .load(podcast.imgLocalPath).into(exoShutter!!)
+                                            GlideUtil.loadImageAndSetColorOfViews(
+                                                    this@MediaPlayerViewFragment.activity.applicationContext,
+                                                    podcast.imgLocalPath,
+                                                    exoShutter!!,
+                                                    mainLayout!!,
+                                                    BitmapPalette.Profile.MUTED_DARK
+                                            )
                                             if (videoSurfaceView != null && exoShutter != null) {
                                                 videoSurfaceView!!.visibility = View.GONE
                                                 exoShutter!!.visibility = View.VISIBLE
@@ -260,7 +267,7 @@ class MediaPlayerViewFragment : Fragment() {
                                         if (episodeTitle != null) {
                                             episodeTitle!!.text = currentEpisode!!.title
                                         }
-                                        mainLayout!!.setBackgroundColor(Integer.parseInt(podcast.vibrantColor))
+
                                     } catch (e: NumberFormatException) {
                                         e.printStackTrace()
                                     }

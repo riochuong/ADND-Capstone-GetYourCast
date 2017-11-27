@@ -96,7 +96,7 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
         loadCorrectDownOrPlayImg(episode, holder)
 
         // set on click listener to download file and updat progress
-        setViewHolderOnClickListener(holder, episode, position)
+        setViewHolderOnClickListener(holder, episode)
 
         // set on click listener for episode detail info
         setOnClickListenerForEpisodeInfo(holder, episode)
@@ -145,8 +145,7 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
      * Set viewholder logic for pressing download button or play
      */
     private fun setViewHolderOnClickListener(vh: EpisodeItemViewHolder,
-                                             episode: Episode,
-                                             pos: Int) {
+                                             episode: Episode) {
         if (episode.downloaded == 1) {
             vh.state = ButtonStateUtil.PRESS_TO_PLAY
             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
@@ -155,7 +154,7 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
             vh.downPlayImg.setImageResource(R.mipmap.ic_ep_down)
         }
         // set onclick listener for viewholder
-        vh.downPlayImg.setOnClickListener { v ->
+        vh.downPlayImg.setOnClickListener { _ ->
             when (vh.state) {
                 ButtonStateUtil.PRESS_TO_DOWNLOAD -> {
                     // check if episode is already state or not
@@ -286,7 +285,8 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
             }
             // set episode
             this.episode = episode
-
+            // if episode is downloaded then set its listener for media service
+            if (episode.downloaded == 1) subscribeToMeidaSerivce()
             // subscribe to episode state
             PodcastViewModel.subscribeEpisodeSubject(object : Observer<EpisodeState> {
                 override fun onSubscribe(d: Disposable) {
@@ -382,10 +382,6 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
             fileSize = itemView.findViewById<View>(R.id.episode_file_size) as TextView
             progressView = itemView.findViewById<View>(R.id.circle_progress) as CircleProgress
         }
-    }
-
-    fun getEpisodeList(): List<Episode>? {
-        return episodeList
     }
 
     fun setEpisodeList(episodeList: MutableList<Episode>) {
