@@ -62,4 +62,5 @@
     <string name="btn_subscribe_str">Subscribe to Podcast Button</string>
     <string name="empty_play_list_str">Playlist is empty</string>
     <string name="subscribe_podcast_content">Subscribe this podcast</string>
+    <string name="no_downloaded_episodes_available_str">No Episode Has Been Downloaded !</string>
 </resources>

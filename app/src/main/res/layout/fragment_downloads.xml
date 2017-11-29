@@ -37,10 +37,26 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/downloads_recycler_view"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/downloads_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+        <TextView
+            android:id="@+id/downloaded_empty_view"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:textColor="@color/colorBlack"
+            android:text="@string/no_downloaded_episodes_available_str"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
+
 
 </LinearLayout>
