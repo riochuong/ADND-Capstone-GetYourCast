@@ -9,11 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.github.florent37.glidepalette.BitmapPalette
 
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
+import getyourcasts.jd.com.getyourcasts.util.GlideUtil
 import getyourcasts.jd.com.getyourcasts.view.DownloadsFragment
 import getyourcasts.jd.com.getyourcasts.view.EpisodeInfoActivity
 import getyourcasts.jd.com.getyourcasts.view.glide.GlideApp
@@ -84,16 +86,18 @@ class DownloadedEpisodesAdapter(internal var episodeList: MutableList<Episode>?,
 
                             override fun onNext(podcast: Podcast) {
                                 // now load image to imgview
-                                GlideApp.with(this@DownloadedEpisodesAdapter.fragment.context)
-                                        .load(podcast.imgLocalPath)
-                                        .into(holder.podImg)
+                                GlideUtil.loadImageAndSetColorOfViews(
+                                        this@DownloadedEpisodesAdapter.fragment.context,
+                                        podcast.imgLocalPath,
+                                        holder.podImg,
+                                        holder.mainLayout,
+                                        BitmapPalette.Profile.VIBRANT_DARK
+                                )
                                 holder.mainLayout.setOnClickListener {
                                     // start episode info details layout.
                                     val startEpInfo = Intent(fragment.context,
                                             EpisodeInfoActivity::class.java)
                                     startEpInfo.putExtra(EPISODE_KEY, ep)
-                                    startEpInfo.putExtra(BG_COLOR_KEY, Integer.parseInt(podcast
-                                            .vibrantColor))
                                     startEpInfo.putExtra(PODAST_IMG_KEY, podcast.imgLocalPath)
                                     fragment.context.startActivity(startEpInfo)
                                 }

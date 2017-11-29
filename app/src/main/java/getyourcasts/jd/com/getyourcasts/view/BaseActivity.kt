@@ -108,7 +108,7 @@ open class BaseActivity : AppCompatActivity() {
                                                                         podcast.imgLocalPath,
                                                                         controlViewHolder.podcastImg,
                                                                         playbackControlsFragment!!.mainLayout,
-                                                                        BitmapPalette.Profile.MUTED_DARK
+                                                                        BitmapPalette.Profile.VIBRANT_DARK
                                         )
 
                                 // set content

@@ -250,7 +250,7 @@ class MediaPlayerViewFragment : Fragment() {
                                                     podcast.imgLocalPath,
                                                     exoShutter!!,
                                                     mainLayout!!,
-                                                    BitmapPalette.Profile.MUTED_DARK
+                                                    BitmapPalette.Profile.VIBRANT_DARK
                                             )
                                             if (videoSurfaceView != null && exoShutter != null) {
                                                 videoSurfaceView!!.visibility = View.GONE

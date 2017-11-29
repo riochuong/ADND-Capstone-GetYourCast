@@ -110,7 +110,7 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                                                 it.imgLocalPath.trim(),
                                                 podcastVh.imgView,
                                                 podcastVh.backgroundView,
-                                                BitmapPalette.Profile.MUTED_DARK
+                                                BitmapPalette.Profile.VIBRANT_DARK
                                         )
                                         field = it
                                         status = SUBSCRIBED
@@ -122,7 +122,7 @@ class SearchPodcastRecyclerViewAdapter(podcastList: ArrayList<Podcast>, internal
                                                     value.artworkUrl100,
                                                     podcastVh.imgView,
                                                     podcastVh.backgroundView,
-                                                    BitmapPalette.Profile.MUTED_DARK
+                                                    BitmapPalette.Profile.VIBRANT_DARK
                                                     )
                                         }
                                         field = value

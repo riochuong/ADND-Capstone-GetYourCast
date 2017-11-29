@@ -13,13 +13,10 @@ import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.DownloadListener
-import com.androidnetworking.interfaces.DownloadProgressListener
-import com.androidnetworking.internal.DownloadProgressHandler
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.local.Contract
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
-import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast
 import getyourcasts.jd.com.getyourcasts.util.StorageUtil
 import getyourcasts.jd.com.getyourcasts.view.adapter.MyDownloadProgressListener
 import getyourcasts.jd.com.getyourcasts.viewmodel.EpisodeState
@@ -37,7 +34,7 @@ class DownloadService : Service() {
     private val binder = DownloadServiceBinder()
     private var notifyManager: NotificationManager? = null
     private var viewModel: PodcastViewModel? = null
-    private var notificationMap: MutableMap <String,Pair<Int,NotificationCompat.Builder>> = HashMap()
+    private var notificationMap: MutableMap<String, Pair<Int, NotificationCompat.Builder>> = HashMap()
     private var notiDisposable: Disposable? = null
     private var currNotiId = 0
 
@@ -50,26 +47,31 @@ class DownloadService : Service() {
         AndroidNetworking.initialize(applicationContext)
     }
 
-    private fun initDownloadSubscriberForNotification () {
+    private fun initDownloadSubscriberForNotification() {
         PodcastViewModel.subscribeEpisodeSubject(
-                object: Observer<EpisodeState> {
+                object : Observer<EpisodeState> {
                     override fun onNext(t: EpisodeState) {
-                        val notiBuilder = notificationMap[t.uniqueId]!!.second
-                        val notiId = notificationMap[t.uniqueId]!!.first
-                        when (t.state) {
-                            EpisodeState.EPISODE_DOWNLOADING -> {
-                                notiBuilder!!.setProgress(100, t.downloadProgress, false)
-                                // notify manager
-                                notiBuilder.setContentText(getString(R.string.download_in_prog))
-                                notifyManager!!.notify(notiId, notiBuilder.build())
-                            }
-                            EpisodeState.EPISODE_DOWNLOADED -> {
-                                // notify manager
-                                notiBuilder!!.setContentText(getString(R.string.download_complete))
-                                notifyManager!!.notify(notiId, notiBuilder.build())
-                            }
+                        if (t.uniqueId in notificationMap) {
+                            val notiBuilder = notificationMap[t.uniqueId]!!.second
+                            val notiId = notificationMap[t.uniqueId]!!.first
+                            when (t.state) {
+                                EpisodeState.EPISODE_DOWNLOADING -> {
+                                    notiBuilder!!.setProgress(100, t.downloadProgress, false)
+                                    // notify manager
+                                    notiBuilder.setContentText(getString(R.string.download_in_prog))
+                                    notifyManager!!.notify(notiId, notiBuilder.build())
+                                }
+                                EpisodeState.EPISODE_DOWNLOADED -> {
+                                    // notify manager
+                                    // hide progress bar
+                                    notiBuilder.setProgress(0, 0, false)
+                                    notiBuilder!!.setContentText(getString(R.string.download_complete))
+                                    notifyManager!!.notify(notiId, notiBuilder.build())
+                                }
 
+                            }
                         }
+
                     }
 
                     override fun onComplete() {
@@ -135,7 +137,7 @@ class DownloadService : Service() {
      * will be enqued and the id for the request will be returned
      * @return: -1 if failed to enqueue otherwise valid Id will be returned
      */
-     fun requestDownLoad (episode: Episode,
+    fun requestDownLoad(episode: Episode,
                         dirPath: String,
                         filename: String): Long {
         if (!NetworkHelper.isConnectedToNetwork(this)) {
@@ -153,7 +155,7 @@ class DownloadService : Service() {
         // remove duplicate filename in the db
         StorageUtil.cleanUpOldFile(episode, this)
         // register complete listener action
-        req.startDownload( object: DownloadListener {
+        req.startDownload(object : DownloadListener {
             override fun onDownloadComplete() {
                 val cvUpdate = ContentValues()
                 cvUpdate.put(Contract.EpisodeTable.LOCAL_URL, "$dirPath/$filename")
@@ -234,7 +236,7 @@ class DownloadService : Service() {
         // register notification progress
         val notiBuilder = buildProgressNotification(episode.title)
         notiBuilder.build()
-        notificationMap.put(episode.uniqueId,  Pair(currNotiId++, notiBuilder))
+        notificationMap.put(episode.uniqueId, Pair(currNotiId++, notiBuilder))
         return 1L
     }
 

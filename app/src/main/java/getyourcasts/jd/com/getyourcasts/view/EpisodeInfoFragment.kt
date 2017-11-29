@@ -477,7 +477,7 @@ class EpisodeInfoFragment : Fragment() {
                 imgUrl!!,
                 ep_info_img,
                 ep_info_app_bar,
-                BitmapPalette.Profile.MUTED_DARK
+                BitmapPalette.Profile.VIBRANT_DARK
                 )
     }
 

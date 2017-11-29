@@ -267,7 +267,7 @@ class PodcastDetailsFragment : Fragment() {
                     pod.imgLocalPath,
                     podcast_detail_img,
                     podcast_detail_appbar,
-                    BitmapPalette.Profile.MUTED_DARK
+                    BitmapPalette.Profile.VIBRANT_DARK
             )
         } else {
             GlideUtil.loadImageAndSetColorOfViews(
@@ -275,7 +275,7 @@ class PodcastDetailsFragment : Fragment() {
                     pod.artworkUrl100,
                     podcast_detail_img,
                     podcast_detail_appbar,
-                    BitmapPalette.Profile.MUTED_DARK
+                    BitmapPalette.Profile.VIBRANT_DARK
             )
         }
     }

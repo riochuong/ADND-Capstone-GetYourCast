@@ -43,6 +43,7 @@
             android:layout_toLeftOf="@id/download_remove_img"
             android:layout_margin="@dimen/tiny_margin"
             android:layout_centerVertical="true"
+            android:textColor="@color/colorWhite"
             tools:text="John Doe and Band and TOM amd TONY abcsedfgefefefd"
             android:ellipsize="end"
             android:maxLines="2"

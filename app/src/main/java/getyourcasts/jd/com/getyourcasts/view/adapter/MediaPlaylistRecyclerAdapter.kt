@@ -99,7 +99,7 @@ class MediaPlaylistRecyclerAdapter(val playListFragment: PlayListFragment) :
                                                 podcast.imgLocalPath,
                                                 podcastImg,
                                                 itemView,
-                                                BitmapPalette.Profile.MUTED_DARK)
+                                                BitmapPalette.Profile.VIBRANT_DARK)
                                     }
 
                                     override fun onError(e: Throwable) {

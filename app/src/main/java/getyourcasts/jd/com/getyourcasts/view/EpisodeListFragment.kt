@@ -195,7 +195,7 @@ class EpisodeListFragment : Fragment(), MediaServiceBoundListener, PopupMenu.OnM
                                             podcast!!.imgLocalPath,
                                             episode_podcast_img,
                                             podcast_detail_appbar,
-                                            BitmapPalette.Profile.MUTED_DARK
+                                            BitmapPalette.Profile.VIBRANT_DARK
                                         )
     }
 
