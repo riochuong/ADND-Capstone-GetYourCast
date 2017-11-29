@@ -234,7 +234,7 @@ open class BaseActivity : AppCompatActivity() {
                             }
                         }
                         MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST -> {
-                            // do nothing here for now
+                            // d
                         }
                         // info.first will be null here
                         MediaPlayBackService.MEDIA_PLAYLIST_EMPTY -> this@BaseActivity.hidePlaybackControls()

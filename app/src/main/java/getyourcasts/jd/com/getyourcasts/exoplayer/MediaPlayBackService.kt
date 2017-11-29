@@ -63,6 +63,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
 
     private val binder = MediaPlayBackServiceBinder()
     private var playListRemoveDisposable: Disposable? = null
+    private var episodeStateDisposable: Disposable? = null
 
     /*Simple fields for playlist management*/
     private var playList: MutableList<Episode> = ArrayList()
@@ -131,6 +132,8 @@ class MediaPlayBackService : Service(), Player.EventListener {
 
             override fun onNext(info: Pair<Episode?, Int>) {
                 val state = info.second
+                // avoid restart error when media playlist is invalid state
+                if (currEpisodePos < 0) return
                 when (state) {
                     MEDIA_PLAYING -> PodcastViewModel.getInstance(DataSourceRepo.getInstance(this@MediaPlayBackService))
                             .getPodcastObservable(playList!![currEpisodePos].podcastId)
@@ -271,7 +274,8 @@ class MediaPlayBackService : Service(), Player.EventListener {
             // subscribe to EpisodeState
             PodcastViewModel.subscribeEpisodeSubject(object : Observer<EpisodeState> {
                 override fun onSubscribe(d: Disposable) {
-
+                    if (episodeStateDisposable != null) episodeStateDisposable!!.dispose()
+                    episodeStateDisposable = d
                 }
 
                 override fun onNext(episodeState: EpisodeState) {
@@ -427,6 +431,11 @@ class MediaPlayBackService : Service(), Player.EventListener {
         if (playListRemoveDisposable != null) {
             playListRemoveDisposable!!.dispose()
             playListRemoveDisposable = null
+        }
+
+        if (episodeStateDisposable != null) {
+            episodeStateDisposable!!.dispose()
+            episodeStateDisposable = null
         }
         super.onDestroy()
     }
