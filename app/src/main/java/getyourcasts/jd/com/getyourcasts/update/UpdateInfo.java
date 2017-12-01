@@ -17,14 +17,6 @@ import getyourcasts.jd.com.getyourcasts.repository.remote.data.Podcast;
 public class UpdateInfo implements Parcelable {
     private Map<Podcast, List<Episode>> updateList;
 
-    UpdateInfo(Map<Podcast, List<Episode>> updateList) {
-        this.updateList = updateList;
-    }
-
-    public Map<Podcast, List<Episode>> getUpdateList() {
-        return updateList;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -41,7 +33,7 @@ public class UpdateInfo implements Parcelable {
 
     protected UpdateInfo(Parcel in) {
         int updateListSize = in.readInt();
-        this.updateList = new HashMap<Podcast, List<Episode>>(updateListSize);
+        this.updateList = new HashMap<>(updateListSize);
         for (int i = 0; i < updateListSize; i++) {
             Podcast key = in.readParcelable(Podcast.class.getClassLoader());
             List<Episode> value = in.createTypedArrayList(Episode.CREATOR);
