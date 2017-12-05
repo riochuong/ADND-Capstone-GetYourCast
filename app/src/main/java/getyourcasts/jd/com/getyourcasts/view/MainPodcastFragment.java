@@ -57,11 +57,11 @@ public class MainPodcastFragment extends Fragment implements LoaderManager.Loade
         adapter = new PodcastMainViewAdapter(new ArrayList<>(), this);
         View root = inflater.inflate(R.layout.fragment_main_podcast, container, false);
         subscribed_podcast_recyclerview =
-                (RecyclerView) root.findViewById(R.id.subscribed_podcast_recyclerview);
-        search_podcast_btn = (ImageView) root.findViewById(R.id.search_podcast_btn);
-        nv_drawer = (NavigationView) root.findViewById(R.id.navigation_pane);
-        drawerLayout = (DrawerLayout) root.findViewById(R.id.drawer_layout);
-        show_nv_pane_btn = (ImageView) root.findViewById(R.id.show_nv_pane_btn);
+                root.findViewById(R.id.subscribed_podcast_recyclerview);
+        search_podcast_btn = root.findViewById(R.id.search_podcast_btn);
+        nv_drawer = root.findViewById(R.id.navigation_pane);
+        drawerLayout = root.findViewById(R.id.drawer_layout);
+        show_nv_pane_btn = root.findViewById(R.id.show_nv_pane_btn);
         loaderManager = getActivity().getSupportLoaderManager();
 
         if (nv_drawer != null) {setupDrawerListener();}

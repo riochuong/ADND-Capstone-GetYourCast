@@ -85,7 +85,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/cardview_dark_background"
-        app:headerLayout="@layout/drawer_header"
+        android:background="@color/colorBlackTransparent"
         app:menu="@menu/drawer" />
 </android.support.v4.widget.DrawerLayout>
