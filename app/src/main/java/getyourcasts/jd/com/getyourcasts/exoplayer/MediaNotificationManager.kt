@@ -116,8 +116,10 @@ class MediaNotificationManager (private val mediaPlaybackService: MediaPlayBackS
     }
 
     private fun createContentIntent(ctx: Context): PendingIntent {
+        val launchMediaPlayer = Intent(ctx, MediaPlayerActivity::class.java)
+        launchMediaPlayer.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         return  PendingIntent.getActivity(ctx, REQUEST_CODE,
-                Intent(ctx, MediaPlayerActivity::class.java), PendingIntent.FLAG_CANCEL_CURRENT)
+                launchMediaPlayer, PendingIntent.FLAG_CANCEL_CURRENT)
     }
 
     private fun getIntentFilterForActions(): IntentFilter {
