@@ -176,14 +176,12 @@ class MediaPlayerViewFragment : Fragment() {
             }
 
             override fun onNext(info: Pair<Episode?, Int>) {
-                if (info.first == null) {
-                    return
-                }
                 val state = info.second
                 when (state) {
-                    MediaPlayBackService.MEDIA_STOPPED, MediaPlayBackService.MEDIA_PAUSE, MediaPlayBackService.MEDIA_PLAYING -> {
-                        val epId = info.first!!.uniqueId
-                        if (currentEpisode == null || currentEpisode!!.uniqueId != epId) {
+                    MediaPlayBackService.MEDIA_STOPPED,
+                    MediaPlayBackService.MEDIA_PAUSE,
+                    MediaPlayBackService.MEDIA_PLAYING -> {
+                        if (currentEpisode == null || currentEpisode!!.uniqueId != info.first?.uniqueId ?:false ) {
                             reloadCorrectDataForFragment(info)
                         }
                     }

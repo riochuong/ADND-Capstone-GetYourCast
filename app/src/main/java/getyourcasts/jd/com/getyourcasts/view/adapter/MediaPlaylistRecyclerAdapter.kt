@@ -82,8 +82,8 @@ class MediaPlaylistRecyclerAdapter(val playListFragment: PlayListFragment) :
             set(value) {
                 field = value
                 val datePub = TimeUtil.parseDatePub(value!!.pubDate)
-                epDate.text = "${datePub!!.month},${datePub.dayOfMonth},${datePub.year}"
-                epName.text = value!!.title
+                epDate.text = "${datePub!!.month} ${datePub.dayOfMonth} ${datePub.year}"
+                epName.text = value.title
                 viewModel.getPodcastObservable(value.podcastId)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

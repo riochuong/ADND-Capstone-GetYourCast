@@ -50,10 +50,6 @@ class GetYourCastWidgetProvider : AppWidgetProvider() {
         // There may be multiple widgets active, so update all of them
 
     }
-    override fun onRestored(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {
-        super.onRestored(context, oldWidgetIds, newWidgetIds)
-    }
-
 
 
     companion object {

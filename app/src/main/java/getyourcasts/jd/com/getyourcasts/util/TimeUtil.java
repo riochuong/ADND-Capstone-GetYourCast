@@ -20,7 +20,7 @@ public final class TimeUtil {
         return Calendar.getInstance().get(Calendar.MILLISECOND) + "";
     }
 
-    private static final String datePatternStr = "^(.*),\\s*([0-9][0-9])\\s*([A-Z]*[a-z]*)\\s*([0-9]*)";
+    private static final String datePatternStr = "^(.*),\\s*([0-9]*[0-9])\\s*([A-Z]*[a-z]*)\\s*([0-9]*)";
 
     private static final Pattern datePattern = Pattern.compile(datePatternStr);
 
@@ -38,7 +38,6 @@ public final class TimeUtil {
         if (found) {
             return new DatePub(matcher.group(2), matcher.group(3), matcher.group(4));
         }
-
         return null;
     }
 

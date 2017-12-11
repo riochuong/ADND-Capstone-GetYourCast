@@ -6,18 +6,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationCompat.Builder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.support.v7.app.NotificationCompat
 import android.util.Log
 import android.util.Pair
-
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.Timeline
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
@@ -29,9 +24,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-
-import java.util.ArrayList
-
 import getyourcasts.jd.com.getyourcasts.R
 import getyourcasts.jd.com.getyourcasts.repository.remote.DataSourceRepo
 import getyourcasts.jd.com.getyourcasts.repository.remote.data.Episode
@@ -47,6 +39,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import java.util.*
 
 
 /**
@@ -64,6 +57,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
     private val binder = MediaPlayBackServiceBinder()
     private var playListRemoveDisposable: Disposable? = null
     private var episodeStateDisposable: Disposable? = null
+    private lateinit var mediaNotificationManager: MediaNotificationManager
 
     /*Simple fields for playlist management*/
     private var playList: MutableList<Episode> = ArrayList()
@@ -199,9 +193,9 @@ class MediaPlayBackService : Service(), Player.EventListener {
                 // just need to update curr episode here
                 currEpisodePos = findIndexFromList(currentEp)
             } else if (index == currEpisodePos) {
-                if (!playList!!.isEmpty()) {
+                if (!playList.isEmpty()) {
                     currEpisodePos = if (currEpisodePos == playList!!.size - 1) 0 else currEpisodePos
-                    playMediaFileAtIndex(currEpisodePos)
+                    changeCurentPlayingSongTo(currEpisodePos,false)
                 } else {
                     // playlist is empty here
                     stopPlayback()
@@ -220,18 +214,13 @@ class MediaPlayBackService : Service(), Player.EventListener {
         return -1
     }
 
-    private fun startServiceAsForeground() {
-        startForeground(NOTIFICATION_ID, buildForegroundNotification())
-    }
 
     /**
      * build notification to let user know apps is playing music
      */
-    private fun buildForegroundNotification(): Notification {
-        val builder = NotificationCompat.Builder(this)
-        builder.setOngoing(true)
-                .setContentTitle(playList!![currEpisodePos].title)
-                .setSmallIcon(R.mipmap.ic_play_white)
+    private fun buildForegroundNotification(builder: NotificationCompat.Builder): Notification {
+        builder .setContentTitle(playList[currEpisodePos].title)
+                .setSmallIcon(R.mipmap.ic_media_play)
         return builder.build()
     }
 
@@ -250,6 +239,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
                         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_STOP
         )
         mediaSession.setPlaybackState(stateBuilder.build())
+        mediaSession.isActive = true
         return MediaSessionConnector(mediaSession)
     }
 
@@ -264,6 +254,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
         mediaSessionConn = buildMediaSession()
         dataSourceFactory = buildDataSource()
         extractorFactory = buildExtractorFactory()
+        mediaNotificationManager = MediaNotificationManager(this)
         playList = ArrayList()
         initMediaPlaybackObserver()
     }
@@ -310,12 +301,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
                             when (podcastState.state) {
                                 PodcastState.UNSUBSCRIBED -> {
                                     // check if current episode is belong to this unsubscribed one
-                                    val removedItems = ArrayList<Episode>()
-                                    for (ep in playList!!) {
-                                        if (ep.podcastId == podcastState.uniqueId) {
-                                            removedItems.add(ep)
-                                        }
-                                    }
+                                    val removedItems = playList.filter { it.podcastId == podcastState.uniqueId }
                                     // remove each item from list
                                     for (ep in removedItems) {
                                         publishMediaPlaybackSubject(ep, MEDIA_REMOVED_FROM_PLAYLIST)
@@ -367,7 +353,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
                 WIDGET_ACTION_PLAY -> if (exoPlayer != null) {
                     resumePlayback()
                 } else if (currEpisodePos < 0 && !playList!!.isEmpty()) {
-                    playMediaFileAtIndex(0)
+                    changeCurentPlayingSongTo(0,true)
                 } else {
                     MediaPlayBackService.publishMediaPlaybackSubject(null, MediaPlayBackService
                             .MEDIA_PLAYLIST_EMPTY)
@@ -425,6 +411,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
         }
         // clean up media session
         if (mediaSessionConn != null) {
+            mediaSessionConn!!.mediaSession.isActive= false
             mediaSessionConn!!.mediaSession.release()
         }
 
@@ -459,7 +446,6 @@ class MediaPlayBackService : Service(), Player.EventListener {
             currEpisodePos = 0
             addTrackToPlaylist(episode, 0)
             if (currEpisodePos >= 0) publishMediaPlaybackSubject(playList!![currEpisodePos], MEDIA_STOPPED)
-            startServiceAsForeground()
             exoPlayer!!.prepare(buildMediaSourceFromUrl(episode.localUrl))
         }
     }
@@ -472,6 +458,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
         prepareMediaFile(episode)
         if (episode != null) {
             exoPlayer!!.playWhenReady = true
+            mediaNotificationManager.startNotification(episode, MEDIA_PLAYING)
         }
     }
 
@@ -481,15 +468,14 @@ class MediaPlayBackService : Service(), Player.EventListener {
      * @param index
      */
     @Synchronized
-    fun playMediaFileAtIndex(index: Int) {
+    private fun changeCurentPlayingSongTo(index: Int, setPlayWhenrReady: Boolean) {
         stopPlayback()
         initExoPlayer()
         exoPlayer!!.addListener(this)
         if (index >= 0 && index < playList!!.size) {
             currEpisodePos = index
-            startServiceAsForeground()
             exoPlayer!!.prepare(buildMediaSourceFromUrl(playList!![index].localUrl))
-            exoPlayer!!.playWhenReady = true
+            exoPlayer!!.playWhenReady = setPlayWhenrReady
             publishMediaPlaybackSubject(playList!![currEpisodePos], MEDIA_TRACK_CHANGED)
         }
     }
@@ -498,7 +484,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
     fun playEpisodeInPlayList(ep: Episode) {
         val index = findEpisodeIndexInPlaylist(ep)
         if (index >= 0) {
-            playMediaFileAtIndex(index)
+            changeCurentPlayingSongTo(index, true)
         }
     }
 
@@ -588,20 +574,25 @@ class MediaPlayBackService : Service(), Player.EventListener {
 
     }
 
+    fun getSessionToken() : MediaSessionCompat.Token? {
+        return mediaSessionConn?.mediaSession?.sessionToken
+    }
+
     @Synchronized
     fun playNextSongInPlaylist() {
-        playMediaFileAtIndex(nextMediaFile)
+        changeCurentPlayingSongTo(nextMediaFile,true)
     }
 
     @Synchronized
     fun playPreviousSongInPlaylist() {
-        playMediaFileAtIndex(prevMediaFile)
+        changeCurentPlayingSongTo(prevMediaFile, true)
     }
 
     @Synchronized
     fun pausePlayback() {
         if (exoPlayer != null) {
             exoPlayer!!.playWhenReady = false
+            mediaNotificationManager.startNotification(playList[currEpisodePos], MEDIA_PAUSE)
         }
     }
 
@@ -609,6 +600,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
     fun resumePlayback() {
         if (exoPlayer != null) {
             exoPlayer!!.playWhenReady = true
+            mediaNotificationManager.startNotification(playList[currEpisodePos], MEDIA_PLAYING)
         }
     }
 
@@ -641,17 +633,17 @@ class MediaPlayBackService : Service(), Player.EventListener {
             when (playbackState) {
 
                 Player.STATE_READY -> if (exoPlayer!!.playWhenReady) {
-                    publishMediaPlaybackSubject(playList!![currEpisodePos], MEDIA_PLAYING)
+                    publishMediaPlaybackSubject(playList[currEpisodePos], MEDIA_PLAYING)
                 } else {
-                    publishMediaPlaybackSubject(playList!![currEpisodePos], MEDIA_PAUSE)
+                    publishMediaPlaybackSubject(playList[currEpisodePos], MEDIA_PAUSE)
                 }
 
                 Player.STATE_BUFFERING -> {
                 }
                 Player.STATE_ENDED ->
                     // now pick and play next song !!!
-                    playMediaFileAtIndex(nextMediaFile)
-                Player.STATE_IDLE -> publishMediaPlaybackSubject(playList!![currEpisodePos], MEDIA_STOPPED)
+                    changeCurentPlayingSongTo(nextMediaFile, true)
+                Player.STATE_IDLE -> publishMediaPlaybackSubject(playList[currEpisodePos], MEDIA_STOPPED)
             }
         }
     }
@@ -691,10 +683,6 @@ class MediaPlayBackService : Service(), Player.EventListener {
             exoPlayer!!.playWhenReady = false
         }
 
-        override fun onSkipToNext() {
-            super.onSkipToNext()
-        }
-
         override fun onSkipToPrevious() {
             exoPlayer!!.seekTo(0)
         }
@@ -709,6 +697,7 @@ class MediaPlayBackService : Service(), Player.EventListener {
 
 
         private val TAG = MediaPlayBackService::class.java.simpleName
+        private val MEDIA_CHANNEL = "mChannel"
         private val NOTIFICATION_ID = 1990
 
         // state of the playback
@@ -740,5 +729,6 @@ class MediaPlayBackService : Service(), Player.EventListener {
         fun publishMediaPlaybackSubject(episode: Episode?, state: Int) {
             MediaPlaybackSubject.onNext(Pair(episode, state))
         }
+
     }
 }

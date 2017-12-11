@@ -63,4 +63,8 @@
     <string name="empty_play_list_str">Playlist is empty</string>
     <string name="subscribe_podcast_content">Subscribe this podcast</string>
     <string name="no_downloaded_episodes_available_str">No Episode Has Been Downloaded !</string>
+    <string name="notification_play">Notification Play Button</string>
+    <string name="notification_prev">notification previous</string>
+    <string name="notification_next">Notification Next Button</string>
+    <string name="notification_pause">Notification Pause Button</string>
 </resources>

@@ -352,20 +352,29 @@ class EpisodesRecyclerViewAdapter(private var episodeList: MutableList<Episode>,
                 override fun onNext(info: android.util.Pair<Episode?, Int>) {
                     val ep = info.first
                     val vh = this@EpisodeItemViewHolder
-                    if (ep != null && ep.uniqueId == vh.episode!!.uniqueId) {
+                    if (ep != null) {
                         val state = info.second
                         when (state) {
                             MediaPlayBackService.MEDIA_PAUSE -> {
-                                vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE
-                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                if (ep.uniqueId == vh.episode?.uniqueId) {
+                                    vh.state = ButtonStateUtil.PRESS_TO_UNPAUSE
+                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                }
                             }
                             MediaPlayBackService.MEDIA_PLAYING -> {
-                                vh.state = ButtonStateUtil.PRESS_TO_PAUSE
-                                vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list)
+                                if (ep.uniqueId == vh.episode?.uniqueId) {
+                                    vh.state = ButtonStateUtil.PRESS_TO_PAUSE
+                                    vh.downPlayImg.setImageResource(R.mipmap.ic_pause_for_list)
+                                } else{
+                                    vh.state = ButtonStateUtil.PRESS_TO_PLAY
+                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                }
                             }
                             MediaPlayBackService.MEDIA_REMOVED_FROM_PLAYLIST, MediaPlayBackService.MEDIA_STOPPED -> {
-                                vh.state = ButtonStateUtil.PRESS_TO_PLAY
-                                vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                if (ep.uniqueId == vh.episode?.uniqueId) {
+                                    vh.state = ButtonStateUtil.PRESS_TO_PLAY
+                                    vh.downPlayImg.setImageResource(R.mipmap.ic_ep_play)
+                                }
                             }
                         }
                     }
